@@ -3,7 +3,7 @@
 ;;
 ;; Author: Shi Tianshu
 ;; Keywords: input method, rime
-;; Package-Requires: ((emacs "26.3"))
+;; Package-Requires: ((emacs "26.3") (dash "2.12.0") (cl-lib "1.0") (popup "0.5.3"))
 ;;
 ;; This file is not part of GNU Emacs.
 
@@ -49,6 +49,17 @@
 ;;     (("C-\\" . 'rime-toggle)))
 ;; #+END_SRC
 ;;
+;; * 候选项展示
+;;
+;; 设置 ~rime-show-candidate~ 。
+;;
+;; | 可选值       | 说明                                                      |
+;; |--------------+-----------------------------------------------------------|
+;; | ~nil~        | 不展示                                                    |
+;; | ~minibuffer~ | 在minibuffer中展示， 推荐使用的方式                       |
+;; | ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件 |
+;; | ~popup~      | 使用 ~popup.el~ 展示跟随的候选                            |
+;;
 ;; * 用于展示的提示符
 ;;
 ;; 使用函数 ~(rime-lighter)~ 返回一个用于展示的 ~ㄓ~ 符号。
@@ -81,6 +92,10 @@
 ;;
 ;; 你可能需要 [[https://github.com/tumashu/pyim][pyim]], [[https://github.com/merrickluo/liberime][liberime]], [[https://github.com/QiangF/liberime][erime]].
 
+(require 'subr-x)
+(require 'dash)
+(require 'cl-lib)
+(require 'popup nil t)
 
 ;;; Code:
 
@@ -108,13 +123,6 @@
   "提示符的样式"
   :group 'rime)
 
-(require 'posframe nil t)
-
-(defvar rime--posframe-buffer-name "*rime--candidate-posframe*")
-
-(defvar rime--candidate-posframe-position nil)
-(defvar rime--candidate-overlay nil)
-
 ;;; 只要`input-method-function'有定义就会被使用。而启用输入法只生效在当前`buffer'
 ;;; 所以需要这些变量为`buffer-local'，
 (make-variable-buffer-local 'input-method-function)
@@ -128,7 +136,7 @@
 (defcustom rime-show-candidate 'minibuffer
   "是否在`minibuffer'中显示候选列表。"
   :type 'symbol
-  :options '(minibuffer posframe overlay)
+  :options '(minibuffer message popup)
   :group 'rime)
 
 (make-variable-buffer-local
@@ -169,56 +177,29 @@
 (defun rime--should-enable-p ()
   (not (seq-find 'funcall rime-disable-predicates)))
 
-(defun rime--posframe-display-result (result)
-  (when (posframe-workable-p)
-    (cond
-     ((string-blank-p result)
-      (posframe-hide rime--posframe-buffer-name))
-     ((equal (point) rime--candidate-posframe-position)
-      (posframe-show rime--posframe-buffer-name :string result :position (point)))
-     (t
-      (posframe-show rime--posframe-buffer-name :string result :position (point))
-      (setq rime--candidate-posframe-position (point))))))
-
-(defun rime--overlay-display-result (result)
-  (when (overlayp rime--candidate-overlay) (delete-overlay rime--candidate-overlay))
-  (unless (string-blank-p result)
-    (let* ((shift-width (current-column))
-           (candidate-width (string-width result))
-           (width (if (> (+ candidate-width shift-width) (window-width))
-                      (- (window-width) candidate-width)
-                    shift-width))
-           (beg (save-mark-and-excursion (forward-line) (line-beginning-position)))
-           (end (save-mark-and-excursion (forward-line) (line-end-position)))
-           (pre ""))
-      (cl-loop for i from 0 to width do
-               (setq pre (concat pre " ")))
-
-      (if (= beg end)
-          (progn
-            (setq rime--candidate-overlay (make-overlay beg beg))
-            (overlay-put rime--candidate-overlay 'after-string (concat pre result)))
-        (setq rime--candidate-overlay (make-overlay beg end))
-        (overlay-put rime--candidate-overlay 'display (concat pre result))))))
+(defun rime--minibuffer-display-result (result)
+  (with-selected-window (minibuffer-window)
+	(erase-buffer)
+	(insert result)))
 
 (defun rime--show-candidate ()
-  (when rime-show-candidate
-    (let* ((context (liberime-get-context))
-           (candidates (alist-get 'candidates (alist-get 'menu context)))
-           (preedit (alist-get 'preedit (alist-get 'composition context)))
-           (idx 1)
-           (result ""))
-      (when context
+  (let* ((context (liberime-get-context))
+         (candidates (alist-get 'candidates (alist-get 'menu context)))
+         (preedit (alist-get 'preedit (alist-get 'composition context)))
+         (idx 1)
+         (result ""))
+    (when context
+      (setq result
+            (concat result (format "%s: " preedit)))
+      (dolist (c candidates)
         (setq result
-              (concat result (format "%s: " preedit)))
-        (dolist (c candidates)
-          (setq result
-                (concat result (format "%d. %s " idx c)))
-          (setq idx (1+ idx))))
-      (case rime-show-candidate
-        (overlay (rime--overlay-display-result result))
-        (posframe (rime--posframe-display-result result))
-        (t (message result))))))
+              (concat result (format "%d. %s " idx c)))
+        (setq idx (1+ idx))))
+    (case rime-show-candidate
+      (minibuffer (rime--minibuffer-display-result result))
+      (message (message result))
+      (popup (popup-tip result))
+      (t))))
 
 (defun rime--clear-overlay ()
   (when (overlayp rime--preedit-overlay)
@@ -233,8 +214,11 @@
     ;; Create the new preedit
     (when preedit
       (setq rime--preedit-overlay (make-overlay (point) (point)))
-      (overlay-put rime--preedit-overlay 'before-string
-                   (propertize preedit 'face 'rime-preedit-face)))))
+      (overlay-put rime--preedit-overlay 'after-string (propertize preedit 'face 'rime-preedit-face)))))
+
+(defun rime--redisplay ()
+  (rime--display-preedit)
+  (rime--show-candidate))
 
 (defun rime--backspace ()
   (interactive)
@@ -245,8 +229,7 @@
       (if (not context)
           (call-interactively rime--backspace-fallback)
         (liberime-process-key 65288)
-        (rime--display-preedit)
-        (rime--show-candidate)
+        (rime--redisplay)
         (setq-local rime--prev-preedit
               (thread-last (liberime-get-context)
                 (alist-get 'composition)
@@ -261,8 +244,7 @@
       (if (not context)
           (call-interactively rime--escape-fallback)
         (liberime-clear-composition)
-        (rime--display-preedit)
-        (rime--show-candidate)
+        (rime--redisplay)
         (setq-local rime--prev-preedit nil)))))
 
 (defun rime--return ()
@@ -285,8 +267,7 @@
             (liberime-clear-composition))
         (liberime-clear-composition)
         (setq-local rime--prev-preedit nil)
-        (rime--show-candidate)
-        (rime--clear-overlay)
+        (rime--redisplay)
         (call-interactively rime--return-fallback)))))
 
 (defun rime-input-method (key)
@@ -308,8 +289,7 @@
                     (liberime-clear-composition)
                     (dolist (c (mapcar 'identity rime--prev-preedit))
                       (liberime-process-key c))
-                    (rime--display-preedit)
-                    (rime--show-candidate)
+                    (rime--redisplay)
                     (setq preedit
                           (thread-last (liberime-get-context)
                             (alist-get 'composition)
@@ -319,8 +299,7 @@
              (commit
               (rime--clear-overlay)
               (mapcar 'identity commit))
-             (t (rime--display-preedit)
-                (rime--show-candidate)))
+             (t (rime--redisplay)))
           (setq-local rime--prev-preedit preedit))))))
 
 (defun rime--clean-state ()
@@ -421,12 +400,10 @@
     (setq-local rime--return-fallback (key-binding (kbd "RET"))))
   (unless rime--escape-fallback
     (setq-local rime--escape-fallback (key-binding (kbd "<escape>"))))
-  (add-hook 'post-self-insert-hook 'rime--show-candidate nil t)
-  (add-hook 'post-self-insert-hook 'rime--display-preedit nil t))
+  (add-hook 'post-self-insert-hook 'rime--redisplay nil t))
 
 (defun rime-mode--uninit ()
-  (remove-hook 'post-self-insert-hook 'rime--display-preedit)
-  (remove-hook 'post-self-insert-hook 'rime--show-candidate))
+  (remove-hook 'post-self-insert-hook 'rime--redisplay))
 
 (define-minor-mode rime-mode
   "仅用于提供输入法激活状态下的按键绑定。

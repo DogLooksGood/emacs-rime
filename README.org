@@ -25,6 +25,17 @@
     (("C-\\" . 'rime-toggle)))
 #+END_SRC
 
+* 候选项展示
+
+设置 ~rime-show-candidate~ 。
+
+| 可选值     | 说明                                                  |
+|------------+-------------------------------------------------------|
+| ~nil~        | 不展示                                                |
+| ~minibuffer~ | 在minibuffer中展示， 推荐使用的方式                   |
+| ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件 |
+| ~popup~      | 使用 ~popup.el~ 展示跟随的候选                          |
+
 * 用于展示的提示符
 
 使用函数 ~(rime-lighter)~ 返回一个用于展示的 ~ㄓ~ 符号。 
