@@ -156,10 +156,6 @@
    "记录之前的`escape'绑定的函数，在`rime-update-binding'中会被刷新。"))
 
 (make-variable-buffer-local
- (defvar rime--enable nil
-   "当前`buffer'中是否激活输入法。"))
-
-(make-variable-buffer-local
  (defvar rime--prev-preedit nil
    "之前的`preedit'，在`liberime'中如果出现空码，状态会被清空。保存之前的`preedit'用于在空码的情况下进行恢复。"))
 
@@ -233,7 +229,8 @@
         (setq-local rime--prev-preedit
               (thread-last (liberime-get-context)
                 (alist-get 'composition)
-                (alist-get 'preedit)))))))
+                (alist-get 'preedit))))))
+  (rime--refresh-mode-state))
 
 (defun rime--escape ()
   (interactive)
@@ -245,7 +242,8 @@
           (call-interactively rime--escape-fallback)
         (liberime-clear-composition)
         (rime--redisplay)
-        (setq-local rime--prev-preedit nil)))))
+        (setq-local rime--prev-preedit nil))))
+  (rime--refresh-mode-state))
 
 (defun rime--return ()
   "回车的行为：
@@ -268,7 +266,8 @@
         (liberime-clear-composition)
         (setq-local rime--prev-preedit nil)
         (rime--redisplay)
-        (call-interactively rime--return-fallback)))))
+        (call-interactively rime--return-fallback))))
+  (rime--refresh-mode-state))
 
 (defun rime-input-method (key)
   (if (and (not (rime--should-enable-p))
@@ -300,6 +299,7 @@
               (rime--clear-overlay)
               (mapcar 'identity commit))
              (t (rime--redisplay)))
+          (rime--refresh-mode-state)
           (setq-local rime--prev-preedit preedit))))))
 
 (defun rime--clean-state ()
@@ -308,25 +308,13 @@
   (when (overlayp rime--preedit-overlay)
     (delete-overlay rime--preedit-overlay)
     (setq-local rime--preedit-overlay nil))
-  (setq-local rime--prev-preedit nil))
+  (setq-local rime--prev-preedit nil)
+  (rime--refresh-mode-state))
 
-(defun rime-update-binding (&rest args)
-  "更新输入法的按键绑定，记录原本`RET'和`DEL'的功能。
-
-所有的参数会被忽略，为了可以放在任何`hook'上。"
-  (if rime--enable
-      (progn
-        (rime--clean-state)
-        (rime-mode -1)
-        (setq-local rime--backspace-fallback (key-binding (kbd "DEL")))
-        (setq-local rime--escape-fallback (key-binding (kbd "<escape>")))
-        (setq-local rime--return-fallback (key-binding (kbd "RET")))
-        (rime-mode 1))
-    (progn
-      (set-input-method nil)
-      (setq-local rime--backspace-fallback nil)
-      (setq-local rime--return-fallback nil)
-      (rime-mode -1))))
+(defun rime--refresh-mode-state ()
+  (if (liberime-get-context)
+      (rime-mode 1)
+    (rime-mode -1)))
 
 ;;;###autoload
 (defun rime-register-and-set-default ()
@@ -361,7 +349,7 @@
   "返回一个可以用于展示在`modeline'的ㄓ符号。
 
 在激活/非激活的情况下使用不同的`face'。"
-  (if rime--enable
+  (if (equal current-input-method "rime")
       (if (rime--should-enable-p)
           (propertize
            " ㄓ"
@@ -377,16 +365,11 @@
   (setq input-method-function 'rime-input-method
         deactivate-current-input-method-function #'rime-deactivate)
   (liberime-clear-composition)
-  (setq-local rime--enable t)
   (setq-local rime--prev-preedit nil)
-  (rime-update-binding)
-  (rime-mode 1)
   (message "Rime activate."))
 
 (defun rime-deactivate ()
   (rime--clean-state)
-  (setq-local rime--enable nil)
-  (rime-mode -1)
   (message "Rime deactivate."))
 
 (defvar rime-mode-map
@@ -397,15 +380,18 @@
         keymap))
 
 (defun rime-mode--init ()
-  (unless rime--backspace-fallback
+  (unless (equal 'rime--backspace rime--backspace-fallback)
     (setq-local rime--backspace-fallback (key-binding (kbd "DEL"))))
-  (unless rime--return-fallback
+  (unless (equal 'rime--return rime--return-fallback)
     (setq-local rime--return-fallback (key-binding (kbd "RET"))))
-  (unless rime--escape-fallback
+  (unless (equal 'rime--escape rime--escape-fallback)
     (setq-local rime--escape-fallback (key-binding (kbd "<escape>"))))
   (add-hook 'post-self-insert-hook 'rime--redisplay nil t))
 
 (defun rime-mode--uninit ()
+  (setq-local rime--backspace-fallback nil
+              rime--return-fallback nil
+              rime--escape-fallback nil)
   (remove-hook 'post-self-insert-hook 'rime--redisplay))
 
 (define-minor-mode rime-mode
