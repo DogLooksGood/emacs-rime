@@ -1,0 +1,58 @@
+#+TITLE: Emacs Rime
+
+* 此项目的目的
+
+在 Emacs 中通过 [[https://github.com/merrickluo/liberime][liberime]] 集成 RIME 输入法，支持多种形码输入方案。
+
+拼音方案请移步： [[https://github.com/tumashu/pyim][pyim]] 或 [[https://github.com/QiangF/liberime][erime]].
+
+* 使用方法
+
+#+BEGIN_SRC emacs-lisp
+  (use-package liberime-config
+    :quelpa (liberime-config
+             :fetcher github
+             :repo "merrickluo/liberime"
+             :files ("CMakeLists.txt" "Makefile" "src" "liberime-config.el")))
+
+  (use-package rime
+    :quelpa (rime
+             :fetcher github
+             :repo "DogLooksGood/emacs-rime")
+    :config
+    (rime-register-and-set-default)
+    :bind
+    (("C-\\" . 'rime-toggle)))
+#+END_SRC
+
+* 用于展示的提示符
+
+使用函数 ~(rime-lighter)~ 返回一个用于展示的 ~ㄓ~ 符号。 
+可以通过 ~rime-indicator-face~ 和 ~rime-indicator-dim-face~ 设置样式。
+
+* 临时英文模式的切换
+如果使用模式编辑，或是需要在一些特定的场景下自动使用英文，可以 ~rime-disable-predicates~ 。
+
+一个在 ~evil-normal-state~ 中、在英文字母后面以及代码中自动使用英文的例子。
+
+#+BEGIN_SRC emacs-lisp
+  (setq rime-disable-predicates
+        '(evil-normal-state-p
+          rime--after-alphabet-char-p
+          rime--prog-in-code-p))
+#+END_SRC
+
+* 临时英文模式下的按键绑定
+输入法启动时，会记录当前绑定于 ~ESC~ ， ~RET~ 和 ~DEL~ 的命令，用于在无候选时做为默认行为。
+
+如果在输入法使用的过程中存在重新定义这三个键行为的情况，需要使用 ~rime-update-binding~ 来更新默认行为。
+
+通常可以把其加在一些 ~hook~ 上。
+
+* 如果你使用 Linux 
+Emacs 有一个优秀的远古BUG: 如果 ~LC_CTYPE~ 为 ~en_US.UTF8~ 的话，那么就无法调用起 Fcitx.
+所以可以利用这点把 Emacs 内切换输入法的快捷键和系统快捷键设为同一个键。
+
+* 优秀的 Emacs 输入法
+
+你可能需要 [[https://github.com/tumashu/pyim][pyim]], [[https://github.com/merrickluo/liberime][liberime]], [[https://github.com/QiangF/liberime][erime]].
