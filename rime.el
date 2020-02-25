@@ -152,7 +152,7 @@
    "记录之前的`return'绑定的函数，在`rime-update-binding'中会被刷新。"))
 
 (make-variable-buffer-local
- (defvar rime--escape-fallbalk nil
+ (defvar rime--escape-fallback nil
    "记录之前的`escape'绑定的函数，在`rime-update-binding'中会被刷新。"))
 
 (make-variable-buffer-local
