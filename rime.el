@@ -328,11 +328,13 @@
       (setq-local rime--return-fallback nil)
       (rime-mode -1))))
 
+;;;###autoload
 (defun rime-register-and-set-default ()
   "注册 RIME 输入法并设置为默认的方案。"
   (register-input-method "rime" "euc-cn" 'rime-activate "ㄓ")
   (setq-default default-input-method 'rime))
 
+;;;###autoload
 (defun rime-toggle ()
   "激活 RIME 输入法。"
   (interactive)
@@ -340,6 +342,7 @@
       (set-input-method nil)
     (set-input-method 'rime)))
 
+;;;###autoload
 (defun rime-select-schema ()
   "选择 RIME 中使用的方案。"
   (interactive)
