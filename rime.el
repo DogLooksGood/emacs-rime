@@ -310,7 +310,6 @@
       (rime-mode 1)
     (rime-mode -1)))
 
-;;;###autoload
 (defun rime-register-and-set-default ()
   "注册 RIME 输入法并设置为默认的方案。"
   (register-input-method "rime" "euc-cn" 'rime-activate "ㄓ")
@@ -324,7 +323,6 @@
       (set-input-method nil)
     (set-input-method 'rime)))
 
-;;;###autoload
 (defun rime-select-schema ()
   "选择 RIME 中使用的方案。"
   (interactive)
@@ -398,6 +396,12 @@
   (if rime-mode
       (rime-mode--init)
     (rime-mode--uninit)))
+
+;;;###autoload
+(defvar rime-title "ㄓ")
+
+;;;###autoload
+(register-input-method "rime" "euc-cn" 'rime-activate rime-title)
 
 (provide 'rime)
 
