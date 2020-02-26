@@ -18,11 +18,7 @@
   (use-package rime
     :quelpa (rime
              :fetcher github
-             :repo "DogLooksGood/emacs-rime")
-    :config
-    (rime-register-and-set-default)
-    :bind
-    (("C-\\" . 'rime-toggle)))
+             :repo "DogLooksGood/emacs-rime"))
 #+END_SRC
 
 * 候选项展示

@@ -42,11 +42,7 @@
 ;;   (use-package rime
 ;;     :quelpa (rime
 ;;              :fetcher github
-;;              :repo "DogLooksGood/emacs-rime")
-;;     :config
-;;     (rime-register-and-set-default)
-;;     :bind
-;;     (("C-\\" . 'rime-toggle)))
+;;              :repo "DogLooksGood/emacs-rime"))
 ;; #+END_SRC
 ;;
 ;; * 候选项展示
@@ -85,12 +81,12 @@
 ;;
 ;; 你可能需要 [[https://github.com/tumashu/pyim][pyim]], [[https://github.com/merrickluo/liberime][liberime]], [[https://github.com/QiangF/liberime][erime]].
 
+;;; Code:
+
 (require 'subr-x)
 (require 'dash)
 (require 'cl-lib)
 (require 'popup nil t)
-
-;;; Code:
 
 (defface rime-preedit-face
   '((((class color) (background dark))
@@ -192,7 +188,6 @@
 
 (defun rime--clear-overlay ()
   (when (overlayp rime--preedit-overlay)
-    (delete-region (overlay-start rime--preedit-overlay) (overlay-end rime--preedit-overlay))
     (delete-overlay rime--preedit-overlay)
     (setq rime--preedit-overlay nil)))
 
