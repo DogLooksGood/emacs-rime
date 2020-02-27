@@ -132,10 +132,6 @@
  (defvar rime--preedit-overlay nil
    "存储嵌入首选的`overlay'，用于标记其范围便于修改。"))
 
-(make-variable-buffer-local
- (defvar rime--prev-preedit nil
-   "之前的`preedit'，在`liberime'中如果出现空码，状态会被清空。保存之前的`preedit'用于在空码的情况下进行恢复。"))
-
 (defvar rime--liberime-loaded nil
   "是否已经加载了`liberime'。")
 
@@ -207,11 +203,7 @@
   (when (rime--liberime-module-ready-p)
     (when-let ((context (liberime-get-context)))
       (liberime-process-key 65288)
-      (rime--redisplay)
-      (setq-local rime--prev-preedit
-                  (thread-last (liberime-get-context)
-                    (alist-get 'composition)
-                    (alist-get 'preedit))))
+      (rime--redisplay))
     (rime--refresh-mode-state)))
 
 (defun rime--escape ()
@@ -219,8 +211,7 @@
   (when (rime--liberime-module-ready-p)
     (when-let ((context (liberime-get-context)))
       (liberime-clear-composition)
-      (rime--redisplay)
-      (setq-local rime--prev-preedit nil))
+      (rime--redisplay))
     (rime--refresh-mode-state)))
 
 (defun rime--return ()
@@ -231,7 +222,6 @@
                           (alist-get 'preedit))))
       (rime--clear-overlay)
       (insert preedit)
-      (setq-local rime--prev-preedit nil)
       (liberime-clear-composition)
       (rime--redisplay))
     (rime--refresh-mode-state)))
@@ -251,24 +241,12 @@
           (unwind-protect
               (cond
                ((and (not context) (not commit) (not preedit))
-                (if rime--prev-preedit
-                    (progn
-                      (liberime-clear-composition)
-                      (dolist (c (mapcar 'identity rime--prev-preedit))
-                        (liberime-process-key c))
-                      (rime--redisplay)
-                      (setq preedit
-                            (thread-last (liberime-get-context)
-                              (alist-get 'composition)
-                              (alist-get 'preedit))))
-                  (liberime-clear-composition)
-                  (list key)))
+                (list key))
                (commit
                 (rime--clear-overlay)
                 (mapcar 'identity commit))
                (t (rime--redisplay)))
-            (rime--refresh-mode-state)
-            (setq-local rime--prev-preedit preedit)))))))
+            (rime--refresh-mode-state)))))))
 
 (defun rime--clean-state ()
   "清空状态，包换`liberime'的状态和`preedit'。"
@@ -276,7 +254,6 @@
   (when (overlayp rime--preedit-overlay)
     (delete-overlay rime--preedit-overlay)
     (setq-local rime--preedit-overlay nil))
-  (setq-local rime--prev-preedit nil)
   (rime--refresh-mode-state))
 
 (defun rime--refresh-mode-state ()
@@ -323,7 +300,6 @@
 (defun rime-activate (name)
   (setq input-method-function 'rime-input-method
         deactivate-current-input-method-function #'rime-deactivate)
-  (setq-local rime--prev-preedit nil)
   (message "Rime activate."))
 
 (defun rime-deactivate ()
