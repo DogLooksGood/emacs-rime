@@ -376,9 +376,9 @@
   (add-hook 'post-self-insert-hook 'rime--redisplay nil t))
 
 (defun rime-mode--uninit ()
-  (setq-local rime--backspace-fallback nil
-              rime--return-fallback nil
-              rime--escape-fallback nil)
+  (setq-local rime--backspace-fallback nil)
+  (setq-local rime--return-fallback nil)
+  (setq-local rime--escape-fallback nil)
   (remove-hook 'post-self-insert-hook 'rime--redisplay))
 
 (define-minor-mode rime-mode
