@@ -36,7 +36,7 @@
 ;;   (use-package liberime-config
 ;;     :quelpa (liberime-config
 ;;              :fetcher github
-;;              :repo "merrickluo/liberime"
+;;              :repo "DogLooksGood/liberime"
 ;;              :files ("CMakeLists.txt" "Makefile" "src" "liberime-config.el")))
 ;;
 ;;   (use-package rime
