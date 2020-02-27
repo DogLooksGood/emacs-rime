@@ -136,6 +136,12 @@
  (defvar rime--prev-preedit nil
    "之前的`preedit'，在`liberime'中如果出现空码，状态会被清空。保存之前的`preedit'用于在空码的情况下进行恢复。"))
 
+(defvar rime--liberime-loaded nil
+  "是否已经加载了`liberime'。")
+
+(defvar rime-title "ㄓ"
+  "输入法的展示符号")
+
 (defun rime--after-alphabet-char-p ()
   "当前光标是否在英文的后面。"
   (when (char-before)
@@ -172,7 +178,7 @@
       (minibuffer (rime--minibuffer-display-result result))
       (message (message result))
       (popup (popup-tip result))
-      (t))))
+      (t (progn)))))
 
 (defun rime--clear-overlay ()
   (when (overlayp rime--preedit-overlay)
@@ -188,6 +194,9 @@
       (setq rime--preedit-overlay (make-overlay (point) (point)))
       (overlay-put rime--preedit-overlay 'after-string (propertize preedit 'face 'rime-preedit-face)))))
 
+(defun rime--liberime-module-ready-p ()
+  (fboundp 'liberime-clear-composition))
+
 (defun rime--redisplay (&rest ignores)
   "绘制嵌入编码和候选。"
   (rime--display-preedit)
@@ -195,71 +204,71 @@
 
 (defun rime--backspace ()
   (interactive)
-  (when-let ((context (liberime-get-context)))
-    (liberime-process-key 65288)
-    (rime--redisplay)
-    (setq-local rime--prev-preedit
-                (thread-last (liberime-get-context)
-                  (alist-get 'composition)
-                  (alist-get 'preedit))))
-  (rime--refresh-mode-state))
+  (when (rime--liberime-module-ready-p)
+    (when-let ((context (liberime-get-context)))
+      (liberime-process-key 65288)
+      (rime--redisplay)
+      (setq-local rime--prev-preedit
+                  (thread-last (liberime-get-context)
+                    (alist-get 'composition)
+                    (alist-get 'preedit))))
+    (rime--refresh-mode-state)))
 
 (defun rime--escape ()
   (interactive)
-  (when-let ((context (liberime-get-context)))
-    (liberime-clear-composition)
-    (rime--redisplay)
-    (setq-local rime--prev-preedit nil))
-  (rime--refresh-mode-state))
+  (when (rime--liberime-module-ready-p)
+    (when-let ((context (liberime-get-context)))
+      (liberime-clear-composition)
+      (rime--redisplay)
+      (setq-local rime--prev-preedit nil))
+    (rime--refresh-mode-state)))
 
 (defun rime--return ()
-  "回车的行为：
-1. 在临时英文模式下，使用`rime--return-fallback'。
-2. 如果有`preedit'，则上屏并清空状态。
-3. 清空状态并调用`rime--return-fallback'"
   (interactive)
-  (when-let ((preedit (thread-last (liberime-get-context)
-                   (alist-get 'composition)
-                   (alist-get 'preedit))))
-    (rime--clear-overlay)
-    (insert preedit)
-    (setq-local rime--prev-preedit nil)
-    (liberime-clear-composition)
-    (rime--redisplay))
-  (rime--refresh-mode-state))
+  (when (rime--liberime-module-ready-p)
+    (when-let ((preedit (thread-last (liberime-get-context)
+                          (alist-get 'composition)
+                          (alist-get 'preedit))))
+      (rime--clear-overlay)
+      (insert preedit)
+      (setq-local rime--prev-preedit nil)
+      (liberime-clear-composition)
+      (rime--redisplay))
+    (rime--refresh-mode-state)))
 
 (defun rime-input-method (key)
-  (if (and (not (rime--should-enable-p))
-           (not (liberime-get-context)))
-      (list key)
-    (liberime-process-key key)
-    (with-silent-modifications
-      (let* ((context (liberime-get-context))
-             (preedit (thread-last context
-                        (alist-get 'composition)
-                        (alist-get 'preedit)))
-             (commit (liberime-get-commit)))
-        (unwind-protect
-            (cond
-             ((and (not context) (not commit) (not preedit))
-              (if rime--prev-preedit
-                  (progn
-                    (liberime-clear-composition)
-                    (dolist (c (mapcar 'identity rime--prev-preedit))
-                      (liberime-process-key c))
-                    (rime--redisplay)
-                    (setq preedit
-                          (thread-last (liberime-get-context)
-                            (alist-get 'composition)
-                            (alist-get 'preedit))))
-                (liberime-clear-composition)
-                (list key)))
-             (commit
-              (rime--clear-overlay)
-              (mapcar 'identity commit))
-             (t (rime--redisplay)))
-          (rime--refresh-mode-state)
-          (setq-local rime--prev-preedit preedit))))))
+  (when (rime--liberime-module-ready-p)
+    (if (and (not (rime--should-enable-p))
+             (not (liberime-get-context)))
+        (list key)
+      (liberime-process-key key)
+      (with-silent-modifications
+        (let* ((context (liberime-get-context))
+               (preedit (thread-last context
+                          (alist-get 'composition)
+                          (alist-get 'preedit)))
+               (commit (liberime-get-commit)))
+          (unwind-protect
+              (cond
+               ((and (not context) (not commit) (not preedit))
+                (if rime--prev-preedit
+                    (progn
+                      (liberime-clear-composition)
+                      (dolist (c (mapcar 'identity rime--prev-preedit))
+                        (liberime-process-key c))
+                      (rime--redisplay)
+                      (setq preedit
+                            (thread-last (liberime-get-context)
+                              (alist-get 'composition)
+                              (alist-get 'preedit))))
+                  (liberime-clear-composition)
+                  (list key)))
+               (commit
+                (rime--clear-overlay)
+                (mapcar 'identity commit))
+               (t (rime--redisplay)))
+            (rime--refresh-mode-state)
+            (setq-local rime--prev-preedit preedit)))))))
 
 (defun rime--clean-state ()
   "清空状态，包换`liberime'的状态和`preedit'。"
@@ -280,19 +289,6 @@
   (register-input-method "rime" "euc-cn" 'rime-activate "ㄓ")
   (setq-default default-input-method 'rime))
 
-;;;###autoload
-(defun rime-toggle ()
-  "激活/关闭 RIME 输入法。
-
-有候选时切换输入法会清空未上屏的内容。"
-  (interactive)
-  (if (not (equal "rime" current-input-method))
-      (set-input-method 'rime)
-    (when (liberime-get-context)
-      (liberime-clear-composition)
-      (rime--redisplay))
-    (set-input-method nil)))
-
 (defun rime-select-schema ()
   "选择 RIME 中使用的方案。"
   (interactive)
@@ -308,17 +304,18 @@
     (liberime-select-schema schema)))
 
 (defun rime-lighter ()
-  "返回一个可以用于展示在`modeline'的ㄓ符号。
+  "返回一个可以用于展示在`modeline'的符号。
 
+该符号可通过修改变量`rime-title'进行设置。
 在激活/非激活的情况下使用不同的`face'。"
   (if (equal current-input-method "rime")
       (if (rime--should-enable-p)
           (propertize
-           " ㄓ"
+           (concat " " rime-title)
            'face
            'rime-indicator-face)
         (propertize
-         " ㄓ"
+         (concat " " rime-title)
          'face
          'rime-indicator-dim-face))
     ""))
@@ -326,7 +323,6 @@
 (defun rime-activate (name)
   (setq input-method-function 'rime-input-method
         deactivate-current-input-method-function #'rime-deactivate)
-  (liberime-clear-composition)
   (setq-local rime--prev-preedit nil)
   (message "Rime activate."))
 
@@ -379,10 +375,24 @@
     (rime-mode--uninit)))
 
 ;;;###autoload
-(defvar rime-title "ㄓ")
+(defun rime-toggle ()
+  "激活/关闭 RIME 输入法。
 
-;;;###autoload
-(register-input-method "rime" "euc-cn" 'rime-activate rime-title)
+有候选时切换输入法会清空未上屏的内容。"
+  (interactive)
+  (if (not (equal "rime" current-input-method))
+      (progn
+        (unless rime--liberime-loaded
+          (require 'liberime-config nil t)
+          (if (not (featurep 'liberime-config))
+              (error "Can't enable Rime, liberime is needed.")
+            (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
+            (setq rime--liberime-loaded t)))
+        (set-input-method 'rime))
+    (when (liberime-get-context)
+      (liberime-clear-composition)
+      (rime--redisplay))
+    (set-input-method nil)))
 
 (provide 'rime)
 
