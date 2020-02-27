@@ -133,18 +133,6 @@
    "存储嵌入首选的`overlay'，用于标记其范围便于修改。"))
 
 (make-variable-buffer-local
- (defvar rime--backspace-fallback nil
-   "记录之前的`backspace'绑定的函数，在`rime-update-binding'中会被刷新。"))
-
-(make-variable-buffer-local
- (defvar rime--return-fallback nil
-   "记录之前的`return'绑定的函数，在`rime-update-binding'中会被刷新。"))
-
-(make-variable-buffer-local
- (defvar rime--escape-fallback nil
-   "记录之前的`escape'绑定的函数，在`rime-update-binding'中会被刷新。"))
-
-(make-variable-buffer-local
  (defvar rime--prev-preedit nil
    "之前的`preedit'，在`liberime'中如果出现空码，状态会被清空。保存之前的`preedit'用于在空码的情况下进行恢复。"))
 
@@ -200,37 +188,28 @@
       (setq rime--preedit-overlay (make-overlay (point) (point)))
       (overlay-put rime--preedit-overlay 'after-string (propertize preedit 'face 'rime-preedit-face)))))
 
-(defun rime--redisplay ()
+(defun rime--redisplay (&rest ignores)
+  "绘制嵌入编码和候选。"
   (rime--display-preedit)
   (rime--show-candidate))
 
 (defun rime--backspace ()
   (interactive)
-  (if (not (rime--should-enable-p))
-      (when rime--backspace-fallback
-        (call-interactively rime--backspace-fallback))
-    (let ((context (liberime-get-context)))
-      (if (not context)
-          (call-interactively rime--backspace-fallback)
-        (liberime-process-key 65288)
-        (rime--redisplay)
-        (setq-local rime--prev-preedit
-              (thread-last (liberime-get-context)
-                (alist-get 'composition)
-                (alist-get 'preedit))))))
+  (when-let ((context (liberime-get-context)))
+    (liberime-process-key 65288)
+    (rime--redisplay)
+    (setq-local rime--prev-preedit
+                (thread-last (liberime-get-context)
+                  (alist-get 'composition)
+                  (alist-get 'preedit))))
   (rime--refresh-mode-state))
 
 (defun rime--escape ()
   (interactive)
-  (if (not (rime--should-enable-p))
-      (when rime--escape-fallback
-        (call-interactively rime--escape-fallback))
-    (let ((context (liberime-get-context)))
-      (if (not context)
-          (call-interactively rime--escape-fallback)
-        (liberime-clear-composition)
-        (rime--redisplay)
-        (setq-local rime--prev-preedit nil))))
+  (when-let ((context (liberime-get-context)))
+    (liberime-clear-composition)
+    (rime--redisplay)
+    (setq-local rime--prev-preedit nil))
   (rime--refresh-mode-state))
 
 (defun rime--return ()
@@ -239,23 +218,14 @@
 2. 如果有`preedit'，则上屏并清空状态。
 3. 清空状态并调用`rime--return-fallback'"
   (interactive)
-  (if (not (rime--should-enable-p))
-      (when rime--return-fallback
-        (call-interactively rime--return-fallback))
-    (let ((preedit (thread-last (liberime-get-context)
-                     (alist-get 'composition)
-                     (alist-get 'preedit))))
-      (if preedit
-          (progn
-            (rime--clear-overlay)
-            (insert preedit)
-            (setq-local rime--prev-preedit nil)
-            (liberime-clear-composition)
-            (rime--redisplay))
-        (liberime-clear-composition)
-        (setq-local rime--prev-preedit nil)
-        (rime--redisplay)
-        (call-interactively rime--return-fallback))))
+  (when-let ((preedit (thread-last (liberime-get-context)
+                   (alist-get 'composition)
+                   (alist-get 'preedit))))
+    (rime--clear-overlay)
+    (insert preedit)
+    (setq-local rime--prev-preedit nil)
+    (liberime-clear-composition)
+    (rime--redisplay))
   (rime--refresh-mode-state))
 
 (defun rime-input-method (key)
@@ -312,11 +282,16 @@
 
 ;;;###autoload
 (defun rime-toggle ()
-  "激活 RIME 输入法。"
+  "激活/关闭 RIME 输入法。
+
+有候选时切换输入法会清空未上屏的内容。"
   (interactive)
-  (if current-input-method
-      (set-input-method nil)
-    (set-input-method 'rime)))
+  (if (not (equal "rime" current-input-method))
+      (set-input-method 'rime)
+    (when (liberime-get-context)
+      (liberime-clear-composition)
+      (rime--redisplay))
+    (set-input-method nil)))
 
 (defun rime-select-schema ()
   "选择 RIME 中使用的方案。"
@@ -366,20 +341,31 @@
         (define-key keymap (kbd "<escape>") 'rime--escape)
         keymap))
 
-(defun rime-mode--init ()
-  (unless (equal 'rime--backspace rime--backspace-fallback)
-    (setq-local rime--backspace-fallback (key-binding (kbd "DEL"))))
-  (unless (equal 'rime--return rime--return-fallback)
-    (setq-local rime--return-fallback (key-binding (kbd "RET"))))
-  (unless (equal 'rime--escape rime--escape-fallback)
-    (setq-local rime--escape-fallback (key-binding (kbd "<escape>"))))
+;;; Initializer
+
+(defun rime--init-hook-default ()
   (add-hook 'post-self-insert-hook 'rime--redisplay nil t))
 
-(defun rime-mode--uninit ()
-  (setq-local rime--backspace-fallback nil)
-  (setq-local rime--return-fallback nil)
-  (setq-local rime--escape-fallback nil)
+(defun rime--uninit-hook-default ()
   (remove-hook 'post-self-insert-hook 'rime--redisplay))
+
+(defun rime--init-hook-vterm ()
+  (advice-add 'vterm--redraw :after 'rime--redisplay)
+  (define-key vterm-mode-map (kbd "<backspace>") 'rime--backspace))
+
+(defun rime--uninit-hook-vterm ()
+  (advice-add 'vterm--redraw :after 'rime--redisplay)
+  (define-key vterm-mode-map (kbd "<backspace>") 'vterm-send-backspace))
+
+(defun rime-mode--init ()
+  (case major-mode
+    (vterm-mode (rime--init-hook-vterm))
+    (t (rime--init-hook-default))))
+
+(defun rime-mode--uninit ()
+  (case major-mode
+    (vterm-mode (rime--uninit-hook-vterm))
+    (t (rime--uninit-hook-default))))
 
 (define-minor-mode rime-mode
   "仅用于提供输入法激活状态下的按键绑定。
