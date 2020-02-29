@@ -135,8 +135,20 @@
 (defvar rime--liberime-loaded nil
   "是否已经加载了`liberime'。")
 
+(defvar rime-input-editable t
+  "是否启用可编辑的编码，通常用于拼音输入法。
+
+若在 Rime 启用了 translator 中的 preedit_format 功能，启用该项将无法正常工作。")
+
 (defvar rime-title "ㄓ"
   "输入法的展示符号")
+
+(defvar rime-translate-keybindings
+  '("C-f" "C-b")
+  "交由 Rime 处理的组合快捷键。
+
+当前仅支持 Shift, Control, Meta 的组合键。
+列出的按键会在`rime-mode-map'中生成一个到`rime--send-keybinding'的绑定。")
 
 (defun rime--after-alphabet-char-p ()
   "当前光标是否在英文的后面。"
@@ -160,12 +172,31 @@
 (defun rime--show-candidate ()
   (let* ((context (liberime-get-context))
          (candidates (alist-get 'candidates (alist-get 'menu context)))
-         (preedit (alist-get 'preedit (alist-get 'composition context)))
+         (composition (alist-get 'composition context))
+         (length (alist-get 'length composition))
+         (preedit (alist-get 'preedit composition))
+         (cursor-pos (alist-get 'cursor-pos composition))
+         (cursor-pos-in-preedit (when cursor-pos
+                                  (- (length preedit)
+                                     (- length cursor-pos))))
+         (menu (alist-get 'menu context))
+         (input (liberime-get-input))
+         (page-no (alist-get 'page-no context))
+         (preedit-except-comment )
+         (preedit-with-cursor
+          (when preedit
+            (if (or (not rime-input-editable)
+                    (>= cursor-pos-in-preedit (length preedit)))
+                preedit
+              (concat
+               (substring-no-properties preedit 0 cursor-pos-in-preedit)
+               "|"
+               (substring-no-properties preedit cursor-pos-in-preedit)))))
          (idx 1)
          (result ""))
     (when context
       (setq result
-            (concat result (format "%s: " preedit)))
+            (concat result (format "%s " preedit-with-cursor)))
       (dolist (c candidates)
         (setq result
               (concat result (format "%d. %s " idx c)))
@@ -175,6 +206,24 @@
       (message (message result))
       (popup (popup-tip result))
       (t (progn)))))
+
+(defun rime--parse-key-event (event)
+  "将 Emacs 中的 Key 换成 Rime 中的 Key + Mask.
+
+返回中`car'是 KeyCode, `cdr'是 Mask."
+  (let* ((modifiers (event-modifiers event))
+         (type (event-basic-type event))
+         (mask (+
+                (if (member 'shift modifiers)
+                    1                   ; 1 << 0
+                  0)
+                (if (member 'meta modifiers)
+                    8                   ; 1 << 3
+                  0)
+                (if (member 'control modifiers)
+                    4                ; 1 << 2
+                  0))))
+    (cons type mask)))
 
 (defun rime--clear-overlay ()
   (when (overlayp rime--preedit-overlay)
@@ -248,6 +297,15 @@
                (t (rime--redisplay)))
             (rime--refresh-mode-state)))))))
 
+(defun rime--send-keybinding ()
+  (interactive)
+  (let* ((parsed (rime--parse-key-event last-input-event))
+         (key (car parsed))
+         (mask (cdr parsed)))
+    (liberime-process-key key mask)
+    (rime--redisplay)
+    (rime--refresh-mode-state)))
+
 (defun rime--clean-state ()
   "清空状态，包换`liberime'的状态和`preedit'。"
   (liberime-clear-composition)
@@ -300,6 +358,8 @@
 (defun rime-activate (name)
   (setq input-method-function 'rime-input-method
         deactivate-current-input-method-function #'rime-deactivate)
+  (dolist (binding rime-translate-keybindings)
+    (define-key rime-mode-map (kbd binding) 'rime--send-keybinding))
   (message "Rime activate."))
 
 (defun rime-deactivate ()

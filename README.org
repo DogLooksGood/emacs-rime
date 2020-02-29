@@ -2,9 +2,7 @@
 
 * 此项目的目的
 
-在 Emacs 中通过 [[https://github.com/merrickluo/liberime][liberime]] 集成 RIME 输入法，支持多种形码输入方案。
-
-拼音方案请移步： [[https://github.com/tumashu/pyim][pyim]] 或 [[https://github.com/QiangF/liberime][erime]].
+在 Emacs 中通过 [[https://github.com/merrickluo/liberime][liberime]] 集成 RIME 输入法，可直持多种输入方案。
 
 * 使用方法
 
@@ -21,7 +19,18 @@
              :repo "DogLooksGood/emacs-rime"))
 #+END_SRC
 
-* 候选项展示
+* 设置在输入中发送到 Rime 的组合键。
+
+如下的设置，使输入过程中的 ~C-f~ 和 ~C-b~ 发送给 Rime 。可以用来配合方案中的设置完成光标移动和选字等功能。
+支持 Control (C-), Meta (M-), Shift (S-)的组合键。
+
+#+BEGIN_SRC emacs-lisp
+  ;; 默认值
+  (setq rime-translate-keybindings
+    '("C-f" "C-b"))
+#+END_SRC
+
+* 候选项展示风格
 
 设置 ~rime-show-candidate~ 。
 
@@ -31,6 +40,14 @@
 | ~minibuffer~ | 在minibuffer中展示， 推荐使用的方式                   |
 | ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件 |
 | ~popup~      | 使用 ~popup.el~ 展示跟随的候选                          |
+
+* 针对仓颉等具有编码注释功能的方案
+
+目前的编码编辑功能与方案的编码注释不兼容，关闭方案中的编码注释或使用下面的设置关闭编码编辑功能。
+
+#+BEGIN_SRC emacs-lisp
+  (setq rime-input-editable nil)
+#+END_SRC
 
 * 用于展示的提示符
 
