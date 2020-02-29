@@ -2,7 +2,7 @@
 
 * 此项目的目的
 
-在 Emacs 中通过 [[https://github.com/merrickluo/liberime][liberime]] 集成 RIME 输入法，可直持多种输入方案。
+在 Emacs 中通过 [[https://github.com/merrickluo/liberime][liberime]] 集成 RIME 输入法，可支持多种输入方案。
 
 * 使用方法
 
@@ -19,9 +19,9 @@
              :repo "DogLooksGood/emacs-rime"))
 #+END_SRC
 
-* 设置在输入中发送到 Rime 的组合键。
+* 设置输入中发送到 Rime 的组合键。
 
-如下的设置，使输入过程中的 ~C-f~ 和 ~C-b~ 发送给 Rime 。可以用来配合方案中的设置完成光标移动和选字等功能。
+下面的设置，使输入过程中的 ~C-f~ 和 ~C-b~ 发送给 Rime 。可以用来配合方案中的设置完成光标移动和选字等功能。
 支持 Control (C-), Meta (M-), Shift (S-)的组合键。
 
 #+BEGIN_SRC emacs-lisp
@@ -30,7 +30,7 @@
     '("C-f" "C-b"))
 #+END_SRC
 
-* 候选项展示风格
+* 候选框展示风格
 
 设置 ~rime-show-candidate~ 。
 
