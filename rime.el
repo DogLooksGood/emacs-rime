@@ -181,7 +181,7 @@
                                      (- length cursor-pos))))
          (menu (alist-get 'menu context))
          (input (liberime-get-input))
-         (page-no (alist-get 'page-no context))
+         (page-no (alist-get 'page-no menu))
          (preedit-except-comment )
          (preedit-with-cursor
           (when preedit
@@ -201,6 +201,8 @@
         (setq result
               (concat result (format "%d. %s " idx c)))
         (setq idx (1+ idx))))
+    (when (and page-no (not (zerop page-no)))
+      (setq result (concat result (format " [%d] " (1+ page-no)))))
     (case rime-show-candidate
       (minibuffer (rime--minibuffer-display-result result))
       (message (message result))
