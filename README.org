@@ -1,8 +1,9 @@
 #+TITLE: Emacs Rime
 
-* 此项目的目的
 
 在 Emacs 中通过 [[https://github.com/merrickluo/liberime][liberime]] 集成 RIME 输入法，可支持多种输入方案。
+
+[[file:https://i.imgur.com/RqJkzlx.gifv]]
 
 * 使用方法
 
