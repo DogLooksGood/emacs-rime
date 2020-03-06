@@ -152,8 +152,7 @@
 
 (defun rime--after-alphabet-char-p ()
   "当前光标是否在英文的后面。"
-  (when (char-before)
-    (string-match-p "[a-zA-Z-_]" (char-to-string (char-before)))))
+  (looking-back "[a-zA-Z][-_:.0-9/]*" 1))
 
 (defun rime--prog-in-code-p ()
   "当前为`prog-mode'或`conf-mode'，且光标在注释或字符串当中。"
@@ -182,7 +181,6 @@
          (menu (alist-get 'menu context))
          (input (liberime-get-input))
          (page-no (alist-get 'page-no menu))
-         (preedit-except-comment )
          (preedit-with-cursor
           (when preedit
             (if (or (not rime-input-editable)
@@ -203,7 +201,7 @@
         (setq idx (1+ idx))))
     (when (and page-no (not (zerop page-no)))
       (setq result (concat result (format " [%d] " (1+ page-no)))))
-    (case rime-show-candidate
+    (cl-case rime-show-candidate
       (minibuffer (rime--minibuffer-display-result result))
       (message (message result))
       (popup (popup-tip result))
@@ -392,12 +390,12 @@
   (define-key vterm-mode-map (kbd "<backspace>") 'vterm-send-backspace))
 
 (defun rime-mode--init ()
-  (case major-mode
+  (cl-case major-mode
     (vterm-mode (rime--init-hook-vterm))
     (t (rime--init-hook-default))))
 
 (defun rime-mode--uninit ()
-  (case major-mode
+  (cl-case major-mode
     (vterm-mode (rime--uninit-hook-vterm))
     (t (rime--uninit-hook-default))))
 
