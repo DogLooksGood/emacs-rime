@@ -163,29 +163,6 @@
 	(erase-buffer)
 	(insert result)))
 
-(defun rime--preedit-with-cursor (preedit commit-text-preview candidates cursor-pos sel-start sel-end)
-  (when preedit
-    (let ((idx 0))
-      (while (and (< idx (length preedit))
-                  (< idx (length commit-text-preview))
-                  (equal (aref preedit idx)
-                         (aref commit-text-preview idx)))
-        (setq idx (1+ idx)))
-      (if candidates
-          (let ((preedit-pre (substring preedit 0 idx))
-                (pos (- cursor-pos sel-start))
-                (preedit-raw (substring preedit idx (+ idx (- sel-end sel-start))))
-                (preedit-post (substring preedit (+ idx (- sel-end sel-start)))))
-            (concat preedit-pre
-                    (substring preedit-raw 0 pos)
-                    "|"
-                    (substring preedit-raw pos)
-                    preedit-post))
-        (let ((pos (+ 1 (- sel-start) cursor-pos)))
-          (concat (substring preedit 0 pos)
-                  "|"
-                  (substring preedit pos)))))))
-
 (defun rime--show-candidate ()
   (let* ((context (liberime-get-context))
          (candidates (alist-get 'candidates (alist-get 'menu context)))
@@ -199,13 +176,33 @@
          (menu (alist-get 'menu context))
          (input (liberime-get-input))
          (page-no (alist-get 'page-no menu))
-         (preedit-with-cursor (rime--preedit-with-cursor preedit commit-text-preview candidates
-                                                         cursor-pos sel-start sel-end))
+         (text)
          (idx 1)
          (result ""))
+    (when preedit
+      (cond
+       ((not candidates)
+        (let ((pos (- (length preedit) (- length cursor-pos))))
+          (setq text (concat (substring preedit 0 pos) "|" (substring preedit pos)))))
+       (t
+        (let ((i 0))
+          (while (and
+                  (< i (length preedit))
+                  (< i (length commit-text-preview))
+                  (equal (aref preedit i) (aref commit-text-preview i)))
+            (setq i (1+ i)))
+          (let ((pre (substring preedit 0 i))
+                (raw (substring preedit i (+ i sel-end (- sel-start))))
+                (post (substring preedit (+ i sel-end (- sel-start))))
+                (pos (- cursor-pos sel-start)))
+            (setq text (concat pre
+                               (substring raw 0 pos)
+                               "|"
+                               (substring raw pos)
+                               post)))))))
     (when context
       (setq result
-            (concat result (format "%s " preedit-with-cursor)))
+            (concat result (format "%s " text)))
       (dolist (c candidates)
         (setq result
               (concat result (format "%d. %s " idx c)))
@@ -344,7 +341,6 @@
              (schema-name (completing-read "Schema: " schema-names))
              (schema (thread-last schema-list
                        (seq-find (lambda (s)
-                                   (message "%s %s" (cdr s) schema-name)
                                    (equal (cadr s) schema-name)))
                        (car))))
         (message "Rime schema: %s" schema-name)
