@@ -33,11 +33,11 @@
 ;; * 使用方法
 ;;
 ;; #+BEGIN_SRC emacs-lisp
-;;   (use-package liberime-config
-;;     :quelpa (liberime-config
+;;   (use-package liberime
+;;     :quelpa (liberime
 ;;              :fetcher github
-;;              :repo "DogLooksGood/liberime"
-;;              :files ("CMakeLists.txt" "Makefile" "src" "liberime-config.el")))
+;;              :repo "merrickluo/liberime"
+;;              :files ("CMakeLists.txt" "Makefile" "src" "liberime.el")))
 ;;
 ;;   (use-package rime
 ;;     :quelpa (rime
@@ -419,8 +419,8 @@
   (if (not (equal "rime" current-input-method))
       (progn
         (unless rime--liberime-loaded
-          (require 'liberime-config nil t)
-          (if (not (featurep 'liberime-config))
+          (require 'liberime nil t)
+          (if (not (featurep 'liberime))
               (error "Can't enable Rime, liberime is needed.")
             (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
             (setq rime--liberime-loaded t)))
