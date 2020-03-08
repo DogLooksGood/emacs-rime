@@ -135,11 +135,6 @@
 (defvar rime--liberime-loaded nil
   "是否已经加载了`liberime'。")
 
-(defvar rime-input-editable t
-  "是否启用可编辑的编码，通常用于拼音输入法。
-
-若在 Rime 启用了 translator 中的 preedit_format 功能，启用该项将无法正常工作。")
-
 (defvar rime-title "ㄓ"
   "输入法的展示符号")
 
@@ -168,28 +163,39 @@
 	(erase-buffer)
 	(insert result)))
 
+
+(defun rime--preedit-with-cursor (preedit commit-text-preview cursor-pos sel-start sel-end)
+  (when preedit
+    (let ((idx 0))
+      (while (and (< idx (length preedit))
+                  (< idx (length commit-text-preview))
+                  (equal (aref preedit idx)
+                         (aref commit-text-preview idx)))
+        (setq idx (1+ idx)))
+      (let ((preedit-pre (substring preedit 0 idx))
+            (preedit-raw (substring preedit idx (+ idx (- sel-end sel-start))))
+            (preedit-post (substring preedit (+ idx (- sel-end sel-start))))
+            (pos (- cursor-pos sel-start)))
+        (concat preedit-pre
+                (substring preedit-raw 0 pos)
+                "|"
+                (substring preedit-raw pos)
+                preedit-post)))))
+
 (defun rime--show-candidate ()
   (let* ((context (liberime-get-context))
          (candidates (alist-get 'candidates (alist-get 'menu context)))
          (composition (alist-get 'composition context))
          (length (alist-get 'length composition))
          (preedit (alist-get 'preedit composition))
+         (commit-text-preview (alist-get 'commit-text-preview context))
          (cursor-pos (alist-get 'cursor-pos composition))
-         (cursor-pos-in-preedit (when cursor-pos
-                                  (- (length preedit)
-                                     (- length cursor-pos))))
+         (sel-start (alist-get 'sel-start composition))
+         (sel-end (alist-get 'sel-end composition))
          (menu (alist-get 'menu context))
          (input (liberime-get-input))
          (page-no (alist-get 'page-no menu))
-         (preedit-with-cursor
-          (when preedit
-            (if (or (not rime-input-editable)
-                    (>= cursor-pos-in-preedit (length preedit)))
-                preedit
-              (concat
-               (substring-no-properties preedit 0 cursor-pos-in-preedit)
-               "|"
-               (substring-no-properties preedit cursor-pos-in-preedit)))))
+         (preedit-with-cursor (rime--preedit-with-cursor preedit commit-text-preview cursor-pos sel-start sel-end))
          (idx 1)
          (result ""))
     (when context

@@ -42,10 +42,6 @@
 | ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件 |
 | ~popup~      | 使用 ~popup.el~ 展示跟随的候选                          |
 
-* 针对仓颉等具有编码注释功能的方案
-
-目前的编码编辑功能与方案的编码注释不兼容，关闭方案中的编码注释或使用下面的设置关闭编码编辑功能。
-
 #+BEGIN_SRC emacs-lisp
   (setq rime-input-editable nil)
 #+END_SRC
