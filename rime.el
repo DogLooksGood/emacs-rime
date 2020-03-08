@@ -163,8 +163,7 @@
 	(erase-buffer)
 	(insert result)))
 
-
-(defun rime--preedit-with-cursor (preedit commit-text-preview cursor-pos sel-start sel-end)
+(defun rime--preedit-with-cursor (preedit commit-text-preview candidates cursor-pos sel-start sel-end)
   (when preedit
     (let ((idx 0))
       (while (and (< idx (length preedit))
@@ -172,15 +171,20 @@
                   (equal (aref preedit idx)
                          (aref commit-text-preview idx)))
         (setq idx (1+ idx)))
-      (let ((preedit-pre (substring preedit 0 idx))
-            (preedit-raw (substring preedit idx (+ idx (- sel-end sel-start))))
-            (preedit-post (substring preedit (+ idx (- sel-end sel-start))))
-            (pos (- cursor-pos sel-start)))
-        (concat preedit-pre
-                (substring preedit-raw 0 pos)
-                "|"
-                (substring preedit-raw pos)
-                preedit-post)))))
+      (if candidates
+          (let ((preedit-pre (substring preedit 0 idx))
+                (pos (- cursor-pos sel-start))
+                (preedit-raw (substring preedit idx (+ idx (- sel-end sel-start))))
+                (preedit-post (substring preedit (+ idx (- sel-end sel-start)))))
+            (concat preedit-pre
+                    (substring preedit-raw 0 pos)
+                    "|"
+                    (substring preedit-raw pos)
+                    preedit-post))
+        (let ((pos (+ 1 (- sel-start) cursor-pos)))
+          (concat (substring preedit 0 pos)
+                  "|"
+                  (substring preedit pos)))))))
 
 (defun rime--show-candidate ()
   (let* ((context (liberime-get-context))
@@ -195,7 +199,8 @@
          (menu (alist-get 'menu context))
          (input (liberime-get-input))
          (page-no (alist-get 'page-no menu))
-         (preedit-with-cursor (rime--preedit-with-cursor preedit commit-text-preview cursor-pos sel-start sel-end))
+         (preedit-with-cursor (rime--preedit-with-cursor preedit commit-text-preview candidates
+                                                         cursor-pos sel-start sel-end))
          (idx 1)
          (result ""))
     (when context
@@ -333,16 +338,18 @@
 (defun rime-select-schema ()
   "选择 RIME 中使用的方案。"
   (interactive)
-  (let* ((schema-list (liberime-get-schema-list))
-         (schema-names (mapcar 'cdr schema-list))
-         (schema-name (completing-read "Schema: " schema-names))
-         (schema (thread-last schema-list
-                   (seq-find (lambda (s)
-                               (message "%s %s" (cdr s) schema-name)
-                               (equal (cadr s) schema-name)))
-                   (car))))
-    (message "Rime schema: %s" schema-name)
-    (liberime-select-schema schema)))
+  (if rime--liberime-loaded
+      (let* ((schema-list (liberime-get-schema-list))
+             (schema-names (mapcar 'cdr schema-list))
+             (schema-name (completing-read "Schema: " schema-names))
+             (schema (thread-last schema-list
+                       (seq-find (lambda (s)
+                                   (message "%s %s" (cdr s) schema-name)
+                                   (equal (cadr s) schema-name)))
+                       (car))))
+        (message "Rime schema: %s" schema-name)
+        (liberime-select-schema schema))
+    (message "Rime is not activated.")))
 
 (defun rime-lighter ()
   "返回一个可以用于展示在`modeline'的符号。
