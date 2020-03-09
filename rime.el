@@ -163,6 +163,7 @@
 	(erase-buffer)
 	(insert result)))
 
+
 (defun rime--show-candidate ()
   (let* ((context (liberime-get-context))
          (candidates (alist-get 'candidates (alist-get 'menu context)))
@@ -180,29 +181,20 @@
          (idx 1)
          (result ""))
     (when preedit
-      (cond
-       ((not candidates)
-        (let ((pos (- (length preedit) (- length cursor-pos))))
-          (setq text (concat (substring preedit 0 pos) "|" (substring preedit pos)))))
-       (t
-        (let ((i 0))
-          (while (and
-                  (< i (length preedit))
-                  (< i (length commit-text-preview))
-                  (equal (aref preedit i) (aref commit-text-preview i)))
-            (setq i (1+ i)))
-          (let ((pre (substring preedit 0 i))
-                (raw (substring preedit i (+ i sel-end (- sel-start))))
-                (post (substring preedit (+ i sel-end (- sel-start))))
-                (pos (- cursor-pos sel-start)))
-            (setq text (concat pre
-                               (substring raw 0 pos)
-                               "|"
-                               (substring raw pos)
-                               post)))))))
+      (let ((i 0)
+            (w 0))
+        (while (< i (length preedit))
+          (let* ((ch (char-to-string (aref preedit i)))
+                 (len (liberime-string-length ch)))
+            (setq w (+ w len)
+                  i (1+ i))
+            (setq text (if (= w cursor-pos)
+                           (concat text ch "|")
+                         (concat text ch)))))))
     (when context
-      (setq result
-            (concat result (format "%s " text)))
+      (setq result (concat result (propertize
+                                   (format "%s " text)
+                                   'face font-lock-function-name-face)))
       (dolist (c candidates)
         (setq result
               (concat result (format "%d. %s " idx c)))
