@@ -42,7 +42,9 @@
 ;;   (use-package rime
 ;;     :quelpa (rime
 ;;              :fetcher github
-;;              :repo "DogLooksGood/emacs-rime"))
+;;              :repo "DogLooksGood/emacs-rime")
+;;     :bind
+;;     (("C-\\" . 'rime-toggle)))
 ;; #+END_SRC
 ;;
 ;; * 候选项展示
