@@ -17,7 +17,9 @@
     :quelpa (rime
              :fetcher github
              :repo "DogLooksGood/emacs-rime"
-             :files ("rime.el")))
+             :files ("rime.el"))
+    :bind
+    (("C-\\" . 'rime-toggle)))
 #+END_SRC
 
 * 设置输入中发送到 Rime 的组合键。
