@@ -57,6 +57,7 @@
 ;; | ~minibuffer~ | 在minibuffer中展示， 推荐使用的方式                       |
 ;; | ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件 |
 ;; | ~popup~      | 使用 ~popup.el~ 展示跟随的候选                            |
+;; | ~posframe~   | 使用 ~posframe~ 展示跟随的候选                            |
 ;;
 ;; * 用于展示的提示符
 ;;
@@ -114,6 +115,11 @@
   "提示符的样式"
   :group 'rime)
 
+(defface rime-posframe-face
+	'((t (:inherit default :background "#333333" :foreground "#dcdccc")))
+  "posframe 的样式"
+  :group 'rime)
+
 ;;; 只要`input-method-function'有定义就会被使用。而启用输入法只生效在当前`buffer'
 ;;; 所以需要这些变量为`buffer-local'，
 (make-variable-buffer-local 'input-method-function)
@@ -127,7 +133,7 @@
 (defcustom rime-show-candidate 'minibuffer
   "是否在`minibuffer'中显示候选列表。"
   :type 'symbol
-  :options '(minibuffer message popup)
+  :options '(minibuffer message popup posframe)
   :group 'rime)
 
 (make-variable-buffer-local
@@ -136,6 +142,9 @@
 
 (defvar rime--liberime-loaded nil
   "是否已经加载了`liberime'。")
+
+(defvar rime-posframe-buffer " *rime-posframe*"
+  "posframe 的 buffer")
 
 (defvar rime-title "ㄓ"
   "输入法的展示符号")
@@ -207,7 +216,14 @@
       (minibuffer (rime--minibuffer-display-result result))
       (message (message result))
       (popup (popup-tip result))
-      (t (progn)))))
+      (posframe (if (>(length result) 1)
+					(posframe-show rime-posframe-buffer
+								   :string result
+								   :background-color (face-attribute 'rime-posframe-face :background)
+								   :foreground-color (face-attribute 'rime-posframe-face :foreground))
+				  (posframe-hide rime-posframe-buffer)
+				  ))
+	  (t (progn)))))
 
 (defun rime--parse-key-event (event)
   "将 Emacs 中的 Key 换成 Rime 中的 Key + Mask.
