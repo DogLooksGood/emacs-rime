@@ -3,7 +3,7 @@
 ;;
 ;; Author: Shi Tianshu
 ;; Keywords: input method, rime
-;; Package-Requires: ((emacs "26.3") (dash "2.12.0") (cl-lib "1.0") (popup "0.5.3"))
+;; Package-Requires: ((emacs "26.3") (dash "2.12.0") (cl-lib "1.0") (popup "0.5.3") (posframe "0.1.0"))
 ;;
 ;; This file is not part of GNU Emacs.
 
@@ -90,6 +90,7 @@
 (require 'dash)
 (require 'cl-lib)
 (require 'popup nil t)
+(require 'posframe nil t)
 
 (defface rime-preedit-face
   '((((class color) (background dark))
@@ -174,6 +175,13 @@
 	(erase-buffer)
 	(insert result)))
 
+(defun rime--posframe-display-result (result)
+  (if (string-blank-p result)
+	  (posframe-hide rime-posframe-buffer)
+	(posframe-show rime-posframe-buffer
+				   :string result
+				   :background-color (face-attribute 'rime-posframe-face :background)
+				   :foreground-color (face-attribute 'rime-posframe-face :foreground))))
 
 (defun rime--show-candidate ()
   (let* ((context (liberime-get-context))
@@ -216,13 +224,7 @@
       (minibuffer (rime--minibuffer-display-result result))
       (message (message result))
       (popup (popup-tip result))
-      (posframe (if (>(length result) 1)
-					(posframe-show rime-posframe-buffer
-								   :string result
-								   :background-color (face-attribute 'rime-posframe-face :background)
-								   :foreground-color (face-attribute 'rime-posframe-face :foreground))
-				  (posframe-hide rime-posframe-buffer)
-				  ))
+      (posframe (rime--posframe-display-result result))
 	  (t (progn)))))
 
 (defun rime--parse-key-event (event)
