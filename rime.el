@@ -290,7 +290,7 @@
                           (alist-get 'composition)
                           (alist-get 'preedit))))
       (rime--clear-overlay)
-      (insert preedit)
+      (insert (string-join (split-string preedit " ")))
       (liberime-clear-composition)
       (rime--redisplay))
     (rime--refresh-mode-state)))
