@@ -175,6 +175,19 @@
 	(erase-buffer)
 	(insert result)))
 
+(defun rime-minibuffer-message (string)
+  (message nil)
+  (let ((inhibit-quit t)
+		point-1)
+	(save-excursion
+	  (insert string)
+	  (setq point-1 (point)))
+	(sit-for 1000000)
+	(delete-region (point) point-1)
+	(when quit-flag
+	  (setq quit-flag nil
+			unread-command-events '(7)))))
+
 (defun rime--posframe-display-result (result)
   (if (string-blank-p result)
 	  (posframe-hide rime-posframe-buffer)
@@ -220,12 +233,15 @@
         (setq idx (1+ idx))))
     (when (and page-no (not (zerop page-no)))
       (setq result (concat result (format " [%d] " (1+ page-no)))))
-    (cl-case rime-show-candidate
-      (minibuffer (rime--minibuffer-display-result result))
-      (message (message result))
-      (popup (popup-tip result))
-      (posframe (rime--posframe-display-result result))
-	  (t (progn)))))
+    (if (minibufferp)
+		(rime-minibuffer-message
+		 (concat "\n" result))
+		(cl-case rime-show-candidate
+			 (minibuffer (rime--minibuffer-display-result result))
+			 (message (message result))
+			 (popup (popup-tip result))
+			 (posframe (rime--posframe-display-result result))
+			 (t (progn))))))
 
 (defun rime--parse-key-event (event)
   "将 Emacs 中的 Key 换成 Rime 中的 Key + Mask.
