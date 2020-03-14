@@ -144,6 +144,9 @@
 (defvar rime--liberime-loaded nil
   "是否已经加载了`liberime'。")
 
+(defvar rime--popup nil
+  "当前在使用的 popup")
+
 (defvar rime-posframe-buffer " *rime-posframe*"
   "posframe 的 buffer")
 
@@ -191,13 +194,27 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
       (setq quit-flag nil
 	    unread-command-events '(7)))))
 
+(defun rime--popup-display-result (result)
+  (if (featurep 'popup)
+      (progn
+        (when rime--popup
+          (popup-delete rime--popup)
+          (setq rime--popup nil))
+        (unless (string-blank-p result)
+          (setq rime--popup (popup-tip result :nowait t))))
+    ;; 没有`popup'的时候使用`minibuffer'
+    (rime--minibuffer-display-result result)))
+
 (defun rime--posframe-display-result (result)
-  (if (string-blank-p result)
-      (posframe-hide rime-posframe-buffer)
-    (posframe-show rime-posframe-buffer
-		   :string result
-		   :background-color (face-attribute 'rime-posframe-face :background)
-		   :foreground-color (face-attribute 'rime-posframe-face :foreground))))
+  (if (and (featurep 'posframe) (display-graphic-p))
+      (if (string-blank-p result)
+          (posframe-hide rime-posframe-buffer)
+        (posframe-show rime-posframe-buffer
+		               :string result
+		               :background-color (face-attribute 'rime-posframe-face :background)
+		               :foreground-color (face-attribute 'rime-posframe-face :foreground)))
+    ;; 在非 GUI 或没有`posframe'的时候使用`popup'
+    (rime--popup-display-result result)))
 
 (defun rime--show-candidate ()
   (let* ((context (liberime-get-context))
@@ -242,7 +259,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
       (cl-case rime-show-candidate
 	(minibuffer (rime--minibuffer-display-result result))
 	(message (message result))
-	(popup (popup-tip result))
+	(popup (rime--popup-display-result result))
 	(posframe (rime--posframe-display-result result))
 	(t (progn))))))
 
