@@ -414,12 +414,13 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 ;;;###autoload
 (defun rime-activate (name)
   (if (require 'liberime-config nil t)
-      (progn (setq rime--liberime-loaded t
-		   input-method-function 'rime-input-method
-		   deactivate-current-input-method-function #'rime-deactivate)
-	     (dolist (binding rime-translate-keybindings)
-	       (define-key rime-mode-map (kbd binding) 'rime--send-keybinding))
-	     (message "Rime activate."))
+      (progn
+        (setq rime--liberime-loaded t
+		      input-method-function 'rime-input-method
+		      deactivate-current-input-method-function #'rime-deactivate)
+	    (dolist (binding rime-translate-keybindings)
+	      (define-key rime-mode-map (kbd binding) 'rime--send-keybinding))
+	    (message "Rime activate."))
     (error "Can't enable Rime, liberime is needed.")))
 
 (defun rime-deactivate ()
