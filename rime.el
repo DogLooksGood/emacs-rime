@@ -456,6 +456,11 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 ;;;###autoload
 (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
 
+;;;###autoload
+(defun rime-toggle ()
+  (interactive)
+  (message "`rime-toggle' is deprecated, use `toggle-input-method' instead"))
+
 (provide 'rime)
 
 ;;; rime.el ends here
