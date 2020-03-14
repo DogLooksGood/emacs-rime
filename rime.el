@@ -175,7 +175,10 @@
     (erase-buffer)
     (insert result)))
 
-(defun rime-minibuffer-message (string)
+(defun rime--minibuffer-message (string)
+  "当在 minibuffer 中使用 rime 输入中文时，需要将
+minibuffer 原来显示的信息和 rime 选词框整合在一起显示
+这个函数就是作这个工作。"
   (message nil)
   (let ((inhibit-quit t)
 	point-1)
