@@ -117,7 +117,7 @@
   :group 'rime)
 
 (defface rime-posframe-face
-	'((t (:inherit default :background "#333333" :foreground "#dcdccc")))
+  '((t (:inherit default :background "#333333" :foreground "#dcdccc")))
   "posframe 的样式"
   :group 'rime)
 
@@ -172,29 +172,29 @@
 
 (defun rime--minibuffer-display-result (result)
   (with-selected-window (minibuffer-window)
-	(erase-buffer)
-	(insert result)))
+    (erase-buffer)
+    (insert result)))
 
 (defun rime-minibuffer-message (string)
   (message nil)
   (let ((inhibit-quit t)
-		point-1)
-	(save-excursion
-	  (insert string)
-	  (setq point-1 (point)))
-	(sit-for 1000000)
-	(delete-region (point) point-1)
-	(when quit-flag
-	  (setq quit-flag nil
-			unread-command-events '(7)))))
+	point-1)
+    (save-excursion
+      (insert string)
+      (setq point-1 (point)))
+    (sit-for 1000000)
+    (delete-region (point) point-1)
+    (when quit-flag
+      (setq quit-flag nil
+	    unread-command-events '(7)))))
 
 (defun rime--posframe-display-result (result)
   (if (string-blank-p result)
-	  (posframe-hide rime-posframe-buffer)
-	(posframe-show rime-posframe-buffer
-				   :string result
-				   :background-color (face-attribute 'rime-posframe-face :background)
-				   :foreground-color (face-attribute 'rime-posframe-face :foreground))))
+      (posframe-hide rime-posframe-buffer)
+    (posframe-show rime-posframe-buffer
+		   :string result
+		   :background-color (face-attribute 'rime-posframe-face :background)
+		   :foreground-color (face-attribute 'rime-posframe-face :foreground))))
 
 (defun rime--show-candidate ()
   (let* ((context (liberime-get-context))
@@ -234,14 +234,14 @@
     (when (and page-no (not (zerop page-no)))
       (setq result (concat result (format " [%d] " (1+ page-no)))))
     (if (minibufferp)
-		(rime-minibuffer-message
-		 (concat "\n" result))
-		(cl-case rime-show-candidate
-			 (minibuffer (rime--minibuffer-display-result result))
-			 (message (message result))
-			 (popup (popup-tip result))
-			 (posframe (rime--posframe-display-result result))
-			 (t (progn))))))
+	(rime-minibuffer-message
+	 (concat "\n" result))
+      (cl-case rime-show-candidate
+	(minibuffer (rime--minibuffer-display-result result))
+	(message (message result))
+	(popup (popup-tip result))
+	(posframe (rime--posframe-display-result result))
+	(t (progn))))))
 
 (defun rime--parse-key-event (event)
   "将 Emacs 中的 Key 换成 Rime 中的 Key + Mask.
@@ -323,12 +323,12 @@
                (commit (liberime-get-commit)))
           (unwind-protect
               (cond
-               ((and (not context) (not commit) (not preedit))
+	       ((and (not context) (not commit) (not preedit))
                 (list key))
-               (commit
+	       (commit
                 (rime--clear-overlay)
                 (mapcar 'identity commit))
-               (t (rime--redisplay)))
+	       (t (rime--redisplay)))
             (rime--refresh-mode-state)))))))
 
 (defun rime--send-keybinding ()
@@ -402,11 +402,11 @@
   (message "Rime deactivate."))
 
 (defvar rime-mode-map
-      (let ((keymap (make-sparse-keymap)))
-        (define-key keymap (kbd "DEL") 'rime--backspace)
-        (define-key keymap (kbd "RET") 'rime--return)
-        (define-key keymap (kbd "<escape>") 'rime--escape)
-        keymap))
+  (let ((keymap (make-sparse-keymap)))
+    (define-key keymap (kbd "DEL") 'rime--backspace)
+    (define-key keymap (kbd "RET") 'rime--return)
+    (define-key keymap (kbd "<escape>") 'rime--escape)
+    keymap))
 
 ;;; Initializer
 
