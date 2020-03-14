@@ -150,6 +150,7 @@
 (defvar rime-posframe-buffer " *rime-posframe*"
   "posframe 的 buffer")
 
+;;;###autoload
 (defvar rime-title "ㄓ"
   "输入法的展示符号")
 
@@ -254,7 +255,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (when (and page-no (not (zerop page-no)))
       (setq result (concat result (format " [%d] " (1+ page-no)))))
     (if (minibufferp)
-	(rime-minibuffer-message
+	(rime--minibuffer-message
 	 (concat "\n" result))
       (cl-case rime-show-candidate
 	(minibuffer (rime--minibuffer-display-result result))
@@ -410,12 +411,16 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
          'rime-indicator-dim-face))
     ""))
 
+;;;###autoload
 (defun rime-activate (name)
-  (setq input-method-function 'rime-input-method
-        deactivate-current-input-method-function #'rime-deactivate)
-  (dolist (binding rime-translate-keybindings)
-    (define-key rime-mode-map (kbd binding) 'rime--send-keybinding))
-  (message "Rime activate."))
+  (if (require 'liberime-config nil t)
+      (progn (setq rime--liberime-loaded t
+		   input-method-function 'rime-input-method
+		   deactivate-current-input-method-function #'rime-deactivate)
+	     (dolist (binding rime-translate-keybindings)
+	       (define-key rime-mode-map (kbd binding) 'rime--send-keybinding))
+	     (message "Rime activate."))
+    (error "Can't enable Rime, liberime is needed.")))
 
 (defun rime-deactivate ()
   (rime--clean-state)
@@ -466,24 +471,12 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (rime-mode--uninit)))
 
 ;;;###autoload
-(defun rime-toggle ()
-  "激活/关闭 RIME 输入法。
+(register-input-method "rime" "euc-cn" 'rime-activate rime-title)
 
-有候选时切换输入法会清空未上屏的内容。"
+;;;###autoload
+(defun rime-toggle ()
   (interactive)
-  (if (not (equal "rime" current-input-method))
-      (progn
-        (unless rime--liberime-loaded
-          (require 'liberime-config nil t)
-          (if (not (featurep 'liberime-config))
-              (error "Can't enable Rime, liberime is needed.")
-            (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
-            (setq rime--liberime-loaded t)))
-        (set-input-method 'rime))
-    (when (liberime-get-context)
-      (liberime-clear-composition)
-      (rime--redisplay))
-    (set-input-method nil)))
+  (message "`rime-toggle' is deprecated, use `toggle-input-method' instead"))
 
 (provide 'rime)
 
