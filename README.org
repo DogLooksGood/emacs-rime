@@ -45,10 +45,6 @@
 | ~popup~      | 使用 ~popup.el~ 展示跟随的候选                           |
 | ~posframe~   | 使用 ~posframe~ 展示跟随的候选，在不可用的时候会用 ~popup~ |
 
-#+BEGIN_SRC emacs-lisp
-  (setq rime-input-editable nil)
-#+END_SRC
-
 * 用于展示的提示符
 
 使用函数 ~(rime-lighter)~ 返回一个用于展示的 ~ㄓ~ 符号。 
