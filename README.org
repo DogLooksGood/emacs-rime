@@ -18,8 +18,8 @@
              :fetcher github
              :repo "DogLooksGood/emacs-rime"
              :files ("rime.el"))
-    :bind
-    (("C-\\" . 'rime-toggle)))
+    :custom (default-input-method "rime")
+    )
 #+END_SRC
 
 * 设置输入中发送到 Rime 的组合键。
@@ -43,10 +43,7 @@
 | ~minibuffer~ | 在minibuffer中展示， 推荐使用的方式                   |
 | ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件 |
 | ~popup~      | 使用 ~popup.el~ 展示跟随的候选                          |
-
-#+BEGIN_SRC emacs-lisp
-  (setq rime-input-editable nil)
-#+END_SRC
+| ~posframe~   | 使用 ~posframe~ 展示跟随的候选                          |
 
 * 用于展示的提示符
 
