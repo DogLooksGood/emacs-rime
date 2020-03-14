@@ -37,13 +37,13 @@
 
 设置 ~rime-show-candidate~ 。
 
-| 可选值     | 说明                                                  |
-|------------+-------------------------------------------------------|
-| ~nil~        | 不展示                                                |
-| ~minibuffer~ | 在minibuffer中展示， 推荐使用的方式                   |
-| ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件 |
-| ~popup~      | 使用 ~popup.el~ 展示跟随的候选                          |
-| ~posframe~   | 使用 ~posframe~ 展示跟随的候选                          |
+| 可选值     | 说明                                                   |
+|------------+--------------------------------------------------------|
+| ~nil~        | 不展示                                                 |
+| ~minibuffer~ | 在minibuffer中展示， 推荐使用的方式                    |
+| ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件  |
+| ~popup~      | 使用 ~popup.el~ 展示跟随的候选                           |
+| ~posframe~   | 使用 ~posframe~ 展示跟随的候选，在不可用的时候会用 ~popup~ |
 
 * 用于展示的提示符
 
