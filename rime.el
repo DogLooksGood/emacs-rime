@@ -364,9 +364,8 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 (defun rime--clean-state ()
   "清空状态，包换`liberime'的状态和`preedit'。"
   (liberime-clear-composition)
-  (when (overlayp rime--preedit-overlay)
-    (delete-overlay rime--preedit-overlay)
-    (setq-local rime--preedit-overlay nil))
+  (rime--display-preedit)
+  (rime--show-candidate)
   (rime--refresh-mode-state))
 
 (defun rime--refresh-mode-state ()
@@ -420,7 +419,8 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 		      deactivate-current-input-method-function #'rime-deactivate)
 	    (dolist (binding rime-translate-keybindings)
 	      (define-key rime-mode-map (kbd binding) 'rime--send-keybinding))
-	    (message "Rime activate."))
+        (rime--clean-state)
+        (message "Rime activate."))
     (error "Can't enable Rime, liberime is needed.")))
 
 (defun rime-deactivate ()
