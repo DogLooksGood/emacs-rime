@@ -29,7 +29,7 @@
 #+BEGIN_SRC emacs-lisp
   ;; 默认值
   (setq rime-translate-keybindings
-    '("C-f" "C-b"))
+    '("C-f" "C-b" "C-n" "C-p" "C-g"))
 #+END_SRC
 
 * 候选框展示风格
@@ -61,6 +61,8 @@
           rime--prog-in-code-p))
 #+END_SRC
 
+* 打开配置文件
+使用函数 ~(rime-open-configuration)~ 打开配置文件
 * 如果你使用 Linux 
 Emacs 有一个优秀的远古BUG: 如果 ~LC_CTYPE~ 为 ~en_US.UTF8~ 的话，那么就无法调用起 Fcitx.
 所以可以利用这点把 Emacs 内切换输入法的快捷键和系统快捷键设为同一个键。

@@ -155,7 +155,7 @@
   "输入法的展示符号")
 
 (defvar rime-translate-keybindings
-  '("C-f" "C-b")
+  '("C-f" "C-b" "C-n" "C-p" "C-g")
   "交由 Rime 处理的组合快捷键。
 
 当前仅支持 Shift, Control, Meta 的组合键。
@@ -194,6 +194,12 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (when quit-flag
       (setq quit-flag nil
 	    unread-command-events '(7)))))
+
+(defun rime-exit-from-minibuffer ()
+  "Rime 从 minibuffer 退出."
+  (deactivate-input-method)
+  (when (<= (minibuffer-depth) 1)
+	(remove-hook 'minibuffer-exit-hook 'quail-exit-from-minibuffer)))
 
 (defun rime--popup-display-result (result)
   (if (featurep 'popup)
@@ -420,6 +426,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 	    (dolist (binding rime-translate-keybindings)
 	      (define-key rime-mode-map (kbd binding) 'rime--send-keybinding))
         (rime--clean-state)
+		(add-hook 'minibuffer-exit-hook 'rime-exit-from-minibuffer)
         (message "Rime activate."))
     (error "Can't enable Rime, liberime is needed.")))
 
@@ -474,6 +481,11 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 
 ;;;###autoload
 (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
+
+(defun rime-open-configuration ()
+  "打开 rime 配置文件"
+  (interactive)
+  (find-file (expand-file-name "default.custom.yaml" liberime-user-data-dir)))
 
 ;;;###autoload
 (defun rime-toggle ()
