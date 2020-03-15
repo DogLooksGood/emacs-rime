@@ -155,7 +155,7 @@
   "输入法的展示符号")
 
 (defvar rime-translate-keybindings
-  '("C-f" "C-b")
+  '("C-f" "C-b" "C-n" "C-p" "C-g")
   "交由 Rime 处理的组合快捷键。
 
 当前仅支持 Shift, Control, Meta 的组合键。
