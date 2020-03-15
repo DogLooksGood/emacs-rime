@@ -425,6 +425,10 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 
 (defun rime-deactivate ()
   (rime--clean-state)
+  (cl-case rime-show-candidate
+	(popup (popup-hide 'rime--popup)
+	 (posframe (posframe-delete rime-posframe-buffer))
+	 (t (progn))))
   (message "Rime deactivate."))
 
 (defvar rime-mode-map
