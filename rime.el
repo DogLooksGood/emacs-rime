@@ -242,6 +242,8 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (when preedit
       (let ((i 0)
             (w 0))
+        (when (zerop cursor-pos)
+          (setq result (propertize "|" 'face font-lock-function-name-face)))
         (while (< i (length preedit))
           (let* ((ch (char-to-string (aref preedit i)))
                  (len (liberime-string-length ch)))
