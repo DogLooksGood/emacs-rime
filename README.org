@@ -6,6 +6,10 @@
 
 * 使用方法
 
+目前无法通过 Melpa 直接安装。
+
+** 使用 Quelpa
+
 #+BEGIN_SRC emacs-lisp
   (use-package liberime-config
     :quelpa (liberime-config
@@ -61,8 +65,18 @@
           rime--prog-in-code-p))
 #+END_SRC
 
-* 打开配置文件
-使用函数 ~(rime-open-configuration)~ 打开配置文件
+* 设置软光标的样式
+
+默认使用 ~|~ 字符做为软光标，可以通过如下方式修改。
+
+#+BEGIN_SRC emacs-lisp
+  (setq rime-cursor "˰")
+#+END_SRC
+
+* 打开 Rime 的配置文件
+
+使用 ~rime-open-configuration~ 打开配置文件。
+
 * 如果你使用 Linux 
 Emacs 有一个优秀的远古BUG: 如果 ~LC_CTYPE~ 为 ~en_US.UTF8~ 的话，那么就无法调用起 Fcitx.
 所以可以利用这点把 Emacs 内切换输入法的快捷键和系统快捷键设为同一个键。

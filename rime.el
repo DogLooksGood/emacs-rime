@@ -137,6 +137,11 @@
   :options '(minibuffer message popup posframe)
   :group 'rime)
 
+(defcustom rime-cursor "|"
+  "用于表示软光标的字符。"
+  :type 'string
+  :group 'rime)
+
 (make-variable-buffer-local
  (defvar rime--preedit-overlay nil
    "存储嵌入首选的`overlay'，用于标记其范围便于修改。"))
@@ -243,14 +248,14 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
       (let ((i 0)
             (w 0))
         (when (zerop cursor-pos)
-          (setq result (propertize "|" 'face font-lock-function-name-face)))
+          (setq result (propertize rime-cursor 'face font-lock-function-name-face)))
         (while (< i (length preedit))
           (let* ((ch (char-to-string (aref preedit i)))
                  (len (liberime-string-length ch)))
             (setq w (+ w len)
                   i (1+ i))
             (setq text (if (= w cursor-pos)
-                           (concat text ch "|")
+                           (concat text ch rime-cursor)
                          (concat text ch)))))))
     (when context
       (setq result (concat result (propertize
