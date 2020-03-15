@@ -195,6 +195,12 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
       (setq quit-flag nil
 	    unread-command-events '(7)))))
 
+(defun rime-exit-from-minibuffer ()
+  "Rime 从 minibuffer 退出."
+  (deactivate-input-method)
+  (when (<= (minibuffer-depth) 1)
+	(remove-hook 'minibuffer-exit-hook 'quail-exit-from-minibuffer)))
+
 (defun rime--popup-display-result (result)
   (if (featurep 'popup)
       (progn
@@ -420,6 +426,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 	    (dolist (binding rime-translate-keybindings)
 	      (define-key rime-mode-map (kbd binding) 'rime--send-keybinding))
         (rime--clean-state)
+		(add-hook 'minibuffer-exit-hook 'rime-exit-from-minibuffer)
         (message "Rime activate."))
     (error "Can't enable Rime, liberime is needed.")))
 
