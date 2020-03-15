@@ -475,6 +475,11 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 ;;;###autoload
 (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
 
+(defun rime-open-configuration ()
+  "打开 rime 配置文件"
+  (interactive)
+  (find-file (expand-file-name "default.custom.yaml" liberime-user-data-dir)))
+
 ;;;###autoload
 (defun rime-toggle ()
   (interactive)
