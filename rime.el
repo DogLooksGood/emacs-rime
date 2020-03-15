@@ -430,6 +430,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 (defvar rime-mode-map
   (let ((keymap (make-sparse-keymap)))
     (define-key keymap (kbd "DEL") 'rime--backspace)
+    (define-key keymap (kbd "<backspace>") 'rime--backspace)
     (define-key keymap (kbd "RET") 'rime--return)
     (define-key keymap (kbd "<escape>") 'rime--escape)
     keymap))
