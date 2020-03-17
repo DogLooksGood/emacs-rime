@@ -156,7 +156,7 @@
   "posframe 的 buffer")
 
 (defvar rime-posframe-hide-posframe-hooks
-  '(pre-command-hook))
+  '(window-configuration-change-hook))
 
 ;;;###autoload
 (defvar rime-title "ㄓ"
