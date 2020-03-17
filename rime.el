@@ -235,6 +235,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
   " 隐藏 posframe "
   (posframe-hide rime-posframe-buffer)
   (liberime-clear-composition)
+  (rime--clear-overlay)
   (dolist (hook rime-posframe-hide-posframe-hooks)
     (remove-hook hook 'rime-posframe-hide-posframe t))
   )
