@@ -129,7 +129,7 @@
 (defvar rime--temporarily-ignore-predicates nil
   "是否临时忽略禁用断言。
 
-该变量在关闭`rime-mode'时会被重置为`nil'。")
+该变量在关闭`rime-active-mode'时会被重置为`nil'。")
 
 (defvar rime-force-enable-hook nil
   "激活强制模式时的`hook'。")
@@ -178,7 +178,7 @@
   "交由 Rime 处理的组合快捷键。
 
 当前仅支持 Shift, Control, Meta 的组合键。
-列出的按键会在`rime-mode-map'中生成一个到`rime--send-keybinding'的绑定。")
+列出的按键会在`rime-active-mode-map'中生成一个到`rime--send-keybinding'的绑定。")
 
 (defun rime--after-alphabet-char-p ()
   "当前光标是否在英文的后面。"
@@ -409,12 +409,12 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 
 (defun rime--refresh-mode-state ()
   (if (liberime-get-context)
-      (rime-mode 1)
+      (rime-active-mode 1)
     ;; 任何我们关闭候选的时候，都要关闭强制输入法状态
     (when rime--temporarily-ignore-predicates
       (setq rime--temporarily-ignore-predicates nil)
       (run-hooks 'rime-force-enable-exit-hook))
-    (rime-mode -1)))
+    (rime-active-mode -1)))
 
 (defun rime-register-and-set-default ()
   "注册 RIME 输入法并设置为默认的方案。"
@@ -461,24 +461,32 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 		      input-method-function 'rime-input-method
 		      deactivate-current-input-method-function #'rime-deactivate)
 	    (dolist (binding rime-translate-keybindings)
-	      (define-key rime-mode-map (kbd binding) 'rime--send-keybinding))
+	      (define-key rime-active-mode-map (kbd binding) 'rime--send-keybinding))
         (rime--clean-state)
 		(add-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
+        (rime-mode 1)
         (message "Rime activate."))
     (error "Can't enable Rime, liberime is needed.")))
 
 (defun rime-deactivate ()
   (rime--clean-state)
   (remove-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
+  (rime-mode -1)
   (message "Rime deactivate."))
 
-(defvar rime-mode-map
+(defvar rime-active-mode-map
   (let ((keymap (make-sparse-keymap)))
     (define-key keymap (kbd "DEL") 'rime--backspace)
     (define-key keymap (kbd "<backspace>") 'rime--backspace)
     (define-key keymap (kbd "RET") 'rime--return)
     (define-key keymap (kbd "<escape>") 'rime--escape)
-    keymap))
+    keymap)
+  "输入法有候选时的按键。")
+
+(defvar rime-mode-map
+  (let ((keymap (make-sparse-keymap)))
+    keymap)
+  "输入法启用时的按键。")
 
 ;;; Initializer
 
@@ -496,26 +504,32 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
   (advice-add 'vterm--redraw :after 'rime--redisplay)
   (define-key vterm-mode-map (kbd "<backspace>") 'vterm-send-backspace))
 
-(defun rime-mode--init ()
+(defun rime-active-mode--init ()
   (cl-case major-mode
     (vterm-mode (rime--init-hook-vterm))
     (t (rime--init-hook-default))))
 
-(defun rime-mode--uninit ()
+(defun rime-active-mode--uninit ()
   (cl-case major-mode
     (vterm-mode (rime--uninit-hook-vterm))
     (t (rime--uninit-hook-default))))
 
-(define-minor-mode rime-mode
-  "仅用于提供输入法激活状态下的按键绑定。
+(define-minor-mode rime-active-mode
+  "仅用于提供输入法输入中的按键绑定。
 
 该模式不应该被手动启用。"
   nil
   nil
-  rime-mode-map
-  (if rime-mode
-      (rime-mode--init)
-    (rime-mode--uninit)))
+  rime-active-mode-map
+  (if rime-active-mode
+      (rime-active-mode--init)
+    (rime-active-mode--uninit)))
+
+(define-minor-mode rime-mode
+  "输入法启用时的按键绑定。"
+  nil
+  nil
+  rime-mode-map)
 
 ;;;###autoload
 (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
