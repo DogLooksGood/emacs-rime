@@ -1,13 +1,13 @@
-(load-file (concat (file-name-directory (buffer-file-name)) "emacs-rime-lib.so"))
+(package-initialize)
 
-(rime-lib-start "/usr/share/rime-data/" "/home/tianshu/.emacs.d/rime/")
+(require 'ivy)
+(require 'dash)
+(require 'cl-lib)
 
-(rime-lib-process-key 97 0)
+(ivy-mode 1)
 
-(rime-lib-get-context)
+(add-to-list 'load-path (file-name-directory buffer-file-name))
 
-(rime-lib-get-input)
+(require 'rime)
 
-;; (rime-lib-clear-composition)
-
-(rime-lib-get-commit)
+(setq default-input-method "rime")

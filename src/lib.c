@@ -1,3 +1,22 @@
+// Author: Shi Tianshu
+//
+// This file is not part of GNU Emacs.
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 3
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU Emacs; see the file COPYING.  If not, write to the
+// Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+// Boston, MA 02110-1301, USA.
+
 #include <string.h>
 #include <stdlib.h>
 #include <emacs-module.h>
@@ -53,6 +72,14 @@ void notification_handler(void *context,
                           RimeSessionId session_id,
                           const char *message_type,
                           const char *message_value) {
+}
+
+
+emacs_value
+string_length(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) {
+  char* str = get_string(env, args[0]);
+  int len = strlen(str);
+  return INT(len);
 }
 
 emacs_value
@@ -141,51 +168,51 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
   // 0. context.commit_text_preview
   char *ctp_str = copy_string(context.commit_text_preview);
   if (ctp_str)
-    result_a[0] = CONS(STRING("commit-text-preview"), STRING(ctp_str));
+    result_a[0] = CONS(INTERN("commit-text-preview"), STRING(ctp_str));
   else
-    result_a[0] = CONS(STRING("commit-text-preview"), nil);
+    result_a[0] = CONS(INTERN("commit-text-preview"), nil);
 
   // 2. context.composition
-  emacs_value composition_a[7];
+  emacs_value composition_a[5];
 
   int length = context.composition.length;
   int cursor_pos = context.composition.cursor_pos;
 
-  composition_a[0] = CONS(STRING("length"), INT(length));
-  composition_a[1] = CONS(STRING("cursor-pos"), INT(cursor_pos));
-  composition_a[2] = CONS(STRING("sel-start"), INT(context.composition.sel_start));
-  composition_a[3] = CONS(STRING("sel-end"), INT(context.composition.sel_end));
+  composition_a[0] = CONS(INTERN("length"), INT(length));
+  composition_a[1] = CONS(INTERN("cursor-pos"), INT(cursor_pos));
+  composition_a[2] = CONS(INTERN("sel-start"), INT(context.composition.sel_start));
+  composition_a[3] = CONS(INTERN("sel-end"), INT(context.composition.sel_end));
 
   char *preedit_str = copy_string(context.composition.preedit);
   if (preedit_str) {
-    composition_a[4] = CONS(STRING("preedit"), STRING(preedit_str));
+    composition_a[4] = CONS(INTERN("preedit"), STRING(preedit_str));
 
-    int before_cursor_len = cursor_pos + 1;
-    int after_cursor_len = length - cursor_pos + 1;
-    char* before_cursor = malloc(before_cursor_len * sizeof(char));
-    char* after_cursor = malloc(after_cursor_len * sizeof(char));
-
-    strncpy(before_cursor, preedit_str, before_cursor_len);
-    strncpy(after_cursor, preedit_str + cursor_pos, after_cursor_len);
-
-    composition_a[5] = CONS(STRING("before-cursor"), STRING(before_cursor));
-    composition_a[6] = CONS(STRING("after-cursor"), STRING(after_cursor));
+    /* int before_cursor_len = cursor_pos + 1; */
+    /* int after_cursor_len = length - cursor_pos + 1; */
+    /* char* before_cursor = malloc(before_cursor_len * sizeof(char)); */
+    /* char* after_cursor = malloc(after_cursor_len * sizeof(char)); */
+    /*  */
+    /* strncpy(before_cursor, preedit_str, before_cursor_len); */
+    /* strncpy(after_cursor, preedit_str + cursor_pos, after_cursor_len); */
+    /*  */
+    /* composition_a[5] = CONS(INTERN("before-cursor"), STRING(before_cursor)); */
+    /* composition_a[6] = CONS(INTERN("after-cursor"), STRING(after_cursor)); */
 
   } else {
     return nil;
   }
 
-  emacs_value composition_value = LIST(7, composition_a);
-  result_a[1] = CONS(STRING("composition"), composition_value);
+  emacs_value composition_value = LIST(5, composition_a);
+  result_a[1] = CONS(INTERN("composition"), composition_value);
 
   // 3. context.menu
   if (context.menu.num_candidates) {
     emacs_value menu_a[6];
-    menu_a[0] = CONS(STRING("highlighted-candidate-index"), INT(context.menu.highlighted_candidate_index));
-    menu_a[1] = CONS(STRING("last-page-p"), context.menu.is_last_page ? t : nil);
-    menu_a[2] = CONS(STRING("num-candidates"), INT(context.menu.num_candidates));
-    menu_a[3] = CONS(STRING("page-no"), INT(context.menu.page_no));
-    menu_a[4] = CONS(STRING("page-size"), INT(context.menu.page_size));
+    menu_a[0] = CONS(INTERN("highlighted-candidate-index"), INT(context.menu.highlighted_candidate_index));
+    menu_a[1] = CONS(INTERN("last-page-p"), context.menu.is_last_page ? t : nil);
+    menu_a[2] = CONS(INTERN("num-candidates"), INT(context.menu.num_candidates));
+    menu_a[3] = CONS(INTERN("page-no"), INT(context.menu.page_no));
+    menu_a[4] = CONS(INTERN("page-size"), INT(context.menu.page_size));
     emacs_value carray[context.menu.num_candidates];
     // Build candidates
     for (int i = 0; i < context.menu.num_candidates; i++) {
@@ -194,11 +221,11 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
       carray[i] = STRING(ctext);
     }
     emacs_value candidates = LIST(context.menu.num_candidates, carray);
-    menu_a[5] = CONS(STRING("candidates"), candidates);
+    menu_a[5] = CONS(INTERN("candidates"), candidates);
     emacs_value menu = LIST(6, menu_a);
-    result_a[2] = CONS(STRING("menu"), menu);
+    result_a[2] = CONS(INTERN("menu"), menu);
   } else {
-    result_a[2] = CONS(STRING("menu"), nil);
+    result_a[2] = CONS(INTERN("menu"), nil);
   }
 
   // build result
@@ -267,6 +294,10 @@ get_schema_list(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) 
 
   RimeSchemaList schema_list;
 
+  if (!rime->api->get_schema_list(&schema_list)) {
+    return nil;
+  }
+
   emacs_value flist = env->intern(env, "list");
   emacs_value array[schema_list.size];
 
@@ -317,6 +348,7 @@ emacs_module_init (struct emacs_runtime *ert)
   emacs_defun(env, rime, process_key, "rime-lib-process-key", "Process key.", 2, 2);
   emacs_defun(env, rime, select_schema, "rime-lib-select-schema", "Select schema", 1, 1);
   emacs_defun(env, rime, get_schema_list, "rime-lib-get-schema-list", "Get schema list.", 0, 0);
+  emacs_defun(env, rime, string_length, "rime-lib-string-length", "Get length of string", 1, 1);
 
   if (ert->size < sizeof (*ert))
     return 1;

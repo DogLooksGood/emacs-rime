@@ -32,20 +32,6 @@
 ;;
 ;; * 使用方法
 ;;
-;; #+BEGIN_SRC emacs-lisp
-;;   (use-package liberime-config
-;;     :quelpa (liberime-config
-;;              :fetcher github
-;;              :repo "DogLooksGood/liberime"
-;;              :files ("CMakeLists.txt" "Makefile" "src" "liberime-config.el")))
-;;
-;;   (use-package rime
-;;     :quelpa (rime
-;;              :fetcher github
-;;              :repo "DogLooksGood/emacs-rime")
-;;     :bind
-;;     (("C-\\" . 'rime-toggle)))
-;; #+END_SRC
 ;;
 ;; * 候选项展示
 ;;
@@ -148,6 +134,28 @@
   :options '(minibuffer message popup posframe)
   :group 'rime)
 
+(defvar rime-user-dir (locate-user-emacs-file "rime/"))
+
+(defvar rime-share-data-dir
+  (cl-case system-type
+    ('gnu/linux
+     (cl-some (lambda (parent)
+                (let ((dir (expand-file-name "rime-data" parent)))
+                  (when (file-directory-p dir)
+                    dir)))
+              (if (fboundp 'xdg-data-dirs)
+                  (xdg-data-dirs)
+                '("/usr/share/local" "/usr/share"))))
+    ('darwin
+     "/Library/Input Methods/Squirrel.app/Contents/SharedSupport")))
+
+(defvar rime--root (file-name-directory (or load-file-name buffer-file-name)))
+
+(defvar rime--module-path
+  (concat rime--root
+          "liberime"
+          module-file-suffix))
+
 (defcustom rime-cursor "|"
   "用于表示软光标的字符。"
   :type 'string
@@ -157,7 +165,7 @@
  (defvar rime--preedit-overlay nil
    "存储嵌入首选的`overlay'，用于标记其范围便于修改。"))
 
-(defvar rime--liberime-loaded nil
+(defvar rime--lib-loaded nil
   "是否已经加载了`liberime'。")
 
 (defvar rime--popup nil
@@ -246,14 +254,13 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 (defun rime-posframe-hide-posframe ()
   " 隐藏 posframe "
   (posframe-hide rime-posframe-buffer)
-  (liberime-clear-composition)
+  (rime-lib-clear-composition)
   (rime--clear-overlay)
   (dolist (hook rime-posframe-hide-posframe-hooks)
-    (remove-hook hook 'rime-posframe-hide-posframe t))
-  )
+    (remove-hook hook 'rime-posframe-hide-posframe t)))
 
 (defun rime--show-candidate ()
-  (let* ((context (liberime-get-context))
+  (let* ((context (rime-lib-get-context))
          (candidates (alist-get 'candidates (alist-get 'menu context)))
          (composition (alist-get 'composition context))
          (length (alist-get 'length composition))
@@ -263,7 +270,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
          (sel-start (alist-get 'sel-start composition))
          (sel-end (alist-get 'sel-end composition))
          (menu (alist-get 'menu context))
-         (input (liberime-get-input))
+         (input (rime-lib-get-input))
          (page-no (alist-get 'page-no menu))
          (text)
          (idx 1)
@@ -275,7 +282,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
           (setq result (propertize rime-cursor 'face font-lock-function-name-face)))
         (while (< i (length preedit))
           (let* ((ch (char-to-string (aref preedit i)))
-                 (len (liberime-string-length ch)))
+                 (len (rime-lib-string-length ch)))
             (setq w (+ w len)
                   i (1+ i))
             (setq text (if (= w cursor-pos)
@@ -301,6 +308,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
         (posframe (rime--posframe-display-result result))
         (t (progn))))))
 
+
 (defun rime--parse-key-event (event)
   "将 Emacs 中的 Key 换成 Rime 中的 Key + Mask.
 
@@ -325,7 +333,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (setq rime--preedit-overlay nil)))
 
 (defun rime--display-preedit ()
-  (let ((preedit (alist-get 'commit-text-preview (liberime-get-context))))
+  (let ((preedit (alist-get 'commit-text-preview (rime-lib-get-context))))
     ;; Always delete the old overlay.
     (rime--clear-overlay)
     ;; Create the new preedit
@@ -335,8 +343,8 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
                    'after-string (propertize preedit 'face
                                              'rime-preedit-face)))))
 
-(defun rime--liberime-module-ready-p ()
-  (fboundp 'liberime-clear-composition))
+(defun rime--rime-lib-module-ready-p ()
+  (fboundp 'rime-lib-clear-composition))
 
 (defun rime--redisplay (&rest ignores)
   "绘制嵌入编码和候选。"
@@ -345,42 +353,42 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 
 (defun rime--backspace ()
   (interactive)
-  (when (rime--liberime-module-ready-p)
-    (when-let ((context (liberime-get-context)))
-      (liberime-process-key 65288)
+  (when (rime--rime-lib-module-ready-p)
+    (when-let ((context (rime-lib-get-context)))
+      (rime-lib-process-key 65288 0)
       (rime--redisplay))
     (rime--refresh-mode-state)))
 
 (defun rime--escape ()
   (interactive)
-  (when (rime--liberime-module-ready-p)
-    (when-let ((context (liberime-get-context)))
-      (liberime-clear-composition)
+  (when (rime--rime-lib-module-ready-p)
+    (when-let ((context (rime-lib-get-context)))
+      (rime-lib-clear-composition)
       (rime--redisplay))
     (rime--refresh-mode-state)))
 
 (defun rime--return ()
   (interactive)
-  (when (rime--liberime-module-ready-p)
-    (when-let (input (liberime-get-input))
+  (when (rime--rime-lib-module-ready-p)
+    (when-let (input (rime-lib-get-input))
       (rime--clear-overlay)
       (insert input)
-      (liberime-clear-composition)
+      (rime-lib-clear-composition)
       (rime--redisplay))
     (rime--refresh-mode-state)))
 
 (defun rime-input-method (key)
-  (when (rime--liberime-module-ready-p)
+  (when (rime--rime-lib-module-ready-p)
     (if (and (not (rime--should-enable-p))
-             (not (liberime-get-context)))
+             (not (rime-lib-get-context)))
         (list key)
-      (liberime-process-key key)
+      (rime-lib-process-key key 0)
       (with-silent-modifications
-        (let* ((context (liberime-get-context))
+        (let* ((context (rime-lib-get-context))
                (preedit (thread-last context
                           (alist-get 'composition)
                           (alist-get 'preedit)))
-               (commit (liberime-get-commit)))
+               (commit (rime-lib-get-commit)))
           (unwind-protect
               (cond
                ((and (not context) (not commit) (not preedit))
@@ -396,19 +404,19 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
   (let* ((parsed (rime--parse-key-event last-input-event))
          (key (car parsed))
          (mask (cdr parsed)))
-    (liberime-process-key key mask)
+    (rime-lib-process-key key mask)
     (rime--redisplay)
     (rime--refresh-mode-state)))
 
 (defun rime--clean-state ()
   "清空状态，包换`liberime'的状态和`preedit'。"
-  (liberime-clear-composition)
+  (rime-lib-clear-composition)
   (rime--display-preedit)
   (rime--show-candidate)
   (rime--refresh-mode-state))
 
 (defun rime--refresh-mode-state ()
-  (if (liberime-get-context)
+  (if (rime-lib-get-context)
       (rime-active-mode 1)
     ;; 任何我们关闭候选的时候，都要关闭强制输入法状态
     (when rime--temporarily-ignore-predicates
@@ -424,8 +432,8 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 (defun rime-select-schema ()
   "选择 RIME 中使用的方案。"
   (interactive)
-  (if rime--liberime-loaded
-      (let* ((schema-list (liberime-get-schema-list))
+  (if rime--lib-loaded
+      (let* ((schema-list (rime-lib-get-schema-list))
              (schema-names (mapcar 'cdr schema-list))
              (schema-name (completing-read "Schema: " schema-names))
              (schema (thread-last schema-list
@@ -433,7 +441,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
                                    (equal (cadr s) schema-name)))
                        (car))))
         (message "Rime schema: %s" schema-name)
-        (liberime-select-schema schema))
+        (rime-lib-select-schema schema))
     (message "Rime is not activated.")))
 
 (defun rime-lighter ()
@@ -453,20 +461,29 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
          'rime-indicator-dim-face))
     ""))
 
+
+(defun rime-load-dynamic-module ()
+  (unless (file-exists-p rime--module-path)
+    (shell-command (format "cd %s; make lib" rime--root)))
+  (if (not (file-exists-p rime--module-path))
+      (error "Failed to compile dynamic module.")
+    (load-file rime--module-path)
+    (rime-lib-start rime-share-data-dir rime-user-dir)
+    (setq rime--lib-loaded t)))
+
 ;;;###autoload
 (defun rime-activate (name)
-  (if (require 'liberime-config nil t)
-      (progn
-        (setq rime--liberime-loaded t
-		      input-method-function 'rime-input-method
-		      deactivate-current-input-method-function #'rime-deactivate)
-	    (dolist (binding rime-translate-keybindings)
-	      (define-key rime-active-mode-map (kbd binding) 'rime--send-keybinding))
-        (rime--clean-state)
-		(add-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
-        (rime-mode 1)
-        (message "Rime activate."))
-    (error "Can't enable Rime, liberime is needed.")))
+  (if (not (rime-load-dynamic-module))
+      (error "Failed to load dynamic module.")
+    (setq rime--rime-lib-loaded t
+		  input-method-function 'rime-input-method
+		  deactivate-current-input-method-function #'rime-deactivate)
+	(dolist (binding rime-translate-keybindings)
+	  (define-key rime-active-mode-map (kbd binding) 'rime--send-keybinding))
+    (rime--clean-state)
+	(add-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
+    (rime-mode 1)
+    (message "Rime activate.")))
 
 (defun rime-deactivate ()
   (rime--clean-state)
@@ -534,6 +551,15 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 ;;;###autoload
 (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
 
+(defun liberime-deploy()
+  (interactive)
+  (liberime-finalize)
+  (liberime--start))
+
+(defun liberime-sync ()
+  (interactive)
+  (liberime-sync-user-data))
+
 (defun rime-force-enable ()
   "临时强制使用输入法处理按键，在上屏，清空输入切换输入法时恢复原状态。"
   (interactive)
@@ -543,7 +569,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 (defun rime-open-configuration ()
   "打开 rime 配置文件"
   (interactive)
-  (find-file (expand-file-name "default.custom.yaml" liberime-user-data-dir)))
+  (find-file (expand-file-name "default.custom.yaml" rime-user-dir)))
 
 ;;;###autoload
 (defun rime-toggle ()
