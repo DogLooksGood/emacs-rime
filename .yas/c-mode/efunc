@@ -1,0 +1,4 @@
+emacs_value
+$1 (emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
+   $0
+}
