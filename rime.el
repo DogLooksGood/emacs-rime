@@ -126,6 +126,17 @@
 (make-variable-buffer-local 'input-method-function)
 (make-variable-buffer-local 'deactivate-current-input-method-function)
 
+(defvar rime--temporarily-ignore-predicates nil
+  "是否临时忽略禁用断言。
+
+该变量在关闭`rime-mode'时会被重置为`nil'。")
+
+(defvar rime-force-enable-hook nil
+  "激活强制模式时的`hook'。")
+
+(defvar rime-force-enable-exit-hook nil
+  "退出强制模式时的`hook'。")
+
 (defcustom rime-disable-predicates nil
   "当此列表中任何一个断言函数成立时，进入临时英文模式。"
   :type 'list
@@ -180,7 +191,8 @@
              (nth 4 (syntax-ppss))))))
 
 (defun rime--should-enable-p ()
-  (not (seq-find 'funcall rime-disable-predicates)))
+  (or rime--temporarily-ignore-predicates
+      (not (seq-find 'funcall rime-disable-predicates))))
 
 (defun rime--minibuffer-display-result (result)
   (with-selected-window (minibuffer-window)
@@ -398,6 +410,10 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 (defun rime--refresh-mode-state ()
   (if (liberime-get-context)
       (rime-mode 1)
+    ;; 任何我们关闭候选的时候，都要关闭强制输入法状态
+    (when rime--temporarily-ignore-predicates
+      (setq rime--temporarily-ignore-predicates nil)
+      (run-hooks 'rime-force-enable-exit-hook))
     (rime-mode -1)))
 
 (defun rime-register-and-set-default ()
@@ -503,6 +519,12 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 
 ;;;###autoload
 (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
+
+(defun rime-force-enable ()
+  "临时强制使用输入法处理按键，在上屏，清空输入切换输入法时恢复原状态。"
+  (interactive)
+  (setq rime--temporarily-ignore-predicates t)
+  (run-hooks 'rime-force-enable-hook))
 
 (defun rime-open-configuration ()
   "打开 rime 配置文件"
