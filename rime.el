@@ -155,6 +155,9 @@
 (defvar rime-posframe-buffer " *rime-posframe*"
   "posframe 的 buffer")
 
+(defvar rime-posframe-hide-posframe-hooks
+  '(pre-command-hook))
+
 ;;;###autoload
 (defvar rime-title "ㄓ"
   "输入法的展示符号")
@@ -218,13 +221,22 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 (defun rime--posframe-display-result (result)
   (if (and (featurep 'posframe) (display-graphic-p))
       (if (string-blank-p result)
-          (posframe-hide rime-posframe-buffer)
+          (rime-posframe-hide-posframe)
         (posframe-show rime-posframe-buffer
 		               :string result
 		               :background-color (face-attribute 'rime-posframe-face :background)
-		               :foreground-color (face-attribute 'rime-posframe-face :foreground)))
+		               :foreground-color (face-attribute 'rime-posframe-face :foreground))
+		(dolist (hook rime-posframe-hide-posframe-hooks)
+		  (add-hook hook #'rime-posframe-hide-posframe nil t))
+		)
     ;; 在非 GUI 或没有`posframe'的时候使用`popup'
     (rime--popup-display-result result)))
+
+(defun rime-posframe-hide-posframe ()
+  " 隐藏 posframe "
+  (posframe-hide rime-posframe-buffer)
+  (dolist (hook rime-posframe-hide-posframe-hooks)
+	(remove-hook hook 'rime-posframe-hide-posframe t)))
 
 (defun rime--show-candidate ()
   (let* ((context (liberime-get-context))
