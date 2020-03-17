@@ -193,7 +193,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 这个函数就是作这个工作。"
   (message nil)
   (let ((inhibit-quit t)
-	point-1)
+        point-1)
     (save-excursion
       (insert string)
       (setq point-1 (point)))
@@ -201,7 +201,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (delete-region (point) point-1)
     (when quit-flag
       (setq quit-flag nil
-	    unread-command-events '(7)))))
+            unread-command-events '(7)))))
 
 (defun rime--init-minibuffer ()
   "确保 `minibuffer' 每次打开都是英文模式."
@@ -223,20 +223,21 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
       (if (string-blank-p result)
           (rime-posframe-hide-posframe)
         (posframe-show rime-posframe-buffer
-		               :string result
-		               :background-color (face-attribute 'rime-posframe-face :background)
-		               :foreground-color (face-attribute 'rime-posframe-face :foreground))
-		(dolist (hook rime-posframe-hide-posframe-hooks)
-		  (add-hook hook #'rime-posframe-hide-posframe nil t))
-		)
+                       :string result
+                       :background-color (face-attribute 'rime-posframe-face :background)
+                       :foreground-color (face-attribute 'rime-posframe-face :foreground))
+        (dolist (hook rime-posframe-hide-posframe-hooks)
+          (add-hook hook #'rime-posframe-hide-posframe nil t)))
     ;; 在非 GUI 或没有`posframe'的时候使用`popup'
     (rime--popup-display-result result)))
 
 (defun rime-posframe-hide-posframe ()
   " 隐藏 posframe "
   (posframe-hide rime-posframe-buffer)
+  (liberime-clear-composition)
   (dolist (hook rime-posframe-hide-posframe-hooks)
-	(remove-hook hook 'rime-posframe-hide-posframe t)))
+    (remove-hook hook 'rime-posframe-hide-posframe t))
+  )
 
 (defun rime--show-candidate ()
   (let* ((context (liberime-get-context))
@@ -278,14 +279,14 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (when (and page-no (not (zerop page-no)))
       (setq result (concat result (format " [%d] " (1+ page-no)))))
     (if (minibufferp)
-	(rime--minibuffer-message
-	 (concat "\n" result))
+        (rime--minibuffer-message
+         (concat "\n" result))
       (cl-case rime-show-candidate
-	(minibuffer (rime--minibuffer-display-result result))
-	(message (message result))
-	(popup (rime--popup-display-result result))
-	(posframe (rime--posframe-display-result result))
-	(t (progn))))))
+        (minibuffer (rime--minibuffer-display-result result))
+        (message (message result))
+        (popup (rime--popup-display-result result))
+        (posframe (rime--posframe-display-result result))
+        (t (progn))))))
 
 (defun rime--parse-key-event (event)
   "将 Emacs 中的 Key 换成 Rime 中的 Key + Mask.
@@ -317,7 +318,9 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     ;; Create the new preedit
     (when preedit
       (setq rime--preedit-overlay (make-overlay (point) (point)))
-      (overlay-put rime--preedit-overlay 'after-string (propertize preedit 'face 'rime-preedit-face)))))
+      (overlay-put rime--preedit-overlay
+                   'after-string (propertize preedit 'face
+                                             'rime-preedit-face)))))
 
 (defun rime--liberime-module-ready-p ()
   (fboundp 'liberime-clear-composition))
@@ -367,12 +370,12 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
                (commit (liberime-get-commit)))
           (unwind-protect
               (cond
-	       ((and (not context) (not commit) (not preedit))
+               ((and (not context) (not commit) (not preedit))
                 (list key))
-	       (commit
+               (commit
                 (rime--clear-overlay)
                 (mapcar 'identity commit))
-	       (t (rime--redisplay)))
+               (t (rime--redisplay)))
             (rime--refresh-mode-state)))))))
 
 (defun rime--send-keybinding ()
