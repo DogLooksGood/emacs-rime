@@ -1,9 +1,11 @@
 ;; -*- lexical-binding: t -*-
-;;; rime.el --- RIME integration with liberime for XingMa user.
+;;; rime.el --- RIME input method
 ;;
 ;; Author: Shi Tianshu
-;; Keywords: input method, rime
+;; Keywords: convenience, input-method
 ;; Package-Requires: ((emacs "26.3") (dash "2.12.0") (cl-lib "1.0") (popup "0.5.3") (posframe "0.1.0"))
+;; Version: 1.0.0
+;; URL: https://www.github.com/DogLooksGood/emacs-rime
 ;;
 ;; This file is not part of GNU Emacs.
 
@@ -24,36 +26,82 @@
 
 ;;; Commentary:
 
-;; * 此项目的目的
+;; Emacs in Rime, support multiple schemas.
 ;;
-;; 在 Emacs 中通过 [[https://github.com/merrickluo/liberime][liberime]] 集成 RIME 输入法，支持多种形码输入方案。
+;; * Installation
 ;;
-;; 拼音方案请移步： [[https://github.com/tumashu/pyim][pyim]] 或 [[https://github.com/QiangF/liberime][erime]].
+;; Note: ~make~ and ~gcc~ is required.
 ;;
-;; * 使用方法
+;; ** Linux
 ;;
+;; Install librime with your package manager, if you are using fcitx-rime or ibus-rime,
+;; the librime should be already installed.
 ;;
-;; * 候选项展示
+;; Emacs configuration:
 ;;
-;; 设置 ~rime-show-candidate~ 。
+;; #+BEGIN_SRC emacs-lisp
+;;   (use-package rime
+;;     :custom
+;;     (default-input-method "rime"))
+;; #+END_SRC
 ;;
-;; | 可选值       | 说明                                                      |
-;; |--------------+-----------------------------------------------------------|
-;; | ~nil~        | 不展示                                                    |
-;; | ~minibuffer~ | 在minibuffer中展示， 推荐使用的方式                       |
-;; | ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件 |
-;; | ~popup~      | 使用 ~popup.el~ 展示跟随的候选                            |
-;; | ~posframe~   | 使用 ~posframe~ 展示跟随的候选                            |
+;; ** MacOS
 ;;
-;; * 用于展示的提示符
+;; Download librime release.
 ;;
-;; 使用函数 ~(rime-lighter)~ 返回一个用于展示的 ~ㄓ~ 符号。
-;; 可以通过 ~rime-indicator-face~ 和 ~rime-indicator-dim-face~ 设置样式。
+;; #+BEGIN_SRC bash
+;;   wget https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
+;;   unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
+;;   rm -rf rime-1.5.3-osx.zip
+;; #+END_SRC
 ;;
-;; * 临时英文模式的切换
-;; 如果使用模式编辑，或是需要在一些特定的场景下自动使用英文，可以 ~rime-disable-predicates~ 。
+;; Emacs configuration:
 ;;
-;; 一个在 ~evil-normal-state~ 中、在英文字母后面以及代码中自动使用英文的例子。
+;; #+BEGIN_SRC emacs-lisp
+;;   (use-package rime
+;;     :init
+;;     :custom
+;;     (rime-librime-root "~/.emacs.d/librime/dist")
+;;     (default-input-method "rime"))
+;; #+END_SRC
+;;
+;; * Keybindings in Rime.
+;;
+;; With following configuration, you can send a serials of keybindings to Rime.
+;; Since you may want them to help you with cursor navigation, candidate pagination and selection.
+;;
+;; Currently the keybinding with Control(C-), Meta(M-) and Shift(S-) is supported.
+;;
+;; #+BEGIN_SRC emacs-lisp
+;;   ;; defaults
+;;   (setq rime-translate-keybindings
+;;     '("C-f" "C-b" "C-n" "C-p" "C-g"))
+;; #+END_SRC
+;;
+;; * Candidate menu style
+;;
+;; Set via ~rime-show-candidate~.
+;;
+;; | Value      | description                                                                 |
+;; |------------+-----------------------------------------------------------------------------|
+;; | ~nil~        | don't show candidate at all.                                                |
+;; | ~minibuffer~ | Display in minibuffer.                                                      |
+;; | ~message~    | Display with ~message~ function, useful when you use minibuffer as mode-line. |
+;; | ~popup~      | Use popup.                                                                  |
+;; | ~posframe~   | Use posfarme, will fallback to popup in TUI                                 |
+;;
+;; * The lighter
+;;
+;; You can get a lighter via ~(rime-lighter)~, which returns you a colored ~ㄓ~.
+;; Put it in modeline or anywhere you want.
+;;
+;; You can customize with ~rime-title~, ~rime-indicator-face~ and ~rime-indicator-dim-face~.
+;;
+;; * Temporarily ascii mode
+;;
+;; If you want specific a list of rules to automatically enable ascii mode, you can customize ~rime-disable-predicates~.
+;;
+;; Following is a example to use ascii mode in ~evil-normal-state~ or when cursor is after alphabet character or when cursor is in code.
 ;;
 ;; #+BEGIN_SRC emacs-lisp
 ;;   (setq rime-disable-predicates
@@ -62,13 +110,25 @@
 ;;           rime--prog-in-code-p))
 ;; #+END_SRC
 ;;
-;; * 如果你使用 Linux
-;; Emacs 有一个优秀的远古BUG: 如果 ~LC_CTYPE~ 为 ~en_US.UTF8~ 的话，那么就无法调用起 Fcitx.
-;; 所以可以利用这点把 Emacs 内切换输入法的快捷键和系统快捷键设为同一个键。
+;; ** Force enable
 ;;
-;; * 优秀的 Emacs 输入法
+;; If one of ~rime-disable-predicates~ returns t, you can still force enable the input method with ~rime-force-enable~.
+;; The effect will only last for one input behavior.
 ;;
-;; 你可能需要 [[https://github.com/tumashu/pyim][pyim]], [[https://github.com/merrickluo/liberime][liberime]], [[https://github.com/QiangF/liberime][erime]].
+;; You probably want to give this command a keybinding.
+;;
+;; * The soft cursor
+;;
+;; Default to ~|~ , you can customize it with
+;;
+;; #+BEGIN_SRC emacs-lisp
+;;   (setq rime-cursor "˰")
+;; #+END_SRC
+;;
+;; * Shortcut to open Rime configuration file
+;;
+;; Use ~rime-open-configuration~.
+
 
 ;;; Code:
 
@@ -117,10 +177,10 @@
   "Face for the number before each candidate, not available in `message' and `popup'."
   :group 'rime)
 
-(defcustom rime-librime-root ""
+(defcustom rime-librime-root nil
   "The path to the directory of librime.
 
-Leave it empty if you have librime's lib and header files in the standard path.
+Leave it nil if you have librime's lib and header files in the standard path.
 Otherwise you should set this to where you put librime."
   :type 'string
   :group 'rime)
@@ -507,9 +567,11 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
 (defun rime-compile-module ()
   "Compile dynamic module if lib file is not exists."
   (unless (file-exists-p rime--module-path)
-    (shell-command (format "cd %s; LIBRIME_ROOT=%s make lib"
-                           rime--root
-                           (file-name-as-directory rime-librime-root)))))
+    (let ((env (if rime-librime-root
+                    (format "LIBRIME_ROOT=%s" (file-name-as-directory rime-librime-root))
+                  "")))
+      (shell-command
+       (format "cd %s; %s make lib" rime--root env)))))
 
 (defun rime-load-dynamic-module ()
   "Load dynamic module."
@@ -602,12 +664,12 @@ Should not be enabled manually."
 ;;;###autoload
 (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
 
-(defun liberime-deploy()
+(defun rime-deploy()
   (interactive)
   (liberime-finalize)
   (liberime--start))
 
-(defun liberime-sync ()
+(defun rime-sync ()
   (interactive)
   (liberime-sync-user-data))
 
