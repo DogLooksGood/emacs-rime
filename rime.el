@@ -699,13 +699,13 @@ Should not be enabled manually."
 (defun rime-deploy()
   "Deploy Rime."
   (interactive)
-  (liberime-finalize)
-  (liberime--start))
+  (rime-lib-finalize)
+  (rime-lib-start rime-share-data-dir rime-user-data-dir))
 
 (defun rime-sync ()
   "Sync Rime user data."
   (interactive)
-  (liberime-sync-user-data))
+  (rime-lib-sync-user-data))
 
 (defun rime-force-enable ()
   "Enable temporarily ascii mode.
