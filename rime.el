@@ -1,9 +1,9 @@
+;;; rime.el --- Rime input method
 ;; -*- lexical-binding: t -*-
-;;; rime.el --- RIME input method
 ;;
 ;; Author: Shi Tianshu
 ;; Keywords: convenience, input-method
-;; Package-Requires: ((emacs "26.3") (dash "2.12.0") (cl-lib "1.0") (popup "0.5.3") (posframe "0.1.0"))
+;; Package-Requires: ((emacs "26.3") (dash "2.12.0") (cl-lib "0.6.1") (popup "0.5.3") (posframe "0.1.0"))
 ;; Version: 1.0.0
 ;; URL: https://www.github.com/DogLooksGood/emacs-rime
 ;;
@@ -86,7 +86,7 @@
 ;; |------------+-----------------------------------------------------------------------------|
 ;; | ~nil~        | don't show candidate at all.                                                |
 ;; | ~minibuffer~ | Display in minibuffer.                                                      |
-;; | ~message~    | Display with ~message~ function, useful when you use minibuffer as mode-line. |
+;; | ~message~    | Display with ~message~ function, useful when you use minibuffer as mode-line.  |
 ;; | ~popup~      | Use popup.                                                                  |
 ;; | ~posframe~   | Use posfarme, will fallback to popup in TUI                                 |
 ;;
@@ -193,13 +193,13 @@ Otherwise you should set this to where you put librime."
   "Temporarily disable all predicates.
 
 Set to t will ensure the next input will be handled by input-method.
-Will be reset to nil when `rime-active-mode' is disabled. ")
+Will be reset to nil when symbol `rime-active-mode' is disabled.")
 
 (defvar rime-force-enable-hook nil
-  "hooks run after `rime-force-enable' is called.")
+  "Hooks run after `rime-force-enable' is called.")
 
 (defvar rime-force-enable-exit-hook nil
-  "hooks rum after the state of `rime-force-enable' is turned off.")
+  "Hooks rum after the state of `rime-force-enable' is turned off.")
 
 (defcustom rime-disable-predicates nil
   "A list of predicate functions, each receive no argument.
@@ -214,9 +214,9 @@ If one of these functions return will, the input-method will fallback to ascii m
 nil means don't display candidate at all.
 `minibuffer', display canidate in minibuffer.
 `popup', display with popup.el.
-`message', display with function `message', this is a replacement for `minibuffer' if you use minibuffer as the mode-line.
-`posframe', display candidate in posframe, will fallback to popup in TUI.
-"
+`message', display with function `message', this is a
+replacement for `minibuffer' if you use minibuffer as the mode-line.
+`posframe', display candidate in posframe, will fallback to popup in TUI."
   :type 'symbol
   :options '(minibuffer message popup posframe)
   :group 'rime)
@@ -224,7 +224,7 @@ nil means don't display candidate at all.
 (defcustom rime-user-data-dir (locate-user-emacs-file "rime/")
   "Rime user data directory.
 
-Defaults to ~/.emacs.d/rime/"
+Defaults to `user-emacs-directory'/rime/"
   :type 'string
   :group 'rime)
 
@@ -240,7 +240,7 @@ Defaults to ~/.emacs.d/rime/"
                 '("/usr/share/local" "/usr/share"))))
     ('darwin
      "/Library/Input Methods/Squirrel.app/Contents/SharedSupport"))
-  "Rime share data directory. "
+  "Rime share data directory."
   :type 'string
   :group 'rime)
 
@@ -284,7 +284,7 @@ Defaults to ~/.emacs.d/rime/"
   "A list of keybindings those sent to Rime during composition.
 
 Currently only Shift, Control, Meta is supported as modifiers.
-Each keybinding in this list, will be bound to `rime--send-keybinding' in `rime-active-mode-map'. ")
+Each keybinding in this list, will be bound to `rime--send-keybinding' in `rime-active-mode-map'.")
 
 (defun rime--after-alphabet-char-p ()
   "If the cursor is after a alphabet character.
@@ -293,7 +293,7 @@ Can be used in `rime-disable-predicates'."
   (looking-back "[a-zA-Z][-_:.0-9/]*" 1))
 
 (defun rime--prog-in-code-p ()
-  "If major-mode derives from `prog-mode' and `conf-mode', and the cursor is in in comment or string.
+  "If cursor is in code.
 
 Can be used in `rime-disable-predicates'."
   (when (derived-mode-p 'prog-mode 'conf-mode)
@@ -312,7 +312,7 @@ Can be used in `rime-disable-predicates'."
     (insert content)))
 
 (defun rime--popup-display-content (content)
-  "Display CONTENT with popup.el"
+  "Display CONTENT with popup.el."
   (if (featurep 'popup)
       (progn
         (when rime--popup
@@ -326,7 +326,7 @@ Can be used in `rime-disable-predicates'."
 (defun rime--minibuffer-message (string)
   "Concatenate STRING and minibuffer contents.
 
-Used to display in minibuffer when we are using input method in minibuffer. "
+Used to display in minibuffer when we are using input method in minibuffer."
   (message nil)
   (let ((inhibit-quit t)
         point-1)
@@ -340,6 +340,9 @@ Used to display in minibuffer when we are using input method in minibuffer. "
             unread-command-events '(7)))))
 
 (defun rime--init-minibuffer ()
+  "Initializer for minibuffer when input method is enabled.
+
+Currently just deactivate input method."
   (deactivate-input-method))
 
 (defun rime--posframe-display-content (content)
@@ -354,9 +357,10 @@ Used to display in minibuffer when we are using input method in minibuffer. "
         (dolist (hook rime-posframe-hide-posframe-hooks)
           (add-hook hook #'rime-posframe-hide-posframe nil t)))
     ;; Fallback to popup when not available.
-    (rime--popup-display-content result)))
+    (rime--popup-display-content content)))
 
 (defun rime-posframe-hide-posframe ()
+  "Hide posframe."
   (posframe-hide rime-posframe-buffer)
   (rime-lib-clear-composition)
   (rime--clear-overlay)
@@ -367,7 +371,7 @@ Used to display in minibuffer when we are using input method in minibuffer. "
   "Display CONTENT as candidate."
   (if (minibufferp)
         (rime--minibuffer-message
-         (concat "\n" result))
+         (concat "\n" content))
       (cl-case rime-show-candidate
         (minibuffer (rime--minibuffer-display-content content))
         (message (message content))
@@ -376,6 +380,7 @@ Used to display in minibuffer when we are using input method in minibuffer. "
         (t (progn)))))
 
 (defun rime--build-candidate-content ()
+  "Build candidate menu content from librime context."
   (let* ((context (rime-lib-get-context))
          (candidates (alist-get 'candidates (alist-get 'menu context)))
          (composition (alist-get 'composition context))
@@ -411,12 +416,13 @@ Used to display in minibuffer when we are using input method in minibuffer. "
     result))
 
 (defun rime--show-candidate ()
+  "Display candidate."
   (rime--show-content (rime--build-candidate-content)))
 
 (defun rime--parse-key-event (event)
   "Translate Emacs key EVENT to Rime's format.
 
-the car is keyCode, the cdr is mask. "
+the car is keyCode, the cdr is mask."
   (let* ((modifiers (event-modifiers event))
          (type (event-basic-type event))
          (mask (+
@@ -432,11 +438,13 @@ the car is keyCode, the cdr is mask. "
     (cons type mask)))
 
 (defun rime--clear-overlay ()
+  "Clear inline preedit overlay."
   (when (overlayp rime--preedit-overlay)
     (delete-overlay rime--preedit-overlay)
     (setq rime--preedit-overlay nil)))
 
 (defun rime--display-preedit ()
+  "Display inline preedit."
   (let ((preedit (alist-get 'commit-text-preview (rime-lib-get-context))))
     ;; Always delete the old overlay.
     (rime--clear-overlay)
@@ -448,14 +456,21 @@ the car is keyCode, the cdr is mask. "
                                              'rime-preedit-face)))))
 
 (defun rime--rime-lib-module-ready-p ()
+  "Return if dynamic module is loaded.
+
+If module is loaded, rime-lib-clear-composition should be available."
   (fboundp 'rime-lib-clear-composition))
 
 (defun rime--redisplay (&rest ignores)
-  "Display inline preedit and candidates."
+  "Display inline preedit and candidates.
+Optional argument IGNORES ignored."
   (rime--display-preedit)
   (rime--show-candidate))
 
 (defun rime--backspace ()
+  "Delete one code.
+
+By default the input-method will not handle DEL, so we need this command."
   (interactive)
   (when (rime--rime-lib-module-ready-p)
     (when-let ((context (rime-lib-get-context)))
@@ -464,6 +479,7 @@ the car is keyCode, the cdr is mask. "
     (rime--refresh-mode-state)))
 
 (defun rime--escape ()
+  "Clear the composition."
   (interactive)
   (when (rime--rime-lib-module-ready-p)
     (when-let ((context (rime-lib-get-context)))
@@ -472,6 +488,7 @@ the car is keyCode, the cdr is mask. "
     (rime--refresh-mode-state)))
 
 (defun rime--return ()
+  "Commit the raw input."
   (interactive)
   (when (rime--rime-lib-module-ready-p)
     (when-let (input (rime-lib-get-input))
@@ -505,6 +522,7 @@ the car is keyCode, the cdr is mask. "
             (rime--refresh-mode-state)))))))
 
 (defun rime--send-keybinding ()
+  "Send key event to librime."
   (interactive)
   (let* ((parsed (rime--parse-key-event last-input-event))
          (key (car parsed))
@@ -514,12 +532,14 @@ the car is keyCode, the cdr is mask. "
     (rime--refresh-mode-state)))
 
 (defun rime--clean-state ()
+  "Clean composition, preedit and candidate."
   (rime-lib-clear-composition)
   (rime--display-preedit)
   (rime--show-candidate)
   (rime--refresh-mode-state))
 
 (defun rime--refresh-mode-state ()
+  "Toggle variable `rime-active-mode' based on if context is available."
   (if (rime-lib-get-context)
       (rime-active-mode 1)
     ;; Whenever we disable `rime-active-mode', we should also unset `rime--temporarily-ignore-predicates'.
@@ -576,13 +596,15 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
 (defun rime-load-dynamic-module ()
   "Load dynamic module."
   (if (not (file-exists-p rime--module-path))
-      (error "Failed to compile dynamic module.")
+      (error "Failed to compile dynamic module")
     (load-file rime--module-path)
     (rime-lib-start rime-share-data-dir rime-user-data-dir)
     (setq rime--lib-loaded t)))
 
 ;;;###autoload
 (defun rime-activate (name)
+  "Activate rime.
+Argument NAME ignored."
   (unless rime--lib-loaded
     (rime-compile-module)
     (rime-load-dynamic-module))
@@ -599,6 +621,7 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
   (message "Rime activate."))
 
 (defun rime-deactivate ()
+  "Deactivate rime."
   (rime--clean-state)
   (remove-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
   (rime-mode -1)
@@ -621,25 +644,31 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
 ;;; Initializer
 
 (defun rime--init-hook-default ()
+  "Rime activate set hooks."
   (add-hook 'post-self-insert-hook 'rime--redisplay nil t))
 
 (defun rime--uninit-hook-default ()
+  "Rime deactivate remove hooks."
   (remove-hook 'post-self-insert-hook 'rime--redisplay))
 
 (defun rime--init-hook-vterm ()
+  "Rime initialize for vterm-mode."
   (advice-add 'vterm--redraw :after 'rime--redisplay)
   (define-key vterm-mode-map (kbd "<backspace>") 'rime--backspace))
 
 (defun rime--uninit-hook-vterm ()
+  "Rime finalize for vterm-mode."
   (advice-add 'vterm--redraw :after 'rime--redisplay)
   (define-key vterm-mode-map (kbd "<backspace>") 'vterm-send-backspace))
 
 (defun rime-active-mode--init ()
+  "Init for command `rime-active-mode'."
   (cl-case major-mode
     (vterm-mode (rime--init-hook-vterm))
     (t (rime--init-hook-default))))
 
 (defun rime-active-mode--uninit ()
+  "Uninit for command `rime-active-mode'."
   (cl-case major-mode
     (vterm-mode (rime--uninit-hook-vterm))
     (t (rime--uninit-hook-default))))
@@ -665,11 +694,13 @@ Should not be enabled manually."
 (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
 
 (defun rime-deploy()
+  "Deploy Rime."
   (interactive)
   (liberime-finalize)
   (liberime--start))
 
 (defun rime-sync ()
+  "Sync Rime user data."
   (interactive)
   (liberime-sync-user-data))
 
