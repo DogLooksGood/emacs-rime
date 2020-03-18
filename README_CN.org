@@ -1,0 +1,103 @@
+#+TITLE: Emacs Rime 中文文档
+
+* 使用方法
+
+需要 ~make~ 和 ~gcc~ 命令可用。
+
+** Linux
+
+使用包管理器安装 librime, 如果已经通过 Fcitx 或 IBus 使用 Rime, 那么这步已经就绪。
+
+Emacs 中配置如下：
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rime
+    :custom
+    (default-input-method "rime"))
+#+END_SRC
+
+** MacOS
+
+下载构建好的 librime.
+#+BEGIN_SRC bash
+  wget https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
+  unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
+  rm -rf rime-1.5.3-osx.zip
+#+END_SRC
+
+Emacs 中配置如下：
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rime
+    :init
+    :custom
+    (rime-librime-root "~/.emacs.d/librime/dist")
+    (default-input-method "rime"))
+#+END_SRC
+
+* 设置输入中发送到 Rime 的组合键。
+
+下面的设置，使输入过程中的 ~C-f~ 和 ~C-b~ 发送给 Rime 。可以用来配合方案中的设置完成光标移动和选字等功能。
+支持 Control (C-), Meta (M-), Shift (S-)的组合键。
+
+#+BEGIN_SRC emacs-lisp
+  ;; 默认值
+  (setq rime-translate-keybindings
+    '("C-f" "C-b" "C-n" "C-p" "C-g"))
+#+END_SRC
+
+* 候选框展示风格
+
+设置 ~rime-show-candidate~ 。
+
+| 可选值     | 说明                                                   |
+|------------+--------------------------------------------------------|
+| ~nil~        | 不展示                                                 |
+| ~minibuffer~ | 在minibuffer中展示， 推荐使用的方式                    |
+| ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件  |
+| ~popup~      | 使用 ~popup.el~ 展示跟随的候选                           |
+| ~posframe~   | 使用 ~posframe~ 展示跟随的候选，在不可用的时候会用 ~popup~ |
+
+* 用于展示的提示符
+
+使用函数 ~(rime-lighter)~ 返回一个用于展示的 ~ㄓ~ 符号。
+可以通过 ~rime-indicator-face~ 和 ~rime-indicator-dim-face~ 设置样式。
+
+* 临时英文模式的切换
+如果使用模式编辑，或是需要在一些特定的场景下自动使用英文，可以 ~rime-disable-predicates~ 。
+
+一个在 ~evil-normal-state~ 中、在英文字母后面以及代码中自动使用英文的例子。
+
+#+BEGIN_SRC emacs-lisp
+  (setq rime-disable-predicates
+        '(evil-normal-state-p
+          rime--after-alphabet-char-p
+          rime--prog-in-code-p))
+#+END_SRC
+
+* 强制中文模式
+使用 ~rime-force-enable~ 来临时强制使用强制中文模式（即无视 ~rime-disable-predicates~ 中的规则），
+在 *一次输入行为* 或 *取消输入* 之后会自动关闭强制中文模式。
+
+你可能需要给这个命令绑定一个按键来使用。
+
+* 设置软光标的样式
+
+默认使用 ~|~ 字符做为软光标，可以通过如下方式修改。
+
+#+BEGIN_SRC emacs-lisp
+  (setq rime-cursor "˰")
+#+END_SRC
+
+* 打开 Rime 的配置文件
+
+使用 ~rime-open-configuration~ 打开配置文件。
+
+* 如果你使用 Linux
+Emacs 有一个优秀的远古BUG: 如果 ~LC_CTYPE~ 为 ~en_US.UTF8~ 的话，那么就无法调用起 Fcitx.
+所以可以利用这点把 Emacs 内切换输入法的快捷键和系统快捷键设为同一个键。
+
+* 优秀的 Emacs 输入法
+
+你可能需要 [[https://github.com/tumashu/pyim][pyim]], [[https://github.com/merrickluo/liberime][liberime]], [[https://github.com/QiangF/liberime][erime]].
+"

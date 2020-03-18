@@ -2,80 +2,84 @@
 
 [[file:https://i.imgur.com/RqJkzlx.gif]]
 
-在 Emacs 中通过 [[https://github.com/merrickluo/liberime][liberime]] 集成 RIME 输入法，可支持多种输入方案。
+[[file:README_CN.org][中文文档]]
 
-* 使用方法
+Emacs in Rime, support multiple schemas.
 
-目前无法通过 Melpa 直接安装。
+* Installation
 
-** 使用 Quelpa
+Note: ~make~ and ~gcc~ is required.
+
+** Linux
+
+Install librime with your package manager, if you are using fcitx-rime or ibus-rime, 
+the librime should be already installed.
+
+Emacs configuration:
 
 #+BEGIN_SRC emacs-lisp
-  (use-package liberime-config
-    :quelpa (liberime-config
-             :fetcher github
-             :repo "DogLooksGood/liberime"
-             :files ("CMakeLists.txt" "Makefile" "src" "liberime-config.el")))
-
   (use-package rime
-    :quelpa (rime
-             :fetcher github
-             :repo "DogLooksGood/emacs-rime"
-             :files ("rime.el"))
-    :custom (default-input-method "rime"))
+    :custom
+    (default-input-method "rime"))
 #+END_SRC
 
-** 使用 Straight
+** MacOS
 
-#+BEGIN_SRC emacs-lisp
-(use-package liberime-config
-  :straight (liberime-config
-             :type git
-             :host github
-             :repo "DogLooksGood/liberime"
-             :files ("CMakeLists.txt" "Makefile" "src" "liberime-config.el")))
+Download librime release.
 
-(use-package rime
-  :straight (rime
-             :type git
-             :host github
-             :repo "DogLooksGood/emacs-rime"
-             :files ("rime.el"))
-  :custom (default-input-method "rime"))
+#+BEGIN_SRC bash
+  wget https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
+  unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
+  rm -rf rime-1.5.3-osx.zip
 #+END_SRC
 
-* 设置输入中发送到 Rime 的组合键。
-
-下面的设置，使输入过程中的 ~C-f~ 和 ~C-b~ 发送给 Rime 。可以用来配合方案中的设置完成光标移动和选字等功能。
-支持 Control (C-), Meta (M-), Shift (S-)的组合键。
+Emacs configuration:
 
 #+BEGIN_SRC emacs-lisp
-  ;; 默认值
+  (use-package rime
+    :init
+    :custom
+    (rime-librime-root "~/.emacs.d/librime/dist")
+    (default-input-method "rime"))
+#+END_SRC
+
+* Keybindings in Rime.
+
+With following configuration, you can send a serials of keybindings to Rime.
+Since you may want them to help you with cursor navigation, candidate pagination and selection.
+
+Currently the keybinding with Control(C-), Meta(M-) and Shift(S-) is supported.
+
+#+BEGIN_SRC emacs-lisp
+  ;; defaults
   (setq rime-translate-keybindings
     '("C-f" "C-b" "C-n" "C-p" "C-g"))
 #+END_SRC
 
-* 候选框展示风格
+* Candidate menu style
 
-设置 ~rime-show-candidate~ 。
+Set via ~rime-show-candidate~.
 
-| 可选值     | 说明                                                   |
-|------------+--------------------------------------------------------|
-| ~nil~        | 不展示                                                 |
-| ~minibuffer~ | 在minibuffer中展示， 推荐使用的方式                    |
-| ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件  |
-| ~popup~      | 使用 ~popup.el~ 展示跟随的候选                           |
-| ~posframe~   | 使用 ~posframe~ 展示跟随的候选，在不可用的时候会用 ~popup~ |
+| Value      | description                                                                 |
+|------------+-----------------------------------------------------------------------------|
+| ~nil~        | don't show candidate at all.                                                |
+| ~minibuffer~ | Display in minibuffer.                                                      |
+| ~message~    | Display with ~message~ function, useful when you use minibuffer as mode-line. |
+| ~popup~      | Use popup.                                                                  |
+| ~posframe~   | Use posfarme, will fallback to popup in TUI                                 |
 
-* 用于展示的提示符
+* The lighter
 
-使用函数 ~(rime-lighter)~ 返回一个用于展示的 ~ㄓ~ 符号。
-可以通过 ~rime-indicator-face~ 和 ~rime-indicator-dim-face~ 设置样式。
+You can get a lighter via ~(rime-lighter)~, which returns you a colored ~ㄓ~.
+Put it in modeline or anywhere you want.
 
-* 临时英文模式的切换
-如果使用模式编辑，或是需要在一些特定的场景下自动使用英文，可以 ~rime-disable-predicates~ 。
+You can customize with ~rime-title~, ~rime-indicator-face~ and ~rime-indicator-dim-face~.
 
-一个在 ~evil-normal-state~ 中、在英文字母后面以及代码中自动使用英文的例子。
+* Temporarily ascii mode
+
+If you want specific a list of rules to automatically enable ascii mode, you can customize ~rime-disable-predicates~.
+
+Following is a example to use ascii mode in ~evil-normal-state~ or when cursor is after alphabet character or when cursor is in code.
 
 #+BEGIN_SRC emacs-lisp
   (setq rime-disable-predicates
@@ -84,28 +88,22 @@
           rime--prog-in-code-p))
 #+END_SRC
 
-* 强制中文模式
-使用 ~rime-force-enable~ 来临时强制使用强制中文模式（即无视 ~rime-disable-predicates~ 中的规则），
-在 *一次输入行为* 或 *取消输入* 之后会自动关闭强制中文模式。
+** Force enable
 
-你可能需要给这个命令绑定一个按键来使用。
+If one of ~rime-disable-predicates~ returns t, you can still force enable the input method with ~rime-force-enable~.
+The effect will only last for one input behavior.
 
-* 设置软光标的样式
+You probably want to give this command a keybinding.
 
-默认使用 ~|~ 字符做为软光标，可以通过如下方式修改。
+* The soft cursor
+
+Default to ~|~ , you can customize it with
 
 #+BEGIN_SRC emacs-lisp
   (setq rime-cursor "˰")
 #+END_SRC
 
-* 打开 Rime 的配置文件
+* Shortcut to open Rime configuration file
 
-使用 ~rime-open-configuration~ 打开配置文件。
+Use ~rime-open-configuration~.
 
-* 如果你使用 Linux
-Emacs 有一个优秀的远古BUG: 如果 ~LC_CTYPE~ 为 ~en_US.UTF8~ 的话，那么就无法调用起 Fcitx.
-所以可以利用这点把 Emacs 内切换输入法的快捷键和系统快捷键设为同一个键。
-
-* 优秀的 Emacs 输入法
-
-你可能需要 [[https://github.com/tumashu/pyim][pyim]], [[https://github.com/merrickluo/liberime][liberime]], [[https://github.com/QiangF/liberime][erime]].
