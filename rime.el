@@ -585,15 +585,17 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
     ""))
 
 (defun rime-compile-module ()
-  "Compile dynamic module if lib file is not exists."
-  (unless (file-exists-p rime--module-path)
-    (let ((env (if rime-librime-root
+  "Compile dynamic module."
+  (interactive)
+  (let ((env (if rime-librime-root
                     (format "LIBRIME_ROOT=%s" (file-name-as-directory rime-librime-root))
                   "")))
-      (shell-command
-       (format "cd %s; %s make lib" rime--root env)))))
+    (if (zerop (shell-command
+                (format "cd %s; %s make lib" rime--root env)))
+        (message "Compile succeed!")
+      (message "Compile failed!"))))
 
-(defun rime-load-dynamic-module ()
+(defun rime--load-dynamic-module ()
   "Load dynamic module."
   (if (not (file-exists-p rime--module-path))
       (error "Failed to compile dynamic module")
@@ -606,8 +608,9 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
   "Activate rime.
 Argument NAME ignored."
   (unless rime--lib-loaded
-    (rime-compile-module)
-    (rime-load-dynamic-module))
+    (unless (file-exists-p rime--module-path)
+      (rime-compile-module))
+    (rime--load-dynamic-module))
 
   (setq input-method-function 'rime-input-method
 		deactivate-current-input-method-function #'rime-deactivate)
