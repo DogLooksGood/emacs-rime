@@ -1,8 +1,4 @@
-#+TITLE: Emacs Rime
-
-[[file:https://i.imgur.com/RqJkzlx.gif]]
-
-在 Emacs 中使用 [[https://github.com/rime/librime][RIME]] 输入法，可支持多种输入方案。
+#+TITLE: Emacs Rime 中文文档
 
 * 使用方法
 
