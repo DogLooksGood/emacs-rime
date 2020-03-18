@@ -346,7 +346,7 @@ emacs_module_init (struct emacs_runtime *ert)
 
   emacs_defun(env, rime, start, "rime-lib-start", "Start", 2, 2);
   emacs_defun(env, rime, finalize, "rime-lib-finalize", "Finalize", 0, 0);
-  emacs_defun(env, rime, sync_user_data, "rime-lib-get-context", "Sync user data.", 0, 0);
+  emacs_defun(env, rime, sync_user_data, "rime-lib-sync-user-data", "Sync user data.", 0, 0);
   emacs_defun(env, rime, get_sync_dir, "rime-lib-get-sync-dir", "Get sync directory.", 0, 0);
   emacs_defun(env, rime, get_context, "rime-lib-get-context", "Get context.", 0, 0);
   emacs_defun(env, rime, get_input, "rime-lib-get-input", "Get input.", 0, 0);
