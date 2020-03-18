@@ -5,8 +5,8 @@ CFLAGS       = -fPIC -g
 LDFLAGS      = -shared
 
 ifdef LIBRIME_ROOT
-	ENV      = C_INCLUDE_PATH=${LIBRIME_ROOT}dist/include/
-	LDFLAGS  = -shared -L${LIBRIME_ROOT}dist/lib -Wl,-rpath=${LIBRIME_ROOT}dist/lib -lrime
+	ENV      = C_INCLUDE_PATH=${LIBRIME_ROOT}include/
+	LDFLAGS  = -shared -L${LIBRIME_ROOT}lib/ -Wl,-rpath ${LIBRIME_ROOT}lib/ -lrime
 else
 	ENV      =
 	LDFLAGS  = -shared -lrime

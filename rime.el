@@ -83,7 +83,7 @@
      (:underline t))
     (((class color) (background light))
      (:underline t)))
-  "输入法嵌入首选的样式"
+  "Face for inline preedit."
   :group 'rime)
 
 (defface rime-indicator-face
@@ -91,7 +91,7 @@
      (:foreground "#9256B4" :bold t))
     (((class color) (background light))
      (:foreground "#9256B4" :bold t)))
-  "提示符的样式"
+  "Face for mode-line indicator when input-method is available."
   :group 'rime)
 
 (defface rime-indicator-dim-face
@@ -99,56 +99,76 @@
      (:foreground "#606060" :bold t))
     (((class color) (background light))
      (:foreground "#606060" :bold t)))
-  "提示符的样式"
+  "Face for mode-line indicator when input-method is temporarily disabled."
   :group 'rime)
 
 (defface rime-posframe-face
   '((t (:inherit default :background "#333333" :foreground "#dcdccc")))
-  "posframe 的样式"
+  "Face for candidate posframe."
   :group 'rime)
 
 (defface rime-code-face
   '((t (:inherit font-lock-string-face)))
-  "编码的样式"
+  "Face for code in candidate, not available in `message' and `popup'."
   :group 'rime)
 
 (defface rime-candidate-num-face
   '((t (:inherit font-lock-comment-face)))
-  "候选编号的样式"
+  "Face for the number before each candidate, not available in `message' and `popup'."
   :group 'rime)
 
-(defvar rime-librime-root "")
+(defcustom rime-librime-root ""
+  "The path to the directory of librime.
 
-;;; 只要`input-method-function'有定义就会被使用。而启用输入法只生效在当前`buffer'
-;;; 所以需要这些变量为`buffer-local'，
+Leave it empty if you have librime's lib and header files in the standard path.
+Otherwise you should set this to where you put librime."
+  :type 'string
+  :group 'rime)
+
+;;; We need these variables to be buffer local.
 (make-variable-buffer-local 'input-method-function)
 (make-variable-buffer-local 'deactivate-current-input-method-function)
 
 (defvar rime--temporarily-ignore-predicates nil
-  "是否临时忽略禁用断言。
+  "Temporarily disable all predicates.
 
-该变量在关闭`rime-active-mode'时会被重置为`nil'。")
+Set to t will ensure the next input will be handled by input-method.
+Will be reset to nil when `rime-active-mode' is disabled. ")
 
 (defvar rime-force-enable-hook nil
-  "激活强制模式时的`hook'。")
+  "hooks run after `rime-force-enable' is called.")
 
 (defvar rime-force-enable-exit-hook nil
-  "退出强制模式时的`hook'。")
+  "hooks rum after the state of `rime-force-enable' is turned off.")
 
 (defcustom rime-disable-predicates nil
-  "当此列表中任何一个断言函数成立时，进入临时英文模式。"
+  "A list of predicate functions, each receive no argument.
+
+If one of these functions return will, the input-method will fallback to ascii mode."
   :type 'list
   :group 'rime)
 
 (defcustom rime-show-candidate 'minibuffer
-  "是否在`minibuffer'中显示候选列表。"
+  "How we display the candidate menu.
+
+nil means don't display candidate at all.
+`minibuffer', display canidate in minibuffer.
+`popup', display with popup.el.
+`message', display with function `message', this is a replacement for `minibuffer' if you use minibuffer as the mode-line.
+`posframe', display candidate in posframe, will fallback to popup in TUI.
+"
   :type 'symbol
   :options '(minibuffer message popup posframe)
   :group 'rime)
 
-(defvar rime-user-dir (locate-user-emacs-file "rime/"))
+(defcustom rime-user-data-dir (locate-user-emacs-file "rime/")
+  "Rime user data directory.
 
-(defvar rime-share-data-dir
+Defaults to ~/.emacs.d/rime/"
+  :type 'string
+  :group 'rime)
+
+(defcustom rime-share-data-dir
   (cl-case system-type
     ('gnu/linux
      (cl-some (lambda (parent)
@@ -159,70 +179,94 @@
                   (xdg-data-dirs)
                 '("/usr/share/local" "/usr/share"))))
     ('darwin
-     "/Library/Input Methods/Squirrel.app/Contents/SharedSupport")))
+     "/Library/Input Methods/Squirrel.app/Contents/SharedSupport"))
+  "Rime share data directory. "
+  :type 'string
+  :group 'rime)
 
-(defvar rime--root (file-name-directory (or load-file-name buffer-file-name)))
+(defvar rime--root (file-name-directory (or load-file-name buffer-file-name))
+  "The path to the root of rime package.")
 
 (defvar rime--module-path
   (concat rime--root
           "librime-emacs"
-          module-file-suffix))
+          module-file-suffix)
+  "The path to the dynamic module.")
 
 (defcustom rime-cursor "|"
-  "用于表示软光标的字符。"
+  "The character used to display the soft cursor in preedit."
   :type 'string
   :group 'rime)
 
 (make-variable-buffer-local
  (defvar rime--preedit-overlay nil
-   "存储嵌入首选的`overlay'，用于标记其范围便于修改。"))
+   "Overlay on preedit."))
 
 (defvar rime--lib-loaded nil
-  "是否已经加载了`liberime'。")
+  "If dynamic module is loaded.")
 
 (defvar rime--popup nil
-  "当前在使用的 popup")
+  "The current in-use popup.")
 
 (defvar rime-posframe-buffer " *rime-posframe*"
-  "posframe 的 buffer")
+  "The buffer name for candidate posframe.")
 
 (defvar rime-posframe-hide-posframe-hooks
-  '(window-configuration-change-hook))
+  '(window-configuration-change-hook)
+  "Hide posframe in these hooks.")
 
 ;;;###autoload
 (defvar rime-title "ㄓ"
-  "输入法的展示符号")
+  "The title of input method.")
 
 (defvar rime-translate-keybindings
   '("C-f" "C-b" "C-n" "C-p" "C-g")
-  "交由 Rime 处理的组合快捷键。
+  "A list of keybindings those sent to Rime during composition.
 
-当前仅支持 Shift, Control, Meta 的组合键。
-列出的按键会在`rime-active-mode-map'中生成一个到`rime--send-keybinding'的绑定。")
+Currently only Shift, Control, Meta is supported as modifiers.
+Each keybinding in this list, will be bound to `rime--send-keybinding' in `rime-active-mode-map'. ")
 
 (defun rime--after-alphabet-char-p ()
-  "当前光标是否在英文的后面。"
+  "If the cursor is after a alphabet character.
+
+Can be used in `rime-disable-predicates'."
   (looking-back "[a-zA-Z][-_:.0-9/]*" 1))
 
 (defun rime--prog-in-code-p ()
-  "当前为`prog-mode'或`conf-mode'，且光标在注释或字符串当中。"
+  "If major-mode derives from `prog-mode' and `conf-mode', and the cursor is in in comment or string.
+
+Can be used in `rime-disable-predicates'."
   (when (derived-mode-p 'prog-mode 'conf-mode)
     (not (or (nth 3 (syntax-ppss))
              (nth 4 (syntax-ppss))))))
 
 (defun rime--should-enable-p ()
+  "If key event should be handled by input-method."
   (or rime--temporarily-ignore-predicates
       (not (seq-find 'funcall rime-disable-predicates))))
 
-(defun rime--minibuffer-display-result (result)
+(defun rime--minibuffer-display-content (content)
+  "Display CONTENT in minibuffer."
   (with-selected-window (minibuffer-window)
     (erase-buffer)
-    (insert result)))
+    (insert content)))
+
+(defun rime--popup-display-content (content)
+  "Display CONTENT with popup.el"
+  (if (featurep 'popup)
+      (progn
+        (when rime--popup
+          (popup-delete rime--popup)
+          (setq rime--popup nil))
+        (unless (string-blank-p content)
+          (setq rime--popup (popup-tip content :nowait t))))
+    ;; Fallback to popup when not available.
+    (rime--minibuffer-display-content content)))
 
 (defun rime--minibuffer-message (string)
-  "当在 minibuffer 中使用 rime 输入中文时，需要将
-minibuffer 原来显示的信息和 rime 选词框整合在一起显示
-这个函数就是作这个工作。"
+  "Concatenate STRING and minibuffer contents.
+
+Used to display in minibuffer when we are using input method in minibuffer. "
   (message nil)
   (let ((inhibit-quit t)
         point-1)
@@ -236,42 +280,42 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
             unread-command-events '(7)))))
 
 (defun rime--init-minibuffer ()
-  "确保 `minibuffer' 每次打开都是英文模式."
   (deactivate-input-method))
 
-(defun rime--popup-display-result (result)
-  (if (featurep 'popup)
-      (progn
-        (when rime--popup
-          (popup-delete rime--popup)
-          (setq rime--popup nil))
-        (unless (string-blank-p result)
-          (setq rime--popup (popup-tip result :nowait t))))
-    ;; 没有`popup'的时候使用`minibuffer'
-    (rime--minibuffer-display-result result)))
-
-(defun rime--posframe-display-result (result)
+(defun rime--posframe-display-content (content)
+  "Display CONTENT with posframe."
   (if (and (featurep 'posframe) (display-graphic-p))
-      (if (string-blank-p result)
+      (if (string-blank-p content)
           (rime-posframe-hide-posframe)
         (posframe-show rime-posframe-buffer
-                       :string result
+                       :string content
                        :background-color (face-attribute 'rime-posframe-face :background)
                        :foreground-color (face-attribute 'rime-posframe-face :foreground))
         (dolist (hook rime-posframe-hide-posframe-hooks)
           (add-hook hook #'rime-posframe-hide-posframe nil t)))
-    ;; 在非 GUI 或没有`posframe'的时候使用`popup'
-    (rime--popup-display-result result)))
+    ;; Fallback to popup when not available.
+    (rime--popup-display-content result)))
 
 (defun rime-posframe-hide-posframe ()
-  " 隐藏 posframe "
   (posframe-hide rime-posframe-buffer)
   (rime-lib-clear-composition)
   (rime--clear-overlay)
   (dolist (hook rime-posframe-hide-posframe-hooks)
     (remove-hook hook 'rime-posframe-hide-posframe t)))
 
-(defun rime--show-candidate ()
+(defun rime--show-content (content)
+  "Display CONTENT as candidate."
+  (if (minibufferp)
+        (rime--minibuffer-message
+         (concat "\n" result))
+      (cl-case rime-show-candidate
+        (minibuffer (rime--minibuffer-display-content content))
+        (message (message content))
+        (popup (rime--popup-display-content content))
+        (posframe (rime--posframe-display-content content))
+        (t (progn)))))
+
+(defun rime--build-candidate-content ()
   (let* ((context (rime-lib-get-context))
          (candidates (alist-get 'candidates (alist-get 'menu context)))
          (composition (alist-get 'composition context))
@@ -304,22 +348,15 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
         (setq idx (1+ idx))))
     (when (and page-no (not (zerop page-no)))
       (setq result (concat result (format " [%d]" (1+ page-no)))))
+    result))
 
-    (if (minibufferp)
-        (rime--minibuffer-message
-         (concat "\n" result))
-      (cl-case rime-show-candidate
-        (minibuffer (rime--minibuffer-display-result result))
-        (message (message result))
-        (popup (rime--popup-display-result result))
-        (posframe (rime--posframe-display-result result))
-        (t (progn))))))
-
+(defun rime--show-candidate ()
+  (rime--show-content (rime--build-candidate-content)))
 
 (defun rime--parse-key-event (event)
-  "将 Emacs 中的 Key 换成 Rime 中的 Key + Mask.
+  "Translate Emacs key EVENT to Rime's format.
 
-返回中`car'是 KeyCode, `cdr'是 Mask."
+the car is keyCode, the cdr is mask. "
   (let* ((modifiers (event-modifiers event))
          (type (event-basic-type event))
          (mask (+
@@ -354,7 +391,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
   (fboundp 'rime-lib-clear-composition))
 
 (defun rime--redisplay (&rest ignores)
-  "绘制嵌入编码和候选。"
+  "Display inline preedit and candidates."
   (rime--display-preedit)
   (rime--show-candidate))
 
@@ -385,6 +422,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (rime--refresh-mode-state)))
 
 (defun rime-input-method (key)
+  "Process KEY with input method."
   (when (rime--rime-lib-module-ready-p)
     (if (and (not (rime--should-enable-p))
              (not (rime-lib-get-context)))
@@ -416,7 +454,6 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (rime--refresh-mode-state)))
 
 (defun rime--clean-state ()
-  "清空状态，包换`liberime'的状态和`preedit'。"
   (rime-lib-clear-composition)
   (rime--display-preedit)
   (rime--show-candidate)
@@ -425,19 +462,14 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 (defun rime--refresh-mode-state ()
   (if (rime-lib-get-context)
       (rime-active-mode 1)
-    ;; 任何我们关闭候选的时候，都要关闭强制输入法状态
+    ;; Whenever we disable `rime-active-mode', we should also unset `rime--temporarily-ignore-predicates'.
     (when rime--temporarily-ignore-predicates
       (setq rime--temporarily-ignore-predicates nil)
       (run-hooks 'rime-force-enable-exit-hook))
     (rime-active-mode -1)))
 
-(defun rime-register-and-set-default ()
-  "注册 RIME 输入法并设置为默认的方案。"
-  (register-input-method "rime" "euc-cn" 'rime-activate "ㄓ")
-  (setq-default default-input-method 'rime))
-
 (defun rime-select-schema ()
-  "选择 RIME 中使用的方案。"
+  "Select Rime schema."
   (interactive)
   (if rime--lib-loaded
       (let* ((schema-list (rime-lib-get-schema-list))
@@ -451,12 +483,16 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
         (rime-lib-select-schema schema))
     (message "Rime is not activated.")))
 
+;;;###autoload
 (defun rime-lighter ()
-  "返回一个可以用于展示在`modeline'的符号。
+  "Return a lighter which can be used in mode-line.
 
-该符号可通过修改变量`rime-title'进行设置。
-在激活/非激活的情况下使用不同的`face'。"
-  (if (equal current-input-method "rime")
+The content is `rime-title'.
+
+You can customize the color with `rime-indicator-face' and `rime-indicator-dim-face'."
+
+  (if (and (equal current-input-method "rime")
+           (bound-and-true-p rime-mode))
       (if (rime--should-enable-p)
           (propertize
            (concat " " rime-title)
@@ -469,16 +505,18 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     ""))
 
 (defun rime-compile-module ()
+  "Compile dynamic module if lib file is not exists."
   (unless (file-exists-p rime--module-path)
     (shell-command (format "cd %s; LIBRIME_ROOT=%s make lib"
                            rime--root
                            (file-name-as-directory rime-librime-root)))))
 
 (defun rime-load-dynamic-module ()
+  "Load dynamic module."
   (if (not (file-exists-p rime--module-path))
       (error "Failed to compile dynamic module.")
     (load-file rime--module-path)
-    (rime-lib-start rime-share-data-dir rime-user-dir)
+    (rime-lib-start rime-share-data-dir rime-user-data-dir)
     (setq rime--lib-loaded t)))
 
 ;;;###autoload
@@ -511,12 +549,12 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (define-key keymap (kbd "RET") 'rime--return)
     (define-key keymap (kbd "<escape>") 'rime--escape)
     keymap)
-  "输入法有候选时的按键。")
+  "Keymap during composition.")
 
 (defvar rime-mode-map
   (let ((keymap (make-sparse-keymap)))
     keymap)
-  "输入法启用时的按键。")
+  "Keymap when input method is enabled.")
 
 ;;; Initializer
 
@@ -545,9 +583,9 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (t (rime--uninit-hook-default))))
 
 (define-minor-mode rime-active-mode
-  "仅用于提供输入法输入中的按键绑定。
+  "Mode used in composition.
 
-该模式不应该被手动启用。"
+Should not be enabled manually."
   nil
   nil
   rime-active-mode-map
@@ -556,7 +594,7 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
     (rime-active-mode--uninit)))
 
 (define-minor-mode rime-mode
-  "输入法启用时的按键绑定。"
+  "Mode used when input method is activated."
   nil
   nil
   rime-mode-map)
@@ -574,20 +612,17 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
   (liberime-sync-user-data))
 
 (defun rime-force-enable ()
-  "临时强制使用输入法处理按键，在上屏，清空输入切换输入法时恢复原状态。"
+  "Enable temporarily ascii mode.
+
+Will resume when finish composition."
   (interactive)
   (setq rime--temporarily-ignore-predicates t)
   (run-hooks 'rime-force-enable-hook))
 
 (defun rime-open-configuration ()
-  "打开 rime 配置文件"
+  "Open Rime configuration file."
   (interactive)
-  (find-file (expand-file-name "default.custom.yaml" rime-user-dir)))
-
-;;;###autoload
-(defun rime-toggle ()
-  (interactive)
-  (message "`rime-toggle' is deprecated, use `toggle-input-method' instead"))
+  (find-file (expand-file-name "default.custom.yaml" rime-user-data-dir)))
 
 (provide 'rime)
 
