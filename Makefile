@@ -9,7 +9,7 @@ ifdef LIBRIME_ROOT
 	LDFLAGS  = -shared -L${LIBRIME_ROOT}dist/lib -Wl,-rpath=${LIBRIME_ROOT}dist/lib -lrime
 else
 	ENV      =
-    LDFLAGS  = -shared -lrime
+	LDFLAGS  = -shared -lrime
 endif
 
 default: clean test
