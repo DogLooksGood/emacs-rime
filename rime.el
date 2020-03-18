@@ -284,7 +284,7 @@ Defaults to `user-emacs-directory'/rime/"
   "A list of keybindings those sent to Rime during composition.
 
 Currently only Shift, Control, Meta is supported as modifiers.
-Each keybinding in this list, will be bound to `rime--send-keybinding' in `rime-active-mode-map'.")
+Each keybinding in this list, will be bound to `rime-send-keybinding' in `rime-active-mode-map'.")
 
 (defun rime--after-alphabet-char-p ()
   "If the cursor is after a alphabet character.
@@ -304,6 +304,11 @@ Can be used in `rime-disable-predicates'."
   "If key event should be handled by input-method."
   (or rime--temporarily-ignore-predicates
       (not (seq-find 'funcall rime-disable-predicates))))
+
+(defun rime--has-composition (context)
+  (not (zerop (thread-last context
+                (alist-get 'composition)
+                (alist-get 'length)))))
 
 (defun rime--minibuffer-display-content (content)
   "Display CONTENT in minibuffer."
@@ -397,7 +402,7 @@ Currently just deactivate input method."
          (page-no (alist-get 'page-no menu))
          (idx 1)
          (result ""))
-    (when context
+    (when (rime--has-composition context)
       (when preedit
         (setq result (concat (propertize
                               (concat before-cursor rime-cursor after-cursor)
@@ -473,25 +478,27 @@ Optional argument IGNORES ignored."
 By default the input-method will not handle DEL, so we need this command."
   (interactive)
   (when (rime--rime-lib-module-ready-p)
-    (when-let ((context (rime-lib-get-context)))
-      (rime-lib-process-key 65288 0)
-      (rime--redisplay))
+    (let ((context (rime-lib-get-context)))
+      (when (rime--has-composition context)
+        (rime-lib-process-key 65288 0)
+        (rime--redisplay)))
     (rime--refresh-mode-state)))
 
 (defun rime--escape ()
   "Clear the composition."
   (interactive)
   (when (rime--rime-lib-module-ready-p)
-    (when-let ((context (rime-lib-get-context)))
-      (rime-lib-clear-composition)
-      (rime--redisplay))
+    (let ((context (rime-lib-get-context)))
+      (when (rime--has-composition context)
+        (rime-lib-clear-composition)
+        (rime--redisplay)))
     (rime--refresh-mode-state)))
 
 (defun rime--return ()
   "Commit the raw input."
   (interactive)
   (when (rime--rime-lib-module-ready-p)
-    (when-let (input (rime-lib-get-input))
+    (when-let ((input (rime-lib-get-input)))
       (rime--clear-overlay)
       (insert input)
       (rime-lib-clear-composition)
@@ -502,26 +509,26 @@ By default the input-method will not handle DEL, so we need this command."
   "Process KEY with input method."
   (when (rime--rime-lib-module-ready-p)
     (if (and (not (rime--should-enable-p))
-             (not (rime-lib-get-context)))
+             (not (rime--has-composition (rime-lib-get-context))))
         (list key)
-      (rime-lib-process-key key 0)
-      (with-silent-modifications
-        (let* ((context (rime-lib-get-context))
-               (preedit (thread-last context
-                          (alist-get 'composition)
-                          (alist-get 'preedit)))
-               (commit (rime-lib-get-commit)))
-          (unwind-protect
-              (cond
-               ((and (not context) (not commit) (not preedit))
-                (list key))
-               (commit
-                (rime--clear-overlay)
-                (mapcar 'identity commit))
-               (t (rime--redisplay)))
-            (rime--refresh-mode-state)))))))
+      (let ((handled (rime-lib-process-key key 0)))
+        (with-silent-modifications
+          (let* ((context (rime-lib-get-context))
+                 (preedit (thread-last context
+                            (alist-get 'composition)
+                            (alist-get 'preedit)))
+                 (commit (rime-lib-get-commit)))
+            (unwind-protect
+                (cond
+                 ((not handled)
+                  (list key))
+                 (commit
+                  (rime--clear-overlay)
+                  (mapcar 'identity commit))
+                 (t (rime--redisplay)))
+              (rime--refresh-mode-state))))))))
 
-(defun rime--send-keybinding ()
+(defun rime-send-keybinding ()
   "Send key event to librime."
   (interactive)
   (let* ((parsed (rime--parse-key-event last-input-event))
@@ -540,7 +547,7 @@ By default the input-method will not handle DEL, so we need this command."
 
 (defun rime--refresh-mode-state ()
   "Toggle variable `rime-active-mode' based on if context is available."
-  (if (rime-lib-get-context)
+  (if (rime--has-composition (rime-lib-get-context))
       (rime-active-mode 1)
     ;; Whenever we disable `rime-active-mode', we should also unset `rime--temporarily-ignore-predicates'.
     (when rime--temporarily-ignore-predicates
@@ -616,7 +623,7 @@ Argument NAME ignored."
 		deactivate-current-input-method-function #'rime-deactivate)
 
   (dolist (binding rime-translate-keybindings)
-	(define-key rime-active-mode-map (kbd binding) 'rime--send-keybinding))
+	(define-key rime-active-mode-map (kbd binding) 'rime-send-keybinding))
 
   (rime--clean-state)
   (add-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
@@ -705,7 +712,9 @@ Should not be enabled manually."
 (defun rime-sync ()
   "Sync Rime user data."
   (interactive)
-  (rime-lib-sync-user-data))
+  (rime-lib-sync-user-data)
+  (rime-lib-finalize)
+  (rime-lib-start rime-share-data-dir rime-user-data-dir))
 
 (defun rime-force-enable ()
   "Enable temporarily ascii mode.

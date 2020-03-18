@@ -122,7 +122,7 @@ start(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) {
   emacs_rime_traits.user_data_dir = user_data_dir;
   emacs_rime_traits.distribution_name = "Rime";
   emacs_rime_traits.distribution_code_name = "emacs-rime";
-  emacs_rime_traits.distribution_version = "0.1.0";
+  emacs_rime_traits.distribution_version = "1.0.0";
   if (rime->first_run) {
     rime->api->setup(&emacs_rime_traits);
     rime->first_run = false;
@@ -206,7 +206,9 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
     free(after_cursor);
 
   } else {
-    return nil;
+    composition_a[4] = CONS(INTERN("preedit"), nil);
+    composition_a[5] = CONS(INTERN("before-cursor"), nil);
+    composition_a[6] = CONS(INTERN("after-cursor"), nil);
   }
 
   emacs_value composition_value = LIST(7, composition_a);
