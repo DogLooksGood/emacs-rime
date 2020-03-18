@@ -1,13 +1,26 @@
+
 (package-initialize)
 
 (require 'ivy)
-(require 'dash)
-(require 'cl-lib)
 
 (ivy-mode 1)
 
 (add-to-list 'load-path (file-name-directory buffer-file-name))
 
+(setq rime-librime-root "~/.emacs.d/librime")
+
 (require 'rime)
 
-(setq default-input-method "rime")
+(rime-compile-module)
+
+(rime-load-dynamic-module)
+
+
+
+
+(setq default-input-method "rime"
+      rime-show-candidate 'posframe)
+
+(toggle-input-method)
+
+(rime-lib-select-schema "terra_pinyin")

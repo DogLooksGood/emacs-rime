@@ -173,7 +173,7 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
     result_a[0] = CONS(INTERN("commit-text-preview"), nil);
 
   // 2. context.composition
-  emacs_value composition_a[5];
+  emacs_value composition_a[7];
 
   int length = context.composition.length;
   int cursor_pos = context.composition.cursor_pos;
@@ -187,22 +187,29 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
   if (preedit_str) {
     composition_a[4] = CONS(INTERN("preedit"), STRING(preedit_str));
 
-    /* int before_cursor_len = cursor_pos + 1; */
-    /* int after_cursor_len = length - cursor_pos + 1; */
-    /* char* before_cursor = malloc(before_cursor_len * sizeof(char)); */
-    /* char* after_cursor = malloc(after_cursor_len * sizeof(char)); */
-    /*  */
-    /* strncpy(before_cursor, preedit_str, before_cursor_len); */
-    /* strncpy(after_cursor, preedit_str + cursor_pos, after_cursor_len); */
-    /*  */
-    /* composition_a[5] = CONS(INTERN("before-cursor"), STRING(before_cursor)); */
-    /* composition_a[6] = CONS(INTERN("after-cursor"), STRING(after_cursor)); */
+    int before_cursor_len = cursor_pos;
+    int after_cursor_len = length - cursor_pos;
+
+    char* before_cursor = malloc(before_cursor_len + 1);
+    char* after_cursor = malloc(after_cursor_len + 1);
+
+    strncpy(before_cursor, preedit_str, before_cursor_len);
+    strncpy(after_cursor, preedit_str + before_cursor_len, after_cursor_len);
+
+    before_cursor[before_cursor_len] = '\0';
+    after_cursor[after_cursor_len] = '\0';
+
+    composition_a[5] = CONS(INTERN("before-cursor"), STRING(before_cursor));
+    composition_a[6] = CONS(INTERN("after-cursor"), STRING(after_cursor));
+
+    free(before_cursor);
+    free(after_cursor);
 
   } else {
     return nil;
   }
 
-  emacs_value composition_value = LIST(5, composition_a);
+  emacs_value composition_value = LIST(7, composition_a);
   result_a[1] = CONS(INTERN("composition"), composition_value);
 
   // 3. context.menu

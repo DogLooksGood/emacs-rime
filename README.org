@@ -2,46 +2,41 @@
 
 [[file:https://i.imgur.com/RqJkzlx.gif]]
 
-在 Emacs 中通过 [[https://github.com/merrickluo/liberime][liberime]] 集成 RIME 输入法，可支持多种输入方案。
+在 Emacs 中使用 [[https://github.com/rime/librime][RIME]] 输入法，可支持多种输入方案。
 
 * 使用方法
 
-目前无法通过 Melpa 直接安装。
+需要 ~make~ 和 ~gcc~ 命令可用。
 
-** 使用 Quelpa
+** Linux
+
+使用包管理器安装 librime, 如果已经通过 Fcitx 或 IBus 使用 Rime, 那么这步已经就绪。
+
+Emacs 中配置如下：
 
 #+BEGIN_SRC emacs-lisp
-  (use-package liberime-config
-    :quelpa (liberime-config
-             :fetcher github
-             :repo "DogLooksGood/liberime"
-             :files ("CMakeLists.txt" "Makefile" "src" "liberime-config.el")))
-
   (use-package rime
-    :quelpa (rime
-             :fetcher github
-             :repo "DogLooksGood/emacs-rime"
-             :files ("rime.el"))
-    :custom (default-input-method "rime"))
+    :custom
+    (default-input-method "rime"))
 #+END_SRC
 
-** 使用 Straight
+** Mac OS
+
+下载构建好的 librime.
+#+BEGIN_SRC bash
+  wget https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
+  unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
+  rm -rf rime-1.5.3-osx.zip
+#+END_SRC
+
+Emacs 中配置如下：
 
 #+BEGIN_SRC emacs-lisp
-(use-package liberime-config
-  :straight (liberime-config
-             :type git
-             :host github
-             :repo "DogLooksGood/liberime"
-             :files ("CMakeLists.txt" "Makefile" "src" "liberime-config.el")))
-
-(use-package rime
-  :straight (rime
-             :type git
-             :host github
-             :repo "DogLooksGood/emacs-rime"
-             :files ("rime.el"))
-  :custom (default-input-method "rime"))
+  (use-package rime
+    :init
+    :custom
+    (rime-librime-path "~/.emacs.d/librime")
+    (default-input-method "rime"))
 #+END_SRC
 
 * 设置输入中发送到 Rime 的组合键。
@@ -109,3 +104,4 @@ Emacs 有一个优秀的远古BUG: 如果 ~LC_CTYPE~ 为 ~en_US.UTF8~ 的话，�
 * 优秀的 Emacs 输入法
 
 你可能需要 [[https://github.com/tumashu/pyim][pyim]], [[https://github.com/merrickluo/liberime][liberime]], [[https://github.com/QiangF/liberime][erime]].
+"

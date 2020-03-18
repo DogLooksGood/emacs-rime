@@ -107,6 +107,18 @@
   "posframe 的样式"
   :group 'rime)
 
+(defface rime-code-face
+  '((t (:inherit font-lock-string-face)))
+  "编码的样式"
+  :group 'rime)
+
+(defface rime-candidate-num-face
+  '((t (:inherit font-lock-comment-face)))
+  "候选编号的样式"
+  :group 'rime)
+
+(defvar rime-librime-root "")
+
 ;;; 只要`input-method-function'有定义就会被使用。而启用输入法只生效在当前`buffer'
 ;;; 所以需要这些变量为`buffer-local'，
 (make-variable-buffer-local 'input-method-function)
@@ -153,7 +165,7 @@
 
 (defvar rime--module-path
   (concat rime--root
-          "liberime"
+          "librime-emacs"
           module-file-suffix))
 
 (defcustom rime-cursor "|"
@@ -267,37 +279,32 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
          (preedit (alist-get 'preedit composition))
          (commit-text-preview (alist-get 'commit-text-preview context))
          (cursor-pos (alist-get 'cursor-pos composition))
+         (before-cursor (alist-get 'before-cursor composition))
+         (after-cursor (alist-get 'after-cursor composition))
          (sel-start (alist-get 'sel-start composition))
          (sel-end (alist-get 'sel-end composition))
          (menu (alist-get 'menu context))
          (input (rime-lib-get-input))
          (page-no (alist-get 'page-no menu))
-         (text)
          (idx 1)
          (result ""))
-    (when preedit
-      (let ((i 0)
-            (w 0))
-        (when (zerop cursor-pos)
-          (setq result (propertize rime-cursor 'face font-lock-function-name-face)))
-        (while (< i (length preedit))
-          (let* ((ch (char-to-string (aref preedit i)))
-                 (len (rime-lib-string-length ch)))
-            (setq w (+ w len)
-                  i (1+ i))
-            (setq text (if (= w cursor-pos)
-                           (concat text ch rime-cursor)
-                         (concat text ch)))))))
     (when context
-      (setq result (concat result (propertize
-                                   (format "%s " text)
-                                   'face font-lock-function-name-face)))
+      (when preedit
+        (setq result (concat (propertize
+                              (concat before-cursor rime-cursor after-cursor)
+                              'face 'rime-code-face)
+                             " ")))
       (dolist (c candidates)
         (setq result
-              (concat result (format "%d. %s " idx c)))
+              (concat result
+                      (propertize
+                       (format "%d. " idx)
+                       'face 'rime-candidate-num-face)
+                      (format "%s " c)))
         (setq idx (1+ idx))))
     (when (and page-no (not (zerop page-no)))
-      (setq result (concat result (format " [%d] " (1+ page-no)))))
+      (setq result (concat result (format " [%d]" (1+ page-no)))))
+
     (if (minibufferp)
         (rime--minibuffer-message
          (concat "\n" result))
@@ -461,10 +468,13 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
          'rime-indicator-dim-face))
     ""))
 
+(defun rime-compile-module ()
+  (unless (file-exists-p rime--module-path)
+    (shell-command (format "cd %s; LIBRIME_ROOT=%s make lib"
+                           rime--root
+                           (file-name-as-directory rime-librime-root)))))
 
 (defun rime-load-dynamic-module ()
-  (unless (file-exists-p rime--module-path)
-    (shell-command (format "cd %s; make lib" rime--root)))
   (if (not (file-exists-p rime--module-path))
       (error "Failed to compile dynamic module.")
     (load-file rime--module-path)
@@ -473,17 +483,20 @@ minibuffer 原来显示的信息和 rime 选词框整合在一起显示
 
 ;;;###autoload
 (defun rime-activate (name)
-  (if (not (rime-load-dynamic-module))
-      (error "Failed to load dynamic module.")
-    (setq rime--rime-lib-loaded t
-		  input-method-function 'rime-input-method
-		  deactivate-current-input-method-function #'rime-deactivate)
-	(dolist (binding rime-translate-keybindings)
-	  (define-key rime-active-mode-map (kbd binding) 'rime--send-keybinding))
-    (rime--clean-state)
-	(add-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
-    (rime-mode 1)
-    (message "Rime activate.")))
+  (unless rime--lib-loaded
+    (rime-compile-module)
+    (rime-load-dynamic-module))
+
+  (setq input-method-function 'rime-input-method
+		deactivate-current-input-method-function #'rime-deactivate)
+
+  (dolist (binding rime-translate-keybindings)
+	(define-key rime-active-mode-map (kbd binding) 'rime--send-keybinding))
+
+  (rime--clean-state)
+  (add-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
+  (rime-mode 1)
+  (message "Rime activate."))
 
 (defun rime-deactivate ()
   (rime--clean-state)
