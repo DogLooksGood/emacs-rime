@@ -398,13 +398,15 @@ Currently just deactivate input method."
 (defun rime--candidate-prefix-char ()
   (if (and (eq 'posframe rime-show-candidate)
            (or (eq 'horizontal rime-posframe-style)
-               (eq 'vertical rime-posframe-style)))
+               (eq 'vertical rime-posframe-style))
+           (not (minibufferp)))
       "\n"
     " "))
 
 (defun rime--candidate-separator-char ()
   (if (and (eq 'posframe rime-show-candidate)
-           (eq 'vertical rime-posframe-style))
+           (eq 'vertical rime-posframe-style)
+           (not (minibufferp)))
       "\n"
     " "))
 
