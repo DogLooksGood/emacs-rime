@@ -607,7 +607,8 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
   (if (not (file-exists-p rime--module-path))
       (error "Failed to compile dynamic module")
     (load-file rime--module-path)
-    (rime-lib-start rime-share-data-dir rime-user-data-dir)
+    (rime-lib-start (expand-file-name rime-share-data-dir)
+                    (expand-file-name rime-user-data-dir))
     (setq rime--lib-loaded t)))
 
 ;;;###autoload
@@ -706,15 +707,19 @@ Should not be enabled manually."
 (defun rime-deploy()
   "Deploy Rime."
   (interactive)
-  (rime-lib-finalize)
-  (rime-lib-start rime-share-data-dir rime-user-data-dir))
+  (if (not (bound-and-true-p rime-mode))
+      (error "You should enable rime before deploy")
+    (rime-lib-finalize)
+    (rime-lib-start (expand-file-name rime-share-data-dir)
+                    (expand-file-name rime-user-data-dir))))
 
 (defun rime-sync ()
   "Sync Rime user data."
   (interactive)
-  (rime-lib-sync-user-data)
-  (rime-lib-finalize)
-  (rime-lib-start rime-share-data-dir rime-user-data-dir))
+  (if (not (bound-and-true-p rime-mode))
+      (error "You should enable rime before deploy")
+    (rime-lib-sync-user-data)
+    (rime-deploy)))
 
 (defun rime-force-enable ()
   "Enable temporarily ascii mode.
