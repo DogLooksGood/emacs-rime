@@ -661,10 +661,13 @@ Argument NAME ignored."
 
 (defun rime--init-hook-default ()
   "Rime activate set hooks."
+  (let ((keymap (copy-keymap rime-active-mode-map)))
+    (setq overriding-terminal-local-map keymap))
   (add-hook 'post-self-insert-hook 'rime--redisplay nil t))
 
 (defun rime--uninit-hook-default ()
   "Rime deactivate remove hooks."
+  (setq overriding-terminal-local-map nil)
   (remove-hook 'post-self-insert-hook 'rime--redisplay))
 
 (defun rime--init-hook-vterm ()
@@ -695,7 +698,7 @@ Argument NAME ignored."
 Should not be enabled manually."
   nil
   nil
-  rime-active-mode-map
+  nil
   (if rime-active-mode
       (rime-active-mode--init)
     (rime-active-mode--uninit)))
