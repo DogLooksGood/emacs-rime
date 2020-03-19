@@ -8,17 +8,33 @@ Emacs in Rime, support multiple schemas.
 
 * Installation
 
-Note: ~make~ and ~gcc~ is required.
+** Requirements
 
-** Linux
+*NOTE*: emacs-rime will build dynamic module automatically, 
+hence ~make~ and ~gcc~ is required.
 
-Install librime with your package manager, if you are using fcitx-rime or ibus-rime, 
-the librime should be already installed.
+** Install librime
 
-Emacs configuration:
+*** Linux
+
+You can install librime with package manager.
+
+It is named ~librime~ in Arch/Manjaro, and ~librime-dev~ in Debian/Ubuntu, etc.
+
+*** MacOS
+
+You can download the release.
+
+#+BEGIN_SRC bash
+  wget https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
+  unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
+  rm -rf rime-1.5.3-osx.zip
+#+END_SRC
+
+** Minimal configuration
 
 #+html: <details>
-#+html: <summary>Using Straight</summary>
+#+html: <summary>Use Straight</summary>
 #+BEGIN_SRC emacs-lisp
   (use-package rime
     :straight (rime :type git
@@ -31,7 +47,7 @@ Emacs configuration:
 #+html: </details>
 
 #+html: <details>
-#+html: <summary>Using Quelpa</summary>
+#+html: <summary>Use Quelpa</summary>
 #+BEGIN_SRC emacs-lisp
   (use-package rime
     :quelpa (rime :fetcher github
@@ -42,24 +58,15 @@ Emacs configuration:
 #+END_SRC
 #+html: </details>
 
-** MacOS
+*NOTE*: If you are on MacOS or don't have librime in standard path, 
+you *MUST* specify ~rime-librime-root~.
 
-Download librime release.
+Put following in the ~:custom~ section. 
 
-#+BEGIN_SRC bash
-  wget https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
-  unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
-  rm -rf rime-1.5.3-osx.zip
-#+END_SRC
-
-Emacs configuration:
+(Assuming you unzip librime to ~/.emacs.d/librime)
 
 #+BEGIN_SRC emacs-lisp
-  (use-package rime
-    :init
-    :custom
-    (rime-librime-root "~/.emacs.d/librime/dist")
-    (default-input-method "rime"))
+(rime-librime-root "~/.emacs.d/librime/dist")
 #+END_SRC
 
 * Keybindings in Rime.
