@@ -306,6 +306,7 @@ Can be used in `rime-disable-predicates'."
       (not (seq-find 'funcall rime-disable-predicates))))
 
 (defun rime--has-composition (context)
+  "If CONTEXT has a meaningful composition data."
   (not (zerop (thread-last context
                 (alist-get 'composition)
                 (alist-get 'length)))))
@@ -463,7 +464,7 @@ the car is keyCode, the cdr is mask."
 (defun rime--rime-lib-module-ready-p ()
   "Return if dynamic module is loaded.
 
-If module is loaded, rime-lib-clear-composition should be available."
+If module is loaded, `rime-lib-clear-composition' should be available."
   (fboundp 'rime-lib-clear-composition))
 
 (defun rime--redisplay (&rest ignores)
@@ -600,16 +601,19 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
     (if (zerop (shell-command
                 (format "cd %s; %s make lib" rime--root env)))
         (message "Compile succeed!")
-      (message "Compile failed!"))))
+      (error "Compile Rime dynamic module failed"))))
 
 (defun rime--load-dynamic-module ()
   "Load dynamic module."
   (if (not (file-exists-p rime--module-path))
       (error "Failed to compile dynamic module")
     (load-file rime--module-path)
-    (rime-lib-start (expand-file-name rime-share-data-dir)
-                    (expand-file-name rime-user-data-dir))
-    (setq rime--lib-loaded t)))
+    (if (rime--maybe-prompt-for-deploy)
+        (progn
+          (rime-lib-start (expand-file-name rime-share-data-dir)
+                          (expand-file-name rime-user-data-dir))
+          (setq rime--lib-loaded t))
+      (error "Activate Rime failed"))))
 
 ;;;###autoload
 (defun rime-activate (name)
@@ -620,16 +624,17 @@ Argument NAME ignored."
       (rime-compile-module))
     (rime--load-dynamic-module))
 
-  (setq input-method-function 'rime-input-method
-		deactivate-current-input-method-function #'rime-deactivate)
+  (when rime--lib-loaded
+    (dolist (binding rime-translate-keybindings)
+	  (define-key rime-active-mode-map (kbd binding) 'rime-send-keybinding))
 
-  (dolist (binding rime-translate-keybindings)
-	(define-key rime-active-mode-map (kbd binding) 'rime-send-keybinding))
+    (rime--clean-state)
+    (add-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
+    (rime-mode 1)
 
-  (rime--clean-state)
-  (add-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
-  (rime-mode 1)
-  (message "Rime activate."))
+    (setq input-method-function 'rime-input-method
+		  deactivate-current-input-method-function #'rime-deactivate)
+    (message "Rime activate.")))
 
 (defun rime-deactivate ()
   "Deactivate rime."
@@ -704,14 +709,24 @@ Should not be enabled manually."
 ;;;###autoload
 (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
 
+(defun rime--maybe-prompt-for-deploy ()
+  "Prompt user to confirm the deploy action."
+  (let ((user-data-dir (expand-file-name rime-user-data-dir)))
+    (if (file-exists-p user-data-dir)
+        t
+      (yes-or-no-p
+       (format "Rime will use %s as the user data directory,
+first time deploy could take some time. Continue?" user-data-dir)))))
+
 (defun rime-deploy()
   "Deploy Rime."
   (interactive)
-  (if (not (bound-and-true-p rime-mode))
-      (error "You should enable rime before deploy")
-    (rime-lib-finalize)
-    (rime-lib-start (expand-file-name rime-share-data-dir)
-                    (expand-file-name rime-user-data-dir))))
+  (when (rime--maybe-prompt-for-deploy)
+    (if (not (bound-and-true-p rime-mode))
+        (error "You should enable rime before deploy")
+      (rime-lib-finalize)
+      (rime-lib-start (expand-file-name rime-share-data-dir)
+                      (expand-file-name rime-user-data-dir)))))
 
 (defun rime-sync ()
   "Sync Rime user data."
