@@ -17,11 +17,30 @@ the librime should be already installed.
 
 Emacs configuration:
 
+#+html: <details>
+#+html: <summary>Using Straight</summary>
 #+BEGIN_SRC emacs-lisp
   (use-package rime
+    :straight (rime :type git
+                    :host github
+                    :repo "DogLooksGood/emacs-rime"
+                    :files ("rime.el" "Makefile" "lib.c"))
     :custom
     (default-input-method "rime"))
 #+END_SRC
+#+html: </details>
+
+#+html: <details>
+#+html: <summary>Using Quelpa</summary>
+#+BEGIN_SRC emacs-lisp
+  (use-package rime
+    :quelpa (rime :fetcher github
+                  :repo "DogLooksGood/emacs-rime"
+                  :files ("rime.el" "Makefile" "lib.c"))
+    :custom
+    (default-input-method "rime"))
+#+END_SRC
+#+html: </details>
 
 ** MacOS
 
