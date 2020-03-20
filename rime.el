@@ -307,10 +307,11 @@ Can be used in `rime-disable-predicates'."
   "determines whether the current buffer is in one of
 `evil-normal-state' ,`evil-visual-state' , `evil-motion-state'
 or`evil-operator-state'."
-  (or (evil-normal-state-p)
-      (evil-visual-state-p)
-      (evil-motion-state-p)
-      (evil-operator-state-p)))
+  (when (fboundp 'evil-mode)
+    (or (evil-normal-state-p)
+        (evil-visual-state-p)
+        (evil-motion-state-p)
+        (evil-operator-state-p))))
 
 (defun rime--punctuation-line-begin-p ()
   "Determines whether the current cursor is at the beginning of a
