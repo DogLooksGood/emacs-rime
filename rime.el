@@ -317,33 +317,38 @@ Can be used in `rime-disable-predicates'."
         (evil-operator-state-p))))
 
 (defun rime--punctuation-line-begin-p ()
-  "Determines whether the current cursor is at the beginning of a
-line and the character last inputted is symbol.
+  "Enter half-width punctuation at the beginning of the line.
 
-Can be used in `rime-disable-predicates'."
-  (and (<= (point) (save-excursion (back-to-indentation) (point)))
+  Determines whether the current cursor is at the beginning of a
+  line and the character last inputted is symbol.
+
+  Can be used in `rime-disable-predicates'."
+  (and rime--current-input-key
+       (<= (point) (save-excursion (back-to-indentation) (point)))
        (or (and (<= #x21 rime--current-input-key) (<= rime--current-input-key #x2f))
            (and (<= #x3a rime--current-input-key) (<= rime--current-input-key #x40))
            (and (<= #x5b rime--current-input-key) (<= rime--current-input-key #x60))
            (and (<= #x7b rime--current-input-key) (<= rime--current-input-key #x7f)))))
 
 (defun rime--auto-english-p ()
-  "After activating this probe function, use the following rules
-to automatically switch between Chinese and English input:
+  "Auto switch Chinese/English input state.
 
-   1. When the current character is an English
-character (excluding spaces), enter the next character as an
-English character.
-  2. When the current character is a Chinese character or the
-input character is a beginning character, the input character is
-a Chinese character.
-   3. With a single space as the boundary, automatically switch
-between Chinese and English characters.
+  After activating this probe function, use the following rules
+  to automatically switch between Chinese and English input:
 
-That is, a sentence of the form \"我使用 emacs 编辑此函数\"
-automatically switches between Chinese and English input methods.
+     1. When the current character is an English
+  character (excluding spaces), enter the next character as an
+  English character.
+    2. When the current character is a Chinese character or the
+  input character is a beginning character, the input character is
+  a Chinese character.
+     3. With a single space as the boundary, automatically switch
+  between Chinese and English characters.
 
-Can be used in `rime-disable-predicates'."
+  That is, a sentence of the form \"我使用 emacs 编辑此函数\"
+  automatically switches between Chinese and English input methods.
+
+  Can be used in `rime-disable-predicates'."
   (if (> (point) (save-excursion (back-to-indentation) (point)))
       (if (looking-back " +" 1)
           (looking-back "\\cc +" 2)
@@ -591,6 +596,7 @@ By default the input-method will not handle DEL, so we need this command."
 
 (defun rime--clean-state ()
   "Clean composition, preedit and candidate."
+  (setq rime--current-input-key nil)
   (rime-lib-clear-composition)
   (rime--display-preedit)
   (rime--show-candidate)
