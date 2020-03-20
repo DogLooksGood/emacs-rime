@@ -275,7 +275,7 @@ Defaults to `user-emacs-directory'/rime/"
   '(window-configuration-change-hook)
   "Hide posframe in these hooks.")
 
-(defvar rime--last-input-key 0
+(defvar rime--current-input-key nil
   "Saved last input key.")
 
 ;;;###autoload
@@ -304,9 +304,12 @@ Can be used in `rime-disable-predicates'."
              (nth 4 (syntax-ppss))))))
 
 (defun rime--evil-mode-p ()
-  "determines whether the current buffer is in one of
-`evil-normal-state' ,`evil-visual-state' , `evil-motion-state'
-or`evil-operator-state'."
+  "Determines whether the current buffer is in `evil' state.
+
+Include `evil-normal-state' ,`evil-visual-state' ,
+`evil-motion-state' , `evil-operator-state'.
+
+Can be used in `rime-disable-predicates'."
   (when (fboundp 'evil-mode)
     (or (evil-normal-state-p)
         (evil-visual-state-p)
@@ -319,12 +322,12 @@ line and the character last inputted is symbol.
 
 Can be used in `rime-disable-predicates'."
   (and (<= (point) (save-excursion (back-to-indentation) (point)))
-       (or (and (<= #x21 rime--last-input-key) (<= rime--last-input-key #x2f))
-           (and (<= #x3a rime--last-input-key) (<= rime--last-input-key #x40))
-           (and (<= #x5b rime--last-input-key) (<= rime--last-input-key #x60))
-           (and (<= #x7b rime--last-input-key) (<= rime--last-input-key #x7f)))))
+       (or (and (<= #x21 rime--current-input-key) (<= rime--current-input-key #x2f))
+           (and (<= #x3a rime--current-input-key) (<= rime--current-input-key #x40))
+           (and (<= #x5b rime--current-input-key) (<= rime--current-input-key #x60))
+           (and (<= #x7b rime--current-input-key) (<= rime--current-input-key #x7f)))))
 
-(defun rime--probe-auto-english ()
+(defun rime--auto-english-p ()
   "After activating this probe function, use the following rules
 to automatically switch between Chinese and English input:
 
@@ -554,7 +557,7 @@ By default the input-method will not handle DEL, so we need this command."
 
 (defun rime-input-method (key)
   "Process KEY with input method."
-  (setq rime--last-input-key key)
+  (setq rime--current-input-key key)
   (when (rime--rime-lib-module-ready-p)
     (if (and (not (rime--should-enable-p))
              (not (rime--has-composition (rime-lib-get-context))))
