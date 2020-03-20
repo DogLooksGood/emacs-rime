@@ -1,38 +1,60 @@
 #+TITLE: Emacs Rime 中文文档
 
-* 使用方法
+** 依赖
 
-需要 ~make~ 和 ~gcc~ 命令可用。
+emacs-rime 会自动构建所需的动态模块，这需要 ~make~ 和 ~gcc~ 可用。
 
-** Linux
+** 安装 librime
 
-使用包管理器安装 librime, 如果已经通过 Fcitx 或 IBus 使用 Rime, 那么这步已经就绪。
+*** Linux
 
-Emacs 中配置如下：
+通过包管理器来安装 ~librime~ ，在 ~Arch/Manjaro~ 中为 ~librime~ ，在 ~Debian/Ubuntu~ 中为 ~librime-dev~ 。
 
-#+BEGIN_SRC emacs-lisp
-  (use-package rime
-    :custom
-    (default-input-method "rime"))
-#+END_SRC
+*** MacOS
 
-** MacOS
+直接下载编译好的 Release 。
 
-下载构建好的 librime.
 #+BEGIN_SRC bash
   wget https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
   unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
   rm -rf rime-1.5.3-osx.zip
 #+END_SRC
 
-Emacs 中配置如下：
+** 最小配置
 
+#+html: <details>
+#+html: <summary>使用 Straight</summary>
 #+BEGIN_SRC emacs-lisp
   (use-package rime
-    :init
+    :straight (rime :type git
+                    :host github
+                    :repo "DogLooksGood/emacs-rime"
+                    :files ("rime.el" "Makefile" "lib.c"))
     :custom
-    (rime-librime-root "~/.emacs.d/librime/dist")
     (default-input-method "rime"))
+#+END_SRC
+#+html: </details>
+
+#+html: <details>
+#+html: <summary>使用 Quelpa</summary>
+#+BEGIN_SRC emacs-lisp
+  (use-package rime
+    :quelpa (rime :fetcher github
+                  :repo "DogLooksGood/emacs-rime"
+                  :files ("rime.el" "Makefile" "lib.c"))
+    :custom
+    (default-input-method "rime"))
+#+END_SRC
+#+html: </details>
+
+*NOTE* 如果你在 MacOS 上或是选择自己编译 librime （没有放在系统路径中）， *必须* 指定 ~rime-librime-root~ 。
+
+在 ~:custom~ 中加入如下内容. 
+
+(假设将 librime 解压到了 ~/.emacs.d/librime)
+
+#+BEGIN_SRC emacs-lisp
+(rime-librime-root "~/.emacs.d/librime/dist")
 #+END_SRC
 
 * 设置输入中发送到 Rime 的组合键。
@@ -93,11 +115,7 @@ Emacs 中配置如下：
 
 使用 ~rime-open-configuration~ 打开配置文件。
 
-* 如果你使用 Linux
-Emacs 有一个优秀的远古BUG: 如果 ~LC_CTYPE~ 为 ~en_US.UTF8~ 的话，那么就无法调用起 Fcitx.
-所以可以利用这点把 Emacs 内切换输入法的快捷键和系统快捷键设为同一个键。
-
 * 优秀的 Emacs 输入法
 
 你可能需要 [[https://github.com/tumashu/pyim][pyim]], [[https://github.com/merrickluo/liberime][liberime]], [[https://github.com/QiangF/liberime][erime]].
-"
+

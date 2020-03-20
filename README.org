@@ -8,24 +8,22 @@ Emacs in Rime, support multiple schemas.
 
 * Installation
 
-Note: ~make~ and ~gcc~ is required.
+** Requirements
 
-** Linux
+*NOTE*: emacs-rime will build dynamic module automatically, 
+hence ~make~ and ~gcc~ is required.
 
-Install librime with your package manager, if you are using fcitx-rime or ibus-rime, 
-the librime should be already installed.
+** Install librime
 
-Emacs configuration:
+*** Linux
 
-#+BEGIN_SRC emacs-lisp
-  (use-package rime
-    :custom
-    (default-input-method "rime"))
-#+END_SRC
+You can install librime with package manager.
 
-** MacOS
+It is named ~librime~ in Arch/Manjaro, and ~librime-dev~ in Debian/Ubuntu, etc.
 
-Download librime release.
+*** MacOS
+
+You can download the release.
 
 #+BEGIN_SRC bash
   wget https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
@@ -33,14 +31,42 @@ Download librime release.
   rm -rf rime-1.5.3-osx.zip
 #+END_SRC
 
-Emacs configuration:
+** Minimal configuration
 
+#+html: <details>
+#+html: <summary>Use Straight</summary>
 #+BEGIN_SRC emacs-lisp
   (use-package rime
-    :init
+    :straight (rime :type git
+                    :host github
+                    :repo "DogLooksGood/emacs-rime"
+                    :files ("rime.el" "Makefile" "lib.c"))
     :custom
-    (rime-librime-root "~/.emacs.d/librime/dist")
     (default-input-method "rime"))
+#+END_SRC
+#+html: </details>
+
+#+html: <details>
+#+html: <summary>Use Quelpa</summary>
+#+BEGIN_SRC emacs-lisp
+  (use-package rime
+    :quelpa (rime :fetcher github
+                  :repo "DogLooksGood/emacs-rime"
+                  :files ("rime.el" "Makefile" "lib.c"))
+    :custom
+    (default-input-method "rime"))
+#+END_SRC
+#+html: </details>
+
+*NOTE*: If you are on MacOS or don't have librime in standard path, 
+you *MUST* specify ~rime-librime-root~.
+
+Put following in the ~:custom~ section. 
+
+(Assuming you unzip librime to ~/.emacs.d/librime)
+
+#+BEGIN_SRC emacs-lisp
+(rime-librime-root "~/.emacs.d/librime/dist")
 #+END_SRC
 
 * Keybindings in Rime.
