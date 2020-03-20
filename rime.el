@@ -162,9 +162,20 @@
   "Face for mode-line indicator when input-method is temporarily disabled."
   :group 'rime)
 
-(defface rime-posframe-face
-  '((t (:inherit default :background "#333333" :foreground "#dcdccc")))
-  "Face for candidate posframe."
+(defcustom rime-posframe-properties
+  (list :background-color "#333333"
+        :foreground-color "#dcdccc"
+        :internal-border-width 10)
+  "Properties for posframe."
+  :group 'rime)
+
+(defcustom rime-posframe-style 'horizontal
+  "Display style when using posframe.
+
+`simple', preedit and candidate list in a single line.
+`horizontal', list candidates in a single line.'
+`vertical', display candidates in multiple lines."
+  :options '(simple horizontal vertical)
   :group 'rime)
 
 (defface rime-code-face
@@ -356,10 +367,9 @@ Currently just deactivate input method."
   (if (and (featurep 'posframe) (display-graphic-p))
       (if (string-blank-p content)
           (rime-posframe-hide-posframe)
-        (posframe-show rime-posframe-buffer
-                       :string content
-                       :background-color (face-attribute 'rime-posframe-face :background)
-                       :foreground-color (face-attribute 'rime-posframe-face :foreground))
+        (apply #'posframe-show rime-posframe-buffer
+               :string content
+               rime-posframe-properties)
         (dolist (hook rime-posframe-hide-posframe-hooks)
           (add-hook hook #'rime-posframe-hide-posframe nil t)))
     ;; Fallback to popup when not available.
@@ -385,6 +395,21 @@ Currently just deactivate input method."
         (posframe (rime--posframe-display-content content))
         (t (progn)))))
 
+(defun rime--candidate-prefix-char ()
+  (if (and (eq 'posframe rime-show-candidate)
+           (or (eq 'horizontal rime-posframe-style)
+               (eq 'vertical rime-posframe-style))
+           (not (minibufferp)))
+      "\n"
+    " "))
+
+(defun rime--candidate-separator-char ()
+  (if (and (eq 'posframe rime-show-candidate)
+           (eq 'vertical rime-posframe-style)
+           (not (minibufferp)))
+      "\n"
+    " "))
+
 (defun rime--build-candidate-content ()
   "Build candidate menu content from librime context."
   (let* ((context (rime-lib-get-context))
@@ -408,14 +433,14 @@ Currently just deactivate input method."
         (setq result (concat (propertize
                               (concat before-cursor rime-cursor after-cursor)
                               'face 'rime-code-face)
-                             " ")))
+                             (rime--candidate-prefix-char))))
       (dolist (c candidates)
         (setq result
               (concat result
                       (propertize
                        (format "%d. " idx)
                        'face 'rime-candidate-num-face)
-                      (format "%s " c)))
+                      (format "%s%s" c (rime--candidate-separator-char))))
         (setq idx (1+ idx))))
     (when (and page-no (not (zerop page-no)))
       (setq result (concat result (format " [%d]" (1+ page-no)))))
