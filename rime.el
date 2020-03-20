@@ -280,7 +280,9 @@ Defaults to `user-emacs-directory'/rime/"
   "The buffer name for candidate posframe.")
 
 (defvar rime-posframe-hide-posframe-hooks
-  '(window-configuration-change-hook)
+  '(window-configuration-change-hook
+    mouse-leave-buffer-hook
+    mouse-wheel-mode-hook)
   "Hide posframe in these hooks.")
 
 (defvar rime--current-input-key nil
