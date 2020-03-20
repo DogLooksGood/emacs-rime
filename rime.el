@@ -197,8 +197,6 @@ Otherwise you should set this to where you put librime."
   :group 'rime)
 
 ;;; We need these variables to be buffer local.
-(make-variable-buffer-local 'input-method-function)
-(make-variable-buffer-local 'deactivate-current-input-method-function)
 
 (defvar rime--temporarily-ignore-predicates nil
   "Temporarily disable all predicates.
@@ -269,9 +267,8 @@ Defaults to `user-emacs-directory'/rime/"
   :type 'string
   :group 'rime)
 
-(make-variable-buffer-local
- (defvar rime--preedit-overlay nil
-   "Overlay on preedit."))
+(defvar-local rime--preedit-overlay nil
+   "Overlay on preedit.")
 
 (defvar rime--lib-loaded nil
   "If dynamic module is loaded.")
@@ -713,8 +710,8 @@ Argument NAME ignored."
     (add-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
     (rime-mode 1)
 
-    (setq input-method-function 'rime-input-method
-		  deactivate-current-input-method-function #'rime-deactivate)
+    (setq-local input-method-function 'rime-input-method)
+    (setq-local deactivate-current-input-method-function #'rime-deactivate)
     (message "Rime activate.")))
 
 (defun rime-deactivate ()
