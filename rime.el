@@ -447,6 +447,7 @@ Currently just deactivate input method."
         (t (progn)))))
 
 (defun rime--candidate-prefix-char ()
+  "Character used to separate preedit and candidates."
   (if (and (eq 'posframe rime-show-candidate)
            (or (eq 'horizontal rime-posframe-style)
                (eq 'vertical rime-posframe-style))
@@ -455,6 +456,7 @@ Currently just deactivate input method."
     " "))
 
 (defun rime--candidate-separator-char ()
+  "Character used to spereate each candidate."
   (if (and (eq 'posframe rime-show-candidate)
            (eq 'vertical rime-posframe-style)
            (not (minibufferp)))
