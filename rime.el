@@ -654,8 +654,8 @@ Argument NAME ignored."
     (add-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
     (rime-mode 1)
 
-    (setq-local input-method-function 'rime-input-method
-		  deactivate-current-input-method-function #'rime-deactivate)
+    (setq-local input-method-function 'rime-input-method)
+    (setq-local deactivate-current-input-method-function #'rime-deactivate)
     (message "Rime activate.")))
 
 (defun rime-deactivate ()
