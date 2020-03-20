@@ -97,7 +97,7 @@ emacs-rime 会自动构建所需的动态模块，这需要 ~make~ 和 ~gcc~ 可
           rime-predicate-prog-in-code-p))
 #+END_SRC
 
-目前可用的检测函数有：
+目前可用的断言函数有：
 - ~rime-predicate-after-alphabet-char-p~
   在英文字符后继续输入英文
 - ~rime-predicate-prog-in-code-p~
