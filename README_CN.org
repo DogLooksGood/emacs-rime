@@ -92,10 +92,22 @@ emacs-rime 会自动构建所需的动态模块，这需要 ~make~ 和 ~gcc~ 可
 
 #+BEGIN_SRC emacs-lisp
   (setq rime-disable-predicates
-        '(evil-normal-state-p
-          rime--after-alphabet-char-p
-          rime--prog-in-code-p))
+        '(rime-predicate-evil-mode-p
+          rime-predicate-after-alphabet-char-p
+          rime-predicate-prog-in-code-p))
 #+END_SRC
+
+目前可用的检测函数有：
+- ~rime-predicate-after-alphabet-char-p~
+  在英文字符后继续输入英文
+- ~rime-predicate-prog-in-code-p~
+  在 ~prog-mode~ 和 ~conf-mode~ 里只有注释和引号内可以输入中文
+- ~rime-predicate-evil-mode-p~
+  在 ~evil-mode~ 的非编辑状态下输入为英文方式
+- ~rime-predicate-punctuation-line-begin-p~
+  在行首输入符号时自动转为英文
+- ~rime-predicate-auto-english-p~
+  以空格为界，自动切换中英文
 
 * 强制中文模式
 使用 ~rime-force-enable~ 来临时强制使用强制中文模式（即无视 ~rime-disable-predicates~ 中的规则），
