@@ -306,6 +306,8 @@ Each keybinding in this list, will be bound to `rime-send-keybinding' in `rime-a
 Can be used in `rime-disable-predicates'."
   (looking-back "[a-zA-Z][0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]*" 1))
 
+(defalias 'rime-predicate-after-alphabet-char-p #'rime--after-alphabet-char-p)
+
 (defun rime--prog-in-code-p ()
   "If cursor is in code.
 
@@ -313,6 +315,8 @@ Can be used in `rime-disable-predicates'."
   (when (derived-mode-p 'prog-mode 'conf-mode)
     (not (or (nth 3 (syntax-ppss))
              (nth 4 (syntax-ppss))))))
+
+(defalias 'rime-predicate-prog-in-code-p #'rime--prog-in-code-p)
 
 (defun rime--evil-mode-p ()
   "Determines whether the current buffer is in `evil' state.
@@ -327,6 +331,8 @@ Can be used in `rime-disable-predicates'."
         (evil-motion-state-p)
         (evil-operator-state-p))))
 
+(defalias 'rime-predicate-evil-mode-p #'rime--evil-mode-p)
+
 (defun rime--punctuation-line-begin-p ()
   "Enter half-width punctuation at the beginning of the line.
 
@@ -340,6 +346,8 @@ Can be used in `rime-disable-predicates'."
            (and (<= #x3a rime--current-input-key) (<= rime--current-input-key #x40))
            (and (<= #x5b rime--current-input-key) (<= rime--current-input-key #x60))
            (and (<= #x7b rime--current-input-key) (<= rime--current-input-key #x7f)))))
+
+(defalias 'rime-predicate-punctuation-line-begin-p #'rime--punctuation-line-begin-p)
 
 (defun rime--auto-english-p ()
   "Auto switch Chinese/English input state.
@@ -364,6 +372,8 @@ Can be used in `rime-disable-predicates'."
       (if (looking-back " +" 1)
           (looking-back "\\cc +" 2)
         (not (looking-back "\\cc" 1)))))
+
+(defalias 'rime-predicate-auto-english-p #'rime--auto-english-p)
 
 (defun rime--should-enable-p ()
   "If key event should be handled by input-method."
