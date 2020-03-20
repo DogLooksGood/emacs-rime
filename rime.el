@@ -286,6 +286,9 @@ Defaults to `user-emacs-directory'/rime/"
   '(window-configuration-change-hook)
   "Hide posframe in these hooks.")
 
+(defvar rime--current-input-key nil
+  "Saved last input key.")
+
 ;;;###autoload
 (defvar rime-title "ㄓ"
   "The title of input method.")
@@ -301,7 +304,7 @@ Each keybinding in this list, will be bound to `rime-send-keybinding' in `rime-a
   "If the cursor is after a alphabet character.
 
 Can be used in `rime-disable-predicates'."
-  (looking-back "[a-zA-Z][-_:.0-9/]*" 1))
+  (looking-back "[a-zA-Z][0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]*" 1))
 
 (defun rime--prog-in-code-p ()
   "If cursor is in code.
@@ -310,6 +313,57 @@ Can be used in `rime-disable-predicates'."
   (when (derived-mode-p 'prog-mode 'conf-mode)
     (not (or (nth 3 (syntax-ppss))
              (nth 4 (syntax-ppss))))))
+
+(defun rime--evil-mode-p ()
+  "Determines whether the current buffer is in `evil' state.
+
+Include `evil-normal-state' ,`evil-visual-state' ,
+`evil-motion-state' , `evil-operator-state'.
+
+Can be used in `rime-disable-predicates'."
+  (when (fboundp 'evil-mode)
+    (or (evil-normal-state-p)
+        (evil-visual-state-p)
+        (evil-motion-state-p)
+        (evil-operator-state-p))))
+
+(defun rime--punctuation-line-begin-p ()
+  "Enter half-width punctuation at the beginning of the line.
+
+  Determines whether the current cursor is at the beginning of a
+  line and the character last inputted is symbol.
+
+  Can be used in `rime-disable-predicates'."
+  (and rime--current-input-key
+       (<= (point) (save-excursion (back-to-indentation) (point)))
+       (or (and (<= #x21 rime--current-input-key) (<= rime--current-input-key #x2f))
+           (and (<= #x3a rime--current-input-key) (<= rime--current-input-key #x40))
+           (and (<= #x5b rime--current-input-key) (<= rime--current-input-key #x60))
+           (and (<= #x7b rime--current-input-key) (<= rime--current-input-key #x7f)))))
+
+(defun rime--auto-english-p ()
+  "Auto switch Chinese/English input state.
+
+  After activating this probe function, use the following rules
+  to automatically switch between Chinese and English input:
+
+     1. When the current character is an English
+  character (excluding spaces), enter the next character as an
+  English character.
+    2. When the current character is a Chinese character or the
+  input character is a beginning character, the input character is
+  a Chinese character.
+     3. With a single space as the boundary, automatically switch
+  between Chinese and English characters.
+
+  That is, a sentence of the form \"我使用 emacs 编辑此函数\"
+  automatically switches between Chinese and English input methods.
+
+  Can be used in `rime-disable-predicates'."
+  (if (> (point) (save-excursion (back-to-indentation) (point)))
+      (if (looking-back " +" 1)
+          (looking-back "\\cc +" 2)
+        (not (looking-back "\\cc" 1)))))
 
 (defun rime--should-enable-p ()
   "If key event should be handled by input-method."
@@ -533,6 +587,7 @@ By default the input-method will not handle DEL, so we need this command."
 
 (defun rime-input-method (key)
   "Process KEY with input method."
+  (setq rime--current-input-key key)
   (when (rime--rime-lib-module-ready-p)
     (if (and (not (rime--should-enable-p))
              (not (rime--has-composition (rime-lib-get-context))))
@@ -566,6 +621,7 @@ By default the input-method will not handle DEL, so we need this command."
 
 (defun rime--clean-state ()
   "Clean composition, preedit and candidate."
+  (setq rime--current-input-key nil)
   (rime-lib-clear-composition)
   (rime--display-preedit)
   (rime--show-candidate)
