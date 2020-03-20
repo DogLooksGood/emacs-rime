@@ -1,7 +1,7 @@
 TARGET       = librime-emacs.so
 
 CC           = gcc
-CFLAGS       = -fPIC -g
+CFLAGS       = -fPIC -O2 -Wall
 LDFLAGS      = -shared
 
 ifdef LIBRIME_ROOT

@@ -46,8 +46,8 @@ typedef struct _EmacsRime {
 static char *copy_string(char *str) {
   if (str) {
      size_t size = strlen(str);
-     char *new_str = malloc(size+1);
-     strncpy(new_str, str, size);
+     char *new_str = malloc((size + 1) * sizeof(char));
+     strcpy(new_str, str);
      new_str[size] = '\0';
      return new_str;
   } else {
@@ -122,7 +122,7 @@ start(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) {
   emacs_rime_traits.user_data_dir = user_data_dir;
   emacs_rime_traits.distribution_name = "Rime";
   emacs_rime_traits.distribution_code_name = "emacs-rime";
-  emacs_rime_traits.distribution_version = "1.0.0";
+  emacs_rime_traits.distribution_version = "1.0.1";
   if (rime->first_run) {
     rime->api->setup(&emacs_rime_traits);
     rime->first_run = false;
