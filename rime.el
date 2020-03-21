@@ -378,6 +378,11 @@ Can be used in `rime-disable-predicates'."
 
 (defalias 'rime-predicate-auto-english-p #'rime--auto-english-p)
 
+(defun rime-predicate-space-after-ascii-p ()
+  (and (> (point) (save-excursion (back-to-indentation) (point)))
+       (looking-back " +" 1)
+       (not (looking-back "\\cc +" 1))))
+
 (defun rime-predicate-space-after-cc-p ()
   "If cursur is after a non-ascii char followed by a whitespace."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
@@ -627,30 +632,29 @@ By default the input-method will not handle DEL, so we need this command."
   "Process KEY with input method."
   (setq rime--current-input-key key)
   (when (rime--rime-lib-module-ready-p)
-    (let ((inline (rime--should-inline-ascii-p)))
-      (if (and (not (rime--should-enable-p))
-               (not inline)
-               (not (rime--has-composition (rime-lib-get-context))))
-          (list key)
-        (let ((handled (rime-lib-process-key key 0)))
-          (with-silent-modifications
-            (let* ((context (rime-lib-get-context))
-                   (preedit (thread-last context
-                              (alist-get 'composition)
-                              (alist-get 'preedit)))
-                   (commit (rime-lib-get-commit)))
-              (unwind-protect
-                  (cond
-                   ((not handled)
-                    (list key))
-                   (commit
-                    (rime--clear-overlay)
-                    (mapcar 'identity commit))
-                   (t
-                    (when (and inline (not (rime--ascii-mode-p)))
-                      (rime--inline-ascii))
-                    (rime--redisplay)))
-                (rime--refresh-mode-state)))))))))
+    (if (and (not (rime--should-enable-p))
+             (not (rime--has-composition (rime-lib-get-context))))
+        (list key)
+      (let ((handled (rime-lib-process-key key 0)))
+        (with-silent-modifications
+          (let* ((context (rime-lib-get-context))
+                 (preedit (thread-last context
+                            (alist-get 'composition)
+                            (alist-get 'preedit)))
+                 (commit (rime-lib-get-commit)))
+            (unwind-protect
+                (cond
+                 ((not handled)
+                  (list key))
+                 (commit
+                  (rime--clear-overlay)
+                  (mapcar 'identity commit))
+                 (t
+                  (when (and (rime--should-inline-ascii-p)
+                             (not (rime--ascii-mode-p)))
+                    (rime--inline-ascii))
+                  (rime--redisplay)))
+              (rime--refresh-mode-state))))))))
 
 (defun rime-send-keybinding ()
   "Send key event to librime."
@@ -705,7 +709,8 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
 
   (if (and (equal current-input-method "rime")
            (bound-and-true-p rime-mode))
-      (if (rime--should-enable-p)
+      (if (and (rime--should-enable-p)
+               (not (rime--should-inline-ascii-p)))
           (propertize
            (concat " " rime-title)
            'face
