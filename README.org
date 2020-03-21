@@ -1,6 +1,6 @@
 #+TITLE: Emacs Rime
 
-[[file:https://i.imgur.com/RqJkzlx.gif]]
+[[file:https://i.imgur.com/S15IbwJ.gif]]
 
 [[file:README_CN.org][中文文档]]
 
