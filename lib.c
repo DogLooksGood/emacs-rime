@@ -349,6 +349,10 @@ get_schema_list(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) 
 }
 
 /*
+ * Deprecated
+ * Prefer user set how to toggle inline ascii.
+ *
+ *
  * Find which key is used for inline_ascii, and simulate.
  * This is a tricky implementation, it work only when:
  * - build/default.yaml is exists.

@@ -273,6 +273,11 @@ Defaults to `user-emacs-directory'/rime/"
           module-file-suffix)
   "The path to the dynamic module.")
 
+(defcustom rime-inline-ascii-trigger 'shift-l
+  "How to trigger into inline ascii mode."
+  :options '(shift-l shift-r control-l control-r alt-l alt-r)
+  :group 'rime)
+
 (defcustom rime-cursor "|"
   "The character used to display the soft cursor in preedit."
   :type 'string
@@ -618,7 +623,16 @@ By default the input-method will not handle DEL, so we need this command."
 
 (defun rime--inline-ascii ()
   "Toggle inline ascii."
-  (rime-lib-inline-ascii))
+  (let ((key-code
+         (cl-case rime-inline-ascii-trigger
+           (shift-l 65505)
+           (shift-r 65506)
+           (control-l 65507)
+           (control-r 65508)
+           (alt-l 65513)
+           (alt-r 65514))))
+    (rime-lib-process-key key-code 0)
+    (rime-lib-process-key key-code 1073741824)))
 
 (defun rime-inline-ascii ()
   "Toggle inline ascii and redisplay."
