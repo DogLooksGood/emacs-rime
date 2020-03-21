@@ -210,10 +210,16 @@ Will be reset to nil when symbol `rime-active-mode' is disabled.")
 (defvar rime-force-enable-exit-hook nil
   "Hooks rum after the state of `rime-force-enable' is turned off.")
 
+(defcustom rime-inline-predicates nil
+  "A list of predicate functions, each receive no argument.
+
+When one of functions in `rime-disable-predicates' return t, and
+one of these functions return t, the input-method will toggle to inline mode.")
+
 (defcustom rime-disable-predicates nil
   "A list of predicate functions, each receive no argument.
 
-If one of these functions return will, the input-method will fallback to ascii mode."
+If one of these functions return t, the input-method will fallback to ascii mode."
   :type 'list
   :group 'rime)
 
@@ -372,10 +378,19 @@ Can be used in `rime-disable-predicates'."
 
 (defalias 'rime-predicate-auto-english-p #'rime--auto-english-p)
 
+(defun rime-predicate-space-after-cc-p ()
+  "If cursur is after a non-ascii char followed by a whitespace."
+  (and (> (point) (save-excursion (back-to-indentation) (point)))
+       (looking-back "\\cc +" 2)))
+
 (defun rime--should-enable-p ()
   "If key event should be handled by input-method."
   (or rime--temporarily-ignore-predicates
       (not (seq-find 'funcall rime-disable-predicates))))
+
+(defun rime--should-inline-ascii-p ()
+  "If we should toggle to inline ascii mode."
+  (seq-find 'funcall rime-inline-predicates))
 
 (defun rime--has-composition (context)
   "If CONTEXT has a meaningful composition data."
@@ -594,29 +609,48 @@ By default the input-method will not handle DEL, so we need this command."
       (rime--redisplay))
     (rime--refresh-mode-state)))
 
+(defun rime--ascii-mode-p ()
+  "If ascii-mode is enabled."
+  (rime-lib-get-option "ascii_mode"))
+
+(defun rime--inline-ascii ()
+  "Toggle inline ascii."
+  (rime-lib-inline-ascii))
+
+(defun rime-inline-ascii ()
+  "Toggle inline ascii and redisplay."
+  (interactive)
+  (rime--inline-ascii)
+  (rime--redisplay))
+
 (defun rime-input-method (key)
   "Process KEY with input method."
   (setq rime--current-input-key key)
   (when (rime--rime-lib-module-ready-p)
-    (if (and (not (rime--should-enable-p))
-             (not (rime--has-composition (rime-lib-get-context))))
-        (list key)
-      (let ((handled (rime-lib-process-key key 0)))
-        (with-silent-modifications
-          (let* ((context (rime-lib-get-context))
-                 (preedit (thread-last context
-                            (alist-get 'composition)
-                            (alist-get 'preedit)))
-                 (commit (rime-lib-get-commit)))
-            (unwind-protect
-                (cond
-                 ((not handled)
-                  (list key))
-                 (commit
-                  (rime--clear-overlay)
-                  (mapcar 'identity commit))
-                 (t (rime--redisplay)))
-              (rime--refresh-mode-state))))))))
+    (let ((inline (rime--should-inline-ascii-p)))
+      (if (and (not (rime--should-enable-p))
+               (not inline)
+               (not (rime--has-composition (rime-lib-get-context))))
+          (list key)
+        (let ((handled (rime-lib-process-key key 0)))
+          (with-silent-modifications
+            (let* ((context (rime-lib-get-context))
+                   (preedit (thread-last context
+                              (alist-get 'composition)
+                              (alist-get 'preedit)))
+                   (commit (rime-lib-get-commit)))
+              (unwind-protect
+                  (cond
+                   ((not handled)
+                    (list key))
+                   (commit
+                    (rime--clear-overlay)
+                    (mapcar 'identity commit))
+                   (t
+                    (when (and inline (not (rime--ascii-mode-p)))
+                      (rime--inline-ascii))
+                    (rime--redisplay)))
+                (rime--refresh-mode-state)))))))))
 
 (defun rime-send-keybinding ()
   "Send key event to librime."
