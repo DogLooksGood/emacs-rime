@@ -394,6 +394,8 @@ inline_ascii(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
     result = nil;
   }
 
+  free(buf);
+
   rime->api->config_close(conf);
 
   return result;
