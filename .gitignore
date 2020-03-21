@@ -11,3 +11,6 @@
 
 # Undo-tree save-files
 *.~undo-tree
+
+# ccls cache directory
+.ccls-cache
