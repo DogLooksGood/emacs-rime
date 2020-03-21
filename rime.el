@@ -210,6 +210,11 @@ Will be reset to nil when symbol `rime-active-mode' is disabled.")
 (defvar rime-force-enable-exit-hook nil
   "Hooks rum after the state of `rime-force-enable' is turned off.")
 
+(defcustom rime-deactivate-when-exit-minibuffer t
+  "If automatically deactivate input-method when exit minibuffer."
+  :type 'boolean
+  :group 'rime)
+
 (defcustom rime-inline-predicates nil
   "A list of predicate functions, each receive no argument.
 
@@ -285,9 +290,9 @@ Defaults to `user-emacs-directory'/rime/"
 (defvar rime-posframe-buffer " *rime-posframe*"
   "The buffer name for candidate posframe.")
 
-(defvar rime-posframe-hide-posframe-hooks
+(defvar rime--hooks-for-clear-state
   '(window-configuration-change-hook)
-  "Hide posframe in these hooks.")
+  "Hooks where we add function `rime--clear-state' to it.")
 
 (defvar rime--current-input-key nil
   "Saved last input key.")
@@ -379,12 +384,13 @@ Can be used in `rime-disable-predicates'."
 (defalias 'rime-predicate-auto-english-p #'rime--auto-english-p)
 
 (defun rime-predicate-space-after-ascii-p ()
+  "If cursor is after a whitespace which follow a ascii character."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
        (looking-back " +" 1)
        (not (looking-back "\\cc +" 1))))
 
 (defun rime-predicate-space-after-cc-p ()
-  "If cursur is after a non-ascii char followed by a whitespace."
+  "If cursor is after a whitespace which follow a non-ascii character."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
        (looking-back "\\cc +" 2)))
 
@@ -426,55 +432,47 @@ Can be used in `rime-disable-predicates'."
 
 Used to display in minibuffer when we are using input method in minibuffer."
   (message nil)
-  (let ((inhibit-quit t)
-        point-1)
-    (save-excursion
-      (insert string)
-      (setq point-1 (point)))
-    (sit-for 1000000)
-    (delete-region (point) point-1)
-    (when quit-flag
-      (setq quit-flag nil
-            unread-command-events '(7)))))
+  (unless (string-blank-p string)
+    (let ((inhibit-quit t)
+          point-1)
+      (save-excursion
+        (insert (concat "\n" string))
+        (setq point-1 (point)))
+      (sit-for 1000000)
+      (delete-region (point) point-1)
+      (when quit-flag
+        (setq quit-flag nil
+              unread-command-events '(7))))))
 
-(defun rime--init-minibuffer ()
+(defun rime--minibuffer-deactivate ()
   "Initializer for minibuffer when input method is enabled.
 
 Currently just deactivate input method."
-  (deactivate-input-method))
+  (with-selected-window (minibuffer-window)
+    (deactivate-input-method)
+    (remove-hook 'minibuffer-exit-hook 'rime--minibuffer-deactivate)))
 
 (defun rime--posframe-display-content (content)
   "Display CONTENT with posframe."
   (if (and (featurep 'posframe) (display-graphic-p))
       (if (string-blank-p content)
-          (rime-posframe-hide-posframe)
+          (posframe-hide rime-posframe-buffer)
         (apply #'posframe-show rime-posframe-buffer
                :string content
-               rime-posframe-properties)
-        (dolist (hook rime-posframe-hide-posframe-hooks)
-          (add-hook hook #'rime-posframe-hide-posframe nil t)))
+               rime-posframe-properties))
     ;; Fallback to popup when not available.
     (rime--popup-display-content content)))
-
-(defun rime-posframe-hide-posframe ()
-  "Hide posframe."
-  (posframe-hide rime-posframe-buffer)
-  (rime-lib-clear-composition)
-  (rime--clear-overlay)
-  (dolist (hook rime-posframe-hide-posframe-hooks)
-    (remove-hook hook 'rime-posframe-hide-posframe t)))
 
 (defun rime--show-content (content)
   "Display CONTENT as candidate."
   (if (minibufferp)
-        (rime--minibuffer-message
-         (concat "\n" content))
-      (cl-case rime-show-candidate
-        (minibuffer (rime--minibuffer-display-content content))
-        (message (message content))
-        (popup (rime--popup-display-content content))
-        (posframe (rime--posframe-display-content content))
-        (t (progn)))))
+      (rime--minibuffer-message content)
+    (cl-case rime-show-candidate
+      (minibuffer (rime--minibuffer-display-content content))
+      (message (message content))
+      (popup (rime--popup-display-content content))
+      (posframe (rime--posframe-display-content content))
+      (t (progn)))))
 
 (defun rime--candidate-prefix-char ()
   "Character used to separate preedit and candidates."
@@ -511,7 +509,7 @@ Currently just deactivate input method."
          (page-no (alist-get 'page-no menu))
          (idx 1)
          (result ""))
-    (when (rime--has-composition context)
+    (when (and (rime--has-composition context) candidates)
       (when preedit
         (setq result (concat (propertize
                               (concat before-cursor rime-cursor after-cursor)
@@ -666,8 +664,8 @@ By default the input-method will not handle DEL, so we need this command."
     (rime--redisplay)
     (rime--refresh-mode-state)))
 
-(defun rime--clean-state ()
-  "Clean composition, preedit and candidate."
+(defun rime--clear-state ()
+  "Clear composition, preedit and candidate."
   (setq rime--current-input-key nil)
   (rime-lib-clear-composition)
   (rime--display-preedit)
@@ -757,8 +755,11 @@ Argument NAME ignored."
     (dolist (binding rime-translate-keybindings)
 	  (define-key rime-active-mode-map (kbd binding) 'rime-send-keybinding))
 
-    (rime--clean-state)
-    (add-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
+    (rime--clear-state)
+    (when (and rime-deactivate-when-exit-minibuffer (minibufferp))
+      (add-hook 'minibuffer-exit-hook 'rime--minibuffer-deactivate))
+    (dolist (hook rime--hooks-for-clear-state)
+      (add-hook hook 'rime--clear-state nil t))
     (rime-mode 1)
 
     (setq-local input-method-function 'rime-input-method)
@@ -767,8 +768,9 @@ Argument NAME ignored."
 
 (defun rime-deactivate ()
   "Deactivate rime."
-  (rime--clean-state)
-  (remove-hook 'minibuffer-setup-hook 'rime--init-minibuffer)
+  (rime--clear-state)
+  (dolist (hook rime--hooks-for-clear-state)
+    (remove-hook hook 'rime--clear-state t))
   (rime-mode -1)
   (message "Rime deactivate."))
 
