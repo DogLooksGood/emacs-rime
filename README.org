@@ -109,10 +109,31 @@ Following is a example to use ascii mode in ~evil-normal-state~ or when cursor i
 
 #+BEGIN_SRC emacs-lisp
   (setq rime-disable-predicates
-        '(evil-normal-state-p
-          rime--after-alphabet-char-p
-          rime--prog-in-code-p))
+        '(rime-predicate-evil-mode-p
+          rime-predicate-after-alphabet-char-p
+          rime-predicate-prog-in-code-p))
 #+END_SRC
+
+Available predicate functions:
+- ~rime-predicate-after-alphabet-char-p~
+
+  Only alphabet character can be entered after an alphabet character.
+
+- ~rime-predicate-prog-in-code-p~
+
+  In the ~prog-mode~ and ~conf-mode~, Chinese characters can be entered only in comments and quotes.
+
+- ~rime-predicate-evil-mode-p~
+
+  Only alphabet character can be entered in the non-editing state of ~evil-mode~.
+
+- ~rime-predicate-punctuation-line-begin-p~
+
+  Automatically switch to English punctuation when entering punctuation at the beginning of the line.
+
+- ~rime-predicate-auto-english-p~
+
+  When entering characters, automatically switch Chinese/English with space as boundary,
 
 ** Force enable
 
