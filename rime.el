@@ -268,9 +268,7 @@ Defaults to `user-emacs-directory'/rime/"
   "The path to the root of rime package.")
 
 (defvar rime--module-path
-  (concat rime--root
-          "librime-emacs"
-          module-file-suffix)
+  (concat rime--root "librime-emacs.so")
   "The path to the dynamic module.")
 
 (defcustom rime-inline-ascii-trigger 'shift-l
@@ -284,7 +282,7 @@ Defaults to `user-emacs-directory'/rime/"
   :group 'rime)
 
 (defvar-local rime--preedit-overlay nil
-   "Overlay on preedit.")
+  "Overlay on preedit.")
 
 (defvar rime--lib-loaded nil
   "If dynamic module is loaded.")
@@ -650,6 +648,7 @@ By default the input-method will not handle DEL, so we need this command."
       (let ((handled (rime-lib-process-key key 0)))
         (with-silent-modifications
           (let* ((context (rime-lib-get-context))
+                 (commit-text-preview (alist-get 'commit-text-preview context))
                  (preedit (thread-last context
                             (alist-get 'composition)
                             (alist-get 'preedit)))
@@ -663,6 +662,7 @@ By default the input-method will not handle DEL, so we need this command."
                   (mapcar 'identity commit))
                  (t
                   (when (and (rime--should-inline-ascii-p)
+                             commit-text-preview
                              (not (rime--ascii-mode-p)))
                     (rime--inline-ascii))
                   (rime--redisplay)))
@@ -737,10 +737,10 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
   "Compile dynamic module."
   (interactive)
   (let ((env (if rime-librime-root
-                    (format "LIBRIME_ROOT=%s" (file-name-as-directory rime-librime-root))
-                  "")))
+                 (format "LIBRIME_ROOT=%s" (file-name-as-directory rime-librime-root))
+               "")))
     (if (zerop (shell-command
-                (format "cd %s; %s make lib" rime--root env)))
+                (format "cd %s; env %s make lib" rime--root env)))
         (message "Compile succeed!")
       (error "Compile Rime dynamic module failed"))))
 
@@ -896,6 +896,18 @@ Will resume when finish composition."
   "Open Rime configuration file."
   (interactive)
   (find-file (expand-file-name "default.custom.yaml" rime-user-data-dir)))
+
+(defun rime-open-schema ()
+  "Open Rime SCHEMA file."
+  (interactive)
+  (if rime--lib-loaded
+      (let* ((schema-names (mapcar 'cdr (rime-lib-get-schema-list)))
+          (schema-name (completing-read "Schema: " schema-names)))
+     (find-file (expand-file-name
+                 (format "%s.custom.yaml"
+                         (car (-reduce schema-name (rime-lib-get-schema-list))))
+                 rime-user-data-dir)))
+    (message "Rime is not activated.")))
 
 (provide 'rime)
 

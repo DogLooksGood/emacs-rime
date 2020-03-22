@@ -182,3 +182,9 @@ Default to ~|~ , you can customize it with
 
 Use ~rime-open-configuration~.
 
+* Thanks for all the contributors
+
+- [[https://github.com/Z572][Z572]]
+- [[https://github.com/cnsunyour][cnsunyour]]
+- [[https://github.com/shuxiao9058][shuxiao9058]]
+- [[https://github.com/lkzz][lkzz]]
