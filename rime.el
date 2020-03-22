@@ -899,16 +899,17 @@ Will resume when finish composition."
   (interactive)
   (find-file (expand-file-name "default.custom.yaml" rime-user-data-dir)))
 
-(defun rime-open-schema (schema)
+(defun rime-open-schema ()
   "Open Rime SCHEMA file."
-  (interactive
-   (list (completing-read
-          "Schema: "
-          (mapcar 'cdr (rime-lib-get-schema-list)))))
-  (find-file (expand-file-name
-              (format "%s.custom.yaml"
-                      (car (-reduce schema (rime-lib-get-schema-list))))
-              rime-user-data-dir)))
+  (interactive)
+  (if rime--lib-loaded
+      (let* ((schema-names (mapcar 'cdr (rime-lib-get-schema-list)))
+          (schema-name (completing-read "Schema: " schema-names)))
+     (find-file (expand-file-name
+                 (format "%s.custom.yaml"
+                         (car (-reduce schema-name (rime-lib-get-schema-list))))
+                 rime-user-data-dir)))
+    (message "Rime is not activated.")))
 
 (provide 'rime)
 
