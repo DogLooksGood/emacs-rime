@@ -899,6 +899,17 @@ Will resume when finish composition."
   (interactive)
   (find-file (expand-file-name "default.custom.yaml" rime-user-data-dir)))
 
+(defun rime-open-schema (schema)
+  "Open Rime SCHEMA file."
+  (interactive
+   (list (completing-read
+          "Schema: "
+          (mapcar 'cdr (rime-lib-get-schema-list)))))
+  (find-file (expand-file-name
+              (format "%s.custom.yaml"
+                      (car (-reduce schema (rime-lib-get-schema-list))))
+              rime-user-data-dir)))
+
 (provide 'rime)
 
 ;;; rime.el ends here
