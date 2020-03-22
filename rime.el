@@ -268,9 +268,7 @@ Defaults to `user-emacs-directory'/rime/"
   "The path to the root of rime package.")
 
 (defvar rime--module-path
-  (concat rime--root
-          "librime-emacs"
-          module-file-suffix)
+  (concat rime--root "librime-emacs.so")
   "The path to the dynamic module.")
 
 (defcustom rime-inline-ascii-trigger 'shift-l
