@@ -19,6 +19,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <emacs-module.h>
 #include <rime_api.h>
 
@@ -138,6 +139,31 @@ start(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) {
   rime->session_id = rime->api->create_session();
 
   return t;
+}
+
+
+emacs_value
+get_option (emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
+  EmacsRime *rime = (EmacsRime*) data;
+
+  char *option = get_string(env, args[0]);
+  if (rime->api->get_option(rime->session_id, option)) {
+    return t;
+  }
+  return nil;
+}
+
+
+emacs_value
+set_option (emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
+  EmacsRime *rime = (EmacsRime*) data;
+
+  char *option = get_string(env, args[0]);
+  bool value = env->is_not_nil(env, args[1]);
+
+  rime->api->set_option(rime->session_id, option, value);
+
+  return nil;
 }
 
 emacs_value
@@ -322,6 +348,64 @@ get_schema_list(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) 
   return result;
 }
 
+/*
+ * Deprecated
+ * Prefer user set how to toggle inline ascii.
+ *
+ *
+ * Find which key is used for inline_ascii, and simulate.
+ * This is a tricky implementation, it work only when:
+ * - build/default.yaml is exists.
+ * - one of Shift_L, Shift_R, Control_L, Control_R is used to trigger inline_ascii.
+ *
+ * TODO: Find a better way.
+ */
+emacs_value
+inline_ascii(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
+  EmacsRime *rime = (EmacsRime*) data;
+
+  RimeConfig *conf = malloc(sizeof(RimeConfig));
+
+  if(!rime->api->user_config_open("build/default.yaml", conf)) {
+    free(conf);
+    return nil;
+  }
+
+  char *buf = malloc(128 * sizeof(char));
+  emacs_value result = nil;
+
+  if (rime->api->config_get_string(conf, "ascii_composer/switch_key/Shift_L", buf, 128)
+      && (strcmp(buf, "inline_ascii") == 0)) {
+    rime->api->process_key(rime->session_id, 65505, 0);
+    rime->api->process_key(rime->session_id, 65505, 1073741824);
+    result = STRING("inline_ascii");
+  } else if (rime->api->config_get_string(conf, "ascii_composer/switch_key/Shift_R", buf, 128)
+             && (strcmp(buf, "inline_ascii") == 0)) {
+    rime->api->process_key(rime->session_id, 65506, 0);
+    rime->api->process_key(rime->session_id, 65506, 1073741824);
+    result = STRING("inline_ascii");
+  } else if (rime->api->config_get_string(conf, "ascii_composer/switch_key/Control_L", buf, 128)
+             && (strcmp(buf, "inline_ascii") == 0)) {
+    rime->api->process_key(rime->session_id, 65507, 0);
+    rime->api->process_key(rime->session_id, 65507, 1073741824);
+    result = STRING("inline_ascii");
+  } else if (rime->api->config_get_string(conf, "ascii_composer/switch_key/Control_R", buf, 128)
+             && (strcmp(buf, "inline_ascii") == 0)) {
+    rime->api->process_key(rime->session_id, 65508, 0);
+    rime->api->process_key(rime->session_id, 65508, 1073741824);
+    result = STRING("inline_ascii");
+  } else {
+    result = nil;
+  }
+
+  free(buf);
+
+  rime->api->config_close(conf);
+
+  return result;
+}
+
+
 void
 emacs_defun(emacs_env *env, EmacsRime *rime, void* cfunc, char* func_name, char* doc, size_t min, size_t max) {
   emacs_value func = env->make_function(env, min, max, cfunc, doc, rime);
@@ -358,6 +442,9 @@ emacs_module_init (struct emacs_runtime *ert)
   emacs_defun(env, rime, select_schema, "rime-lib-select-schema", "Select schema", 1, 1);
   emacs_defun(env, rime, get_schema_list, "rime-lib-get-schema-list", "Get schema list.", 0, 0);
   emacs_defun(env, rime, string_length, "rime-lib-string-length", "Get length of string", 1, 1);
+  emacs_defun(env, rime, get_option, "rime-lib-get-option", "Get option", 1, 1);
+  emacs_defun(env, rime, set_option, "rime-lib-set-option", "Set option", 2, 2);
+  emacs_defun(env, rime, inline_ascii, "rime-lib-inline-ascii", "Inline ascii", 0, 0);
 
   if (ert->size < sizeof (*ert))
     return 1;

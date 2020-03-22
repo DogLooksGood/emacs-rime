@@ -94,6 +94,30 @@ Set via ~rime-show-candidate~.
 | ~popup~      | Use popup.                                                                  |
 | ~posframe~   | Use posfarme, will fallback to popup in TUI                                 |
 
+* Open Rime menu
+
+Assuming you use ~C-~~ for the menu.
+
+#+begin_src yaml
+  switcher:
+    caption: 〔方案選單〕
+    hotkeys:
+      - Control+grave
+#+end_src
+
+You can bind this key to ~rime-mode-map~ with command ~rime-send-keybinding~.
+
+#+begin_src emacs-lisp
+  (use-package
+    ...
+
+    :bind
+    (:map rime-mode-map
+          ("C-`" . 'rime-send-keybinding))
+    ...
+    )
+#+end_src
+
 * The lighter
 
 You can get a lighter via ~(rime-lighter)~, which returns you a colored ~ㄓ~.
@@ -114,7 +138,9 @@ Following is a example to use ascii mode in ~evil-normal-state~ or when cursor i
           rime-predicate-prog-in-code-p))
 #+END_SRC
 
-Available predicate functions:
+#+html: <details>
+#+html: <summary>Built-in Predicate Functions</summary>
+
 - ~rime-predicate-after-alphabet-char-p~
 
   Only alphabet character can be entered after an alphabet character.
@@ -134,6 +160,8 @@ Available predicate functions:
 - ~rime-predicate-auto-english-p~
 
   When entering characters, automatically switch Chinese/English with space as boundary,
+
+#+html: </details>
 
 ** Force enable
 
