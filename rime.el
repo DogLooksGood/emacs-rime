@@ -284,7 +284,7 @@ Defaults to `user-emacs-directory'/rime/"
   :group 'rime)
 
 (defvar-local rime--preedit-overlay nil
-   "Overlay on preedit.")
+  "Overlay on preedit.")
 
 (defvar rime--lib-loaded nil
   "If dynamic module is loaded.")
@@ -739,10 +739,10 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
   "Compile dynamic module."
   (interactive)
   (let ((env (if rime-librime-root
-                    (format "LIBRIME_ROOT=%s" (file-name-as-directory rime-librime-root))
-                  "")))
+                 (format "LIBRIME_ROOT=%s" (file-name-as-directory rime-librime-root))
+               "")))
     (if (zerop (shell-command
-                (format "cd %s; %s make lib" rime--root env)))
+                (format "cd %s; env %s make lib" rime--root env)))
         (message "Compile succeed!")
       (error "Compile Rime dynamic module failed"))))
 
