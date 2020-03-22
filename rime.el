@@ -650,6 +650,7 @@ By default the input-method will not handle DEL, so we need this command."
       (let ((handled (rime-lib-process-key key 0)))
         (with-silent-modifications
           (let* ((context (rime-lib-get-context))
+                 (commit-text-preview (alist-get 'commit-text-preview context))
                  (preedit (thread-last context
                             (alist-get 'composition)
                             (alist-get 'preedit)))
@@ -663,6 +664,7 @@ By default the input-method will not handle DEL, so we need this command."
                   (mapcar 'identity commit))
                  (t
                   (when (and (rime--should-inline-ascii-p)
+                             commit-text-preview
                              (not (rime--ascii-mode-p)))
                     (rime--inline-ascii))
                   (rime--redisplay)))
