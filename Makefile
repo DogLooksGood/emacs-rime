@@ -22,7 +22,7 @@ clean:
 	-rm $(TARGET)
 
 lib:
-	$(ENV) $(CC) $(CFLAGS) $(LDFLAGS) lib.c -o $(TARGET)
+	$(ENV) $(CC) lib.c -o $(TARGET) $(CFLAGS) $(LDFLAGS)
 
 test:
 	emacs -q test.el -e eval-buffer
