@@ -10,21 +10,21 @@ Emacs in Rime, support multiple schemas.
 
 ** Requirements
 
-*** Emacs 26.1+ with dynamic modules support. Need to add ~--with-modules~ option when compiling it.
+*** Emacs 26.1+ with dynamic modules support. Need to add ~--with-modules~ option when compiling it manually.
 
 **** Linux
-Emacs included in major Linux distributions has dynamic module support enabled by default.
+Emacs included in major linux distributions has dynamic module support enabled by default.
 
 **** MacOS
-On MacOS, it is recommended to install emacs-plus or emacs-mac for better compatibility.
+On MacOS, it is recommended to install ~emacs-plus~ or ~emacs-mac~ for better compatibility.
 
-***** Emacs-plus enables dynamic modules support by default. homebrew installation:
+***** ~emacs-plus~ enables dynamic modules support by default. homebrew installation:
 #+BEGIN_SRC shell
 brew tap d12frosted/emacs-plus
 brew install emacs-plus
 #+END_SRC
 
-***** When installing emacs-mac, you need to add ~--with-modules~ option.
+***** When installing ~emacs-mac~, you need to add ~--with-modules~ option. homebrew installation:
 #+BEGIN_SRC shell
 brew tap railwaycat/emacsmacport
 brew install emacs-mac --with-modules
