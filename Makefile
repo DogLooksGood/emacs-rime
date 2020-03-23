@@ -5,7 +5,7 @@ CC           = gcc
 ifdef DEBUG
 	CFLAGS   = -fPIC -g -Wall
 else
-    CFLAGS   = -fPIC -O2 -Wall
+	CFLAGS   = -fPIC -O2 -Wall
 endif
 
 ifdef LIBRIME_ROOT
@@ -14,6 +14,10 @@ ifdef LIBRIME_ROOT
 else
 	ENV      =
 	LDFLAGS  = -shared -lrime
+endif
+
+ifdef EMACS_MODULE_HEADER_ROOT
+	CFLAGS += -I ${EMACS_MODULE_HEADER_ROOT}
 endif
 
 default: clean test

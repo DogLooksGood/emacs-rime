@@ -77,6 +77,17 @@ brew install emacs-mac --with-modules
 (rime-librime-root "~/.emacs.d/librime/dist")
 #+END_SRC
 
+*NOTE*: 如果你自己编译 Emacs 且没有安装到标准目录（/usr/, /usr/local/），
+*必须* 指定 ~rime-emacs-module-header-root~ 。
+
+在 ~:custom~ 中加入如下内容.
+
+(假设将 Emacs 安装到了 ~/emacs)
+
+#+BEGIN_SRC emacs-lisp
+(rime-emacs-module-header-root "~/emacs/include")
+#+END_SRC
+
 * 设置输入中发送到 Rime 的组合键。
 
 下面的设置，使输入过程中的 ~C-f~ 和 ~C-b~ 发送给 Rime 。可以用来配合方案中的设置完成光标移动和选字等功能。

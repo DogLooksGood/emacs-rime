@@ -89,6 +89,18 @@ Put following in the ~:custom~ section.
 (rime-librime-root "~/.emacs.d/librime/dist")
 #+END_SRC
 
+*NOTE*: If you build Emacs by yourself and does not install to standard
+location,
+you *MUST* specify ~rime-emacs-module-header-root~.
+
+Put following in the ~:custom~ section.
+
+(Assuming you install Emacs to ~/emacs)
+
+#+BEGIN_SRC emacs-lisp
+(rime-emacs-module-header-root "~/emacs/include")
+#+END_SRC
+
 * Keybindings in Rime.
 
 With following configuration, you can send a serials of keybindings to Rime.
