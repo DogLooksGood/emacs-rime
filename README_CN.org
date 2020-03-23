@@ -1,28 +1,12 @@
 #+TITLE: Emacs Rime 中文文档
 
+* 安装方法
+
 ** 依赖
 
-*** Emacs 26.1+ ，且需启用动态支持模块，在编译时使用 ~--with-modules~~ 选项。
+- Emacs 26.1+ ，且需启用动态支持模块。
 
-**** Linux
-Linux 各主要发行版自带 emacs 默认已启用动态模块支持。
-
-**** MacOS
-MacOS 建议安装 emacs-plus 或 emacs-mac 版本，兼容性较好。
-
-***** emacs-plus 默认启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下：
-#+BEGIN_SRC shell
-brew tap d12frosted/emacs-plus
-brew install emacs-plus
-#+END_SRC
-
-***** emacs-mac 安装时需要启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下 :
-#+BEGIN_SRC shell
-brew tap railwaycat/emacsmacport
-brew install emacs-mac --with-modules
-#+END_SRC
-
-*** emacs-rime 会自动构建所需的动态模块，这需要 ~make~ 和 ~gcc~ 可用。
+- emacs-rime 会自动构建所需的动态模块，这需要 ~make~ 和 ~gcc~ 可用。
 
 ** 安装 librime
 
@@ -75,17 +59,6 @@ brew install emacs-mac --with-modules
 
 #+BEGIN_SRC emacs-lisp
 (rime-librime-root "~/.emacs.d/librime/dist")
-#+END_SRC
-
-*NOTE*: 如果你自己编译 Emacs 且没有安装到标准目录（/usr/, /usr/local/），
-*必须* 指定 ~rime-emacs-module-header-root~ 。
-
-在 ~:custom~ 中加入如下内容.
-
-(假设将 Emacs 安装到了 ~/emacs)
-
-#+BEGIN_SRC emacs-lisp
-(rime-emacs-module-header-root "~/emacs/include")
 #+END_SRC
 
 * 设置输入中发送到 Rime 的组合键。
@@ -157,6 +130,48 @@ brew install emacs-mac --with-modules
 * 打开 Rime 的配置文件
 
 使用 ~rime-open-configuration~ 打开配置文件。
+
+* FAQ
+
+** 如何获得支持动态模块的 Emacs
+
+**** Linux
+Linux 各主要发行版自带 emacs 默认已启用动态模块支持。
+
+**** MacOS
+***** emacs-plus 默认启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下：
+#+BEGIN_SRC shell
+brew tap d12frosted/emacs-plus
+brew install emacs-plus
+#+END_SRC
+
+***** emacs-mac 安装时需要启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下 :
+#+BEGIN_SRC shell
+brew tap railwaycat/emacsmacport
+brew install emacs-mac --with-modules
+#+END_SRC
+
+**** 手工编译
+
+使用 ~--with-modules~ 选项.
+
+** 编译时无法找到 rime_api.h
+
+必须设置 ~rime-librime-root~ 参照安装方法中的说明。
+
+** 编译时无法找到 emacs-module.h
+
+如果自己编译 Emacs 且没有安装到标准目录（/usr/, /usr/local/），
+*必须* 指定 ~rime-emacs-module-header-root~ 。
+
+在 ~:custom~ 中加入如下内容.
+
+(假设将 Emacs 安装到了 ~/emacs)
+
+#+BEGIN_SRC emacs-lisp
+(rime-emacs-module-header-root "~/emacs/include")
+#+END_SRC
+
 
 * 优秀的 Emacs 输入法
 
