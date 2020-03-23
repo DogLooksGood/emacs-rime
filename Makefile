@@ -17,7 +17,7 @@ else
 endif
 
 ifdef EMACS_MODULE_HEADER_ROOT
-	CFLAGS += -I${EMACS_MODULE_HEADER_ROOT}
+	CFLAGS += -I ${EMACS_MODULE_HEADER_ROOT}
 endif
 
 default: clean test
