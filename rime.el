@@ -901,12 +901,13 @@ Will resume when finish composition."
   "Open Rime SCHEMA file."
   (interactive)
   (if rime--lib-loaded
-      (let* ((schema-names (mapcar 'cdr (rime-lib-get-schema-list)))
-          (schema-name (completing-read "Schema: " schema-names)))
-     (find-file (expand-file-name
-                 (format "%s.custom.yaml"
-                         (car (-reduce schema-name (rime-lib-get-schema-list))))
-                 rime-user-data-dir)))
+      (let* ((schema-list (rime-lib-get-schema-list))
+             (schema-names (mapcar 'cdr schema-list))
+             (schema-name (completing-read "Schema: " schema-names)))
+        (find-file (expand-file-name
+                    (format "%s.custom.yaml"
+                            (car (-find (lambda (arg) (equal (cadr arg) schema-name)) schema-list)))
+                    rime-user-data-dir)))
     (message "Rime is not activated.")))
 
 (provide 'rime)
