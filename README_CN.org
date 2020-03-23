@@ -2,7 +2,27 @@
 
 ** 依赖
 
-emacs-rime 会自动构建所需的动态模块，这需要 ~make~ 和 ~gcc~ 可用。
+*** Emacs 26.1+ ，且需启用动态支持模块，在编译时使用 ~--with-modules~~ 选项。
+
+**** Linux
+Linux 各主要发行版自带 emacs 默认已启用动态模块支持。
+
+**** MacOS
+MacOS 建议安装 emacs-plus 或 emacs-mac 版本，兼容性较好。
+
+***** emacs-plus 默认启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下：
+#+BEGIN_SRC shell
+brew tap d12frosted/emacs-plus
+brew install emacs-plus
+#+END_SRC
+
+***** emacs-mac 安装时需要启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下 :
+#+BEGIN_SRC shell
+brew tap railwaycat/emacsmacport
+brew install emacs-mac --with-modules
+#+END_SRC
+
+*** emacs-rime 会自动构建所需的动态模块，这需要 ~make~ 和 ~gcc~ 可用。
 
 ** 安装 librime
 
