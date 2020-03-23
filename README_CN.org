@@ -1,6 +1,6 @@
 #+TITLE: Emacs Rime 中文文档
 
-* 安装方法
+* 安装与使用方法
 
 ** 依赖
 
@@ -53,13 +53,49 @@
 
 *NOTE* 如果你在 MacOS 上或是选择自己编译 librime （没有放在系统路径中）， *必须* 指定 ~rime-librime-root~ 。
 
-在 ~:custom~ 中加入如下内容. 
+在 ~:custom~ 中加入如下内容.
 
 (假设将 librime 解压到了 ~/.emacs.d/librime)
 
 #+BEGIN_SRC emacs-lisp
 (rime-librime-root "~/.emacs.d/librime/dist")
 #+END_SRC
+
+**  重新部署
+~emacs-rime~ 的配置文件更新之后，与RIME一样，都需要重新部署才可生效。
+
+以添加 ~地球拼音（terra_pinyin）~ 为例。
+
+找到 ~emacs-rime~ 配置所在路径，或使用 ~M-x rime-open-configuration~ 打开文件 ~default.custome.yaml~ ，在 ~patch:schema_list~ 中添加 ~- schema: terra_pinyin~ ，需要 ~M-x rime-deploy~ 重新部署才可启用地球拼音方案，重新部署成功后按 ~C-`~ 选择输入方案。
+
+示例如下：
+#+BEGIN_SRC yaml
+patch:
+  schema_list:
+    - schema: luna_pinyin
+    - schema: pinyin_simp
+    - schema: terra_pinyin
+  menu/page_size: 7 # 每页显示7个候选字词。
+  switcher:
+    hotkeys:
+      - Control+grave # 激活RIME选单的快捷键，某些版本的RIME支持<F4>为快捷键，容易与其他软件冲突。
+#+END_SRC
+
+** 同步词库
+
+~M-x rime-sync~ 可对RIME输入方案和词库进行同步与备份，每次同步双向进行，词库生成的备份文件为 ~sync/ins_id/schema.userdb.txt~ ，其本身是文件夹 ~schema.userdb/~ 中词库与词频使用记录的纯文本形式，方便用户跨平台、多设备使用。
+
+所谓双向同步，即当前设备中的词频或用户自造词（ ~schema.userdb/~ 中）与备份文件（ ~sync/ins_id/schema.userdb.txt~ 中）所记录的词库会被RIME合并，其 *并集* 将会继续记录在 ~schema.userdb/~ 中，同时生成一份新的备份文件，仍名为 ~sync/ins_id/schema.userdb.txt~ ，并（在不询问用户的情况下）将旧的覆盖。
+
+上述路径中 ~sync~ 文件夹与配置文件 ~default.custom.yaml~ 在同一目录， ~ins_id~ 对应的是 ~installation.yaml~ 文件中 ~installation_id~ 的值，默认值为随机生成，可自定义为其他字符串。
+
+以添加 ~地球拼音（terra_pinyin）~ 后同步为例。启用该方案后，在RIME数据目录下会产生名为 ~terra_pinyin.userdb~ 的文件夹，其中为使用频率与自造词的记录，不可随意修改。同步前先修改 ~installation.yaml~ 中内容为自定义的 ~installation_id: "hesperus"~ ，之后 ~M-x rime-sync~ ，将会在 ~sync/hesperus/~ 生成文件 ~terra_pinyin.userdb.txt~ （词库）与 ~terra_pinyin.schema.yaml~ （输入方案）。
+
+若在其他设备或系统中有个人积累的词库，想继续使用。则先在旧系统中进行同步，将生成的 ~terra_pinyin.userdb.txt~ 复制到当前系统的 ~sync/hesperus/~ 下，再进行同步或部署，此时旧系统中备份的词库将会被合并到当前系统的 ~terra_pinyin.userdb/~ ，新的并集也将会被同时导出，并覆盖 ~terra_pinyin.userdb.txt~ 。
+
+*** 可能遇到的问题
+
+目前已知在Linux下部署或同步之后，可能会遇到个人词库丢失与同步失败的问题，见[[#FAQ][FAQ]]。
 
 * 设置输入中发送到 Rime 的组合键。
 
@@ -172,8 +208,24 @@ brew install emacs-mac --with-modules
 (rime-emacs-module-header-root "~/emacs/include")
 #+END_SRC
 
+** 重新部署后原有个人词库丢失
+（以地球拼音方案在fcitx-rime与emacs-rime中使用为例。）
+
+*不建议 ~emacs-rime~ 与 ~fcitx-rime~ 共用数据文件夹* 。若设置
+#+BEGIN_SRC emacs-lisp
+(setq rime-user-data-dir "~/.config/fcitx/rime/")
+#+END_SRC
+，则在 ~emacs-rime~ 初次部署后，将会生成新的 ~terra_pinyin.userdb/~ 文件夹，原有 ~fcitx-rime~ 使用记录将会被移动到 ~terra_pinyin.userdb.old/~ ，此时新的 ~terra_pinyin.userdb.txt~ 中词频为空。
+
+*** 如何找回
+设置 ~emacs-rime~ 用户数据目录到其他文件夹，删除 ~terra_pinyin.userdb/~ 并将 ~terra_pinyin.userdb.old/~ 重命名为前者，再次同步或部署， ~terra_pinyin.userdb.txt~ 亦将恢复。
+
+** 词库同步失败
+（以地球拼音方案使用为例。）
+
+*建议将不同设备或系统中的 ~installation_id~ 设为同一值* 。若其不同，则可能同步失败，即从旧系统同步并复制的 ~terra_pinyin.userdb.txt~ 中的词频记录不会被纳入到当前的 ~terra_pinyin.userdb/~ 。此时该文件中词频不为空，但其中 ~user_id~ 等不同，修改此值后再次同步仍可能不生效。
+
 
 * 优秀的 Emacs 输入法
 
 你可能需要 [[https://github.com/tumashu/pyim][pyim]], [[https://github.com/merrickluo/liberime][liberime]], [[https://github.com/QiangF/liberime][erime]].
-
