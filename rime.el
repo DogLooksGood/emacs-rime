@@ -196,7 +196,10 @@ Otherwise you should set this to where you put librime."
   :type 'string
   :group 'rime)
 
-(defcustom rime-emacs-module-header-root nil
+(defcustom rime-emacs-module-header-root
+  (let ((module-header (expand-file-name "emacs-module.h" (concat source-directory "src/"))))
+    (when (file-exists-p module-header)
+      (file-name-directory module-header)))
   "The path to the directory of emacs module header file.
 
 Leave it nil if you using Emacs shipped with your system.
