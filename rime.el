@@ -196,6 +196,14 @@ Otherwise you should set this to where you put librime."
   :type 'string
   :group 'rime)
 
+(defcustom rime-emacs-module-header-root nil
+  "The path to the directory of emacs module header file.
+
+Leave it nil if you using Emacs shipped with your system.
+Otherwise you should set this to the directory contains 'emacs-module.h'."
+  :type 'string
+  :group 'rime)
+
 ;;; We need these variables to be buffer local.
 
 (defvar rime--temporarily-ignore-predicates nil
@@ -733,12 +741,22 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
          'rime-indicator-dim-face))
     ""))
 
+(defun rime--build-compile-env ()
+  "Build compile env string."
+  (string-join
+   (mapcar
+    (lambda (arg)
+      (if (symbol-value (car arg))
+          (format "%s=%s" (cdr arg) (file-name-as-directory (symbol-value (car arg))))
+        ""))
+   '((rime-librime-root . "LIBRIME_ROOT")
+     (rime-emacs-module-header-root . "EMACS_MODULE_HEADER_ROOT")))
+   " "))
+
 (defun rime-compile-module ()
   "Compile dynamic module."
   (interactive)
-  (let ((env (if rime-librime-root
-                 (format "LIBRIME_ROOT=%s" (file-name-as-directory rime-librime-root))
-               "")))
+  (let ((env (rime--build-compile-env)))
     (if (zerop (shell-command
                 (format "cd %s; env %s make lib" rime--root env)))
         (message "Compile succeed!")
