@@ -124,7 +124,7 @@
 
 设置 ~rime-inline-predicates~ ，结构与 ~rime-disable-predicates~ 相同，具有较低优先级。
 
-这个功能主要用来实现输入带括号的临时英文的场景。
+这个功能主要用来实现输入带空格的临时英文的场景。
 
 由于当前实现限制，如果 Rime 配置中没有使用默认的 ~Shift_L~ 切换 inline ascii 模式，需要在 emacs-rime 中指定。
 两边配置相同才能正常激活。
