@@ -750,11 +750,11 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
    (mapcar
     (lambda (arg)
       (if (symbol-value (car arg))
-          (format "%s=%s" (cdr arg) (file-name-as-directory (symbol-value (car arg))))
+          (format "%s=%s" (cdr arg) (symbol-value (car arg)))
         ""))
-   '((rime-librime-root . "LIBRIME_ROOT")
-     (rime-emacs-module-header-root . "EMACS_MODULE_HEADER_ROOT")
-     (module-file-suffix . "LIBRIME_DYLIB")))
+    '((rime-librime-root . "LIBRIME_ROOT")
+      (rime-emacs-module-header-root . "EMACS_MODULE_HEADER_ROOT")
+      (module-file-suffix . "LIBRIME_DYLIB")))
    " "))
 
 (defun rime-compile-module ()
