@@ -305,7 +305,7 @@ Defaults to `user-emacs-directory'/rime/"
   "The buffer name for candidate posframe.")
 
 (defvar rime--hooks-for-clear-state
-  '(window-configuration-change-hook)
+  '()
   "Hooks where we add function `rime--clear-state' to it.")
 
 (defvar rime--current-input-key nil
