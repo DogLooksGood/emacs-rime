@@ -279,7 +279,7 @@ Defaults to `user-emacs-directory'/rime/"
   "The path to the root of rime package.")
 
 (defvar rime--module-path
-  (concat rime--root "librime-emacs.so")
+  (concat rime--root "librime-emacs" module-file-suffix)
   "The path to the dynamic module.")
 
 (defcustom rime-inline-ascii-trigger 'shift-l
@@ -753,7 +753,8 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
           (format "%s=%s" (cdr arg) (file-name-as-directory (symbol-value (car arg))))
         ""))
    '((rime-librime-root . "LIBRIME_ROOT")
-     (rime-emacs-module-header-root . "EMACS_MODULE_HEADER_ROOT")))
+     (rime-emacs-module-header-root . "EMACS_MODULE_HEADER_ROOT")
+     (module-file-suffix . "LIBRIME_DYLIB")))
    " "))
 
 (defun rime-compile-module ()

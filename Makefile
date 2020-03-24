@@ -1,4 +1,4 @@
-TARGET       = librime-emacs.so
+TARGET       = librime-emacs$(LIBRIME_DYLIB)
 
 CC           = gcc
 
@@ -8,12 +8,20 @@ else
 	CFLAGS   = -fPIC -O2 -Wall
 endif
 
+ifeq ($(LIBRIME_DYLIB), .so)
+	LDFLAGS = -shared
+endif
+
+ifeq ($(LIBRIME_DYLIB), .dylib)
+	LDFLAGS = -dynamiclib
+endif
+
 ifdef LIBRIME_ROOT
 	ENV      = C_INCLUDE_PATH=${LIBRIME_ROOT}include/
-	LDFLAGS  = -shared -L ${LIBRIME_ROOT}lib/ -Wl,-rpath ${LIBRIME_ROOT}lib/ -lrime
+	LDFLAGS  += -L ${LIBRIME_ROOT}lib/ -Wl,-rpath ${LIBRIME_ROOT}lib/ -lrime
 else
 	ENV      =
-	LDFLAGS  = -shared -lrime
+	LDFLAGS  += -lrime
 endif
 
 ifdef EMACS_MODULE_HEADER_ROOT
