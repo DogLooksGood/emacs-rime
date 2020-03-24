@@ -200,7 +200,7 @@ Otherwise you should set this to where you put librime."
   (let ((module-header (expand-file-name "emacs-module.h" (concat source-directory "src/"))))
     (when (file-exists-p module-header)
       (file-name-directory module-header)))
-  "The path to the directory of emacs module header file.
+  "The path to the directory of Emacs module header file.
 
 Leave it nil if you using Emacs shipped with your system.
 Otherwise you should set this to the directory contains 'emacs-module.h'."
