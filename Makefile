@@ -17,8 +17,8 @@ ifeq ($(LIBRIME_DYLIB), .dylib)
 endif
 
 ifdef LIBRIME_ROOT
-	ENV      = C_INCLUDE_PATH=${LIBRIME_ROOT}include/
-	LDFLAGS  += -L ${LIBRIME_ROOT}lib/ -Wl,-rpath ${LIBRIME_ROOT}lib/ -lrime
+	ENV      = C_INCLUDE_PATH=${LIBRIME_ROOT}/include/
+	LDFLAGS  += -L ${LIBRIME_ROOT}/lib/ -Wl,-rpath ${LIBRIME_ROOT}/lib/ -lrime
 else
 	ENV      =
 	LDFLAGS  += -lrime
