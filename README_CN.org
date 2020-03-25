@@ -84,6 +84,32 @@
 | ~popup~      | 使用 ~popup.el~ 展示跟随的候选                           |
 | ~posframe~   | 使用 ~posframe~ 展示跟随的候选，在不可用的时候会用 ~popup~ |
 
+** 候选样式
+
+| Face                    | 说明                               |
+|-------------------------+------------------------------------|
+| ~rime-default-face~       | 默认的前景色和背景色（仅posframe） |
+| ~rime-code-face~          | 编码的颜色                         |
+| ~rime-candidate-num-face~ | 候选序号颜色                       |
+| ~rime-comment-face~       | 编码提示颜色                       |
+
+** posframe 候选版式
+设置 ~rime-posframe-style~ ，可选值有
+| 可选值     | 说明       |
+|------------+------------|
+| ~simple~     | 单行       |
+| ~horizontal~ | 水平，默认 |
+| ~vertical~   | 垂直       |
+
+** posframe 的其它属性
+设置 ~rime-posframe-properties~, 其中颜色的设置使用 ~rime-default-face~.
+#+begin_src emacs-lisp
+  (setq rime-posframe-properties
+   (list :font "sarasa ui sc"
+         :internal-border-width 10))
+#+end_src
+支持的内容参照 [[https://github.com/tumashu/posframe/blob/master/posframe.el#L212][posframe]] 。
+
 * 临时英文模式的切换
 如果使用模式编辑，或是需要在一些特定的场景下自动使用英文，可以 ~rime-disable-predicates~ 。
 
