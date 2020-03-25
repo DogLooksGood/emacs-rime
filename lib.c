@@ -253,7 +253,14 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
     for (int i = 0; i < context.menu.num_candidates; i++) {
       RimeCandidate c = context.menu.candidates[i];
       char *ctext = copy_string(c.text);
-      carray[i] = STRING(ctext);
+      char *comment_text = copy_string(c.comment);
+      emacs_value comment;
+      if (comment_text) {
+        comment =  STRING(comment_text);
+      } else {
+        comment = nil;
+      }
+      carray[i] = CONS(STRING(ctext), comment);
     }
     emacs_value candidates = LIST(context.menu.num_candidates, carray);
     menu_a[5] = CONS(INTERN("candidates"), candidates);
