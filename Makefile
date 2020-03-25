@@ -1,4 +1,10 @@
-TARGET       = librime-emacs$(LIBRIME_DYLIB)
+ifdef MODULE_FILE_SUFFIX
+	SUFFIX = $(MODULE_FILE_SUFFIX)
+else
+	SUFFIX = .so
+endif
+
+TARGET       = librime-emacs$(SUFFIX)
 
 CC           = gcc
 
@@ -8,17 +14,15 @@ else
 	CFLAGS   = -fPIC -O2 -Wall
 endif
 
-ifeq ($(LIBRIME_DYLIB), .so)
+ifeq ($(SUFFIX), .dylib)
+	LDFLAGS = -dynamiclib
+else
 	LDFLAGS = -shared
 endif
 
-ifeq ($(LIBRIME_DYLIB), .dylib)
-	LDFLAGS = -dynamiclib
-endif
-
 ifdef LIBRIME_ROOT
-	ENV      = C_INCLUDE_PATH=${LIBRIME_ROOT}/include/
-	LDFLAGS  += -L ${LIBRIME_ROOT}/lib/ -Wl,-rpath ${LIBRIME_ROOT}/lib/ -lrime
+	ENV      = env C_INCLUDE_PATH=${LIBRIME_ROOT}include/
+	LDFLAGS  += -L ${LIBRIME_ROOT}lib/ -Wl,-rpath ${LIBRIME_ROOT}lib/ -lrime
 else
 	ENV      =
 	LDFLAGS  += -lrime

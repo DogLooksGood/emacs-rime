@@ -746,16 +746,13 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
 
 (defun rime--build-compile-env ()
   "Build compile env string."
-  (string-join
-   (mapcar
-    (lambda (arg)
-      (if (symbol-value (car arg))
-          (format "%s=%s" (cdr arg) (symbol-value (car arg)))
-        ""))
-    '((rime-librime-root . "LIBRIME_ROOT")
-      (rime-emacs-module-header-root . "EMACS_MODULE_HEADER_ROOT")
-      (module-file-suffix . "LIBRIME_DYLIB")))
-   " "))
+  (concat
+   (if (not rime-librime-root) ""
+     (format "LIBRIME_ROOT=%s " (file-name-as-directory rime-librime-root)))
+   (if (not rime-emacs-module-header-root) ""
+     (format "EMACS_MODULE_HEADER_ROOT=%s " (file-name-as-directory rime-emacs-module-header-root)))
+   (if (not module-file-suffix) (error "module-file-suffix is nil.")
+     (format "MODULE_FILE_SUFFIX=%s " module-file-suffix))))
 
 (defun rime-compile-module ()
   "Compile dynamic module."
