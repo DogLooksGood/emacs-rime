@@ -163,10 +163,10 @@
   :group 'rime)
 
 (defcustom rime-posframe-properties
-  (list :background-color "#333333"
-        :foreground-color "#dcdccc"
-        :internal-border-width 10)
-  "Properties for posframe."
+  (list :internal-border-width 10)
+  "Properties for posframe.
+
+Background and default foreground can be set in face `rime-default-face'."
   :group 'rime)
 
 (defcustom rime-posframe-style 'horizontal
@@ -178,9 +178,19 @@
   :options '(simple horizontal vertical)
   :group 'rime)
 
+(defface rime-default-face
+  '((t (:background "#333333" :foreground "#dcdccc")))
+  "Face for default foreground and background."
+  :group 'rime)
+
 (defface rime-code-face
   '((t (:inherit font-lock-string-face)))
   "Face for code in candidate, not available in `message' and `popup'."
+  :group 'rime)
+
+(defface rime-comment-face
+  '((t (:foreground "grey60")))
+  "Face for comment in candidate, not available in `message' and `popup'."
   :group 'rime)
 
 (defface rime-candidate-num-face
@@ -473,6 +483,8 @@ Currently just deactivate input method."
           (posframe-hide rime-posframe-buffer)
         (apply #'posframe-show rime-posframe-buffer
                :string content
+               :background-color (face-attribute 'rime-default-face :background)
+               :foreground-color (face-attribute 'rime-default-face :foreground)
                rime-posframe-properties))
     ;; Fallback to popup when not available.
     (rime--popup-display-content content)))
@@ -535,7 +547,11 @@ Currently just deactivate input method."
                       (propertize
                        (format "%d. " idx)
                        'face 'rime-candidate-num-face)
-                      (format "%s%s" c (rime--candidate-separator-char))))
+                      (car c)
+                      (if-let (comment (cdr c))
+                          (propertize (format " %s" comment) 'face 'rime-comment-face)
+                        "")
+                      (rime--candidate-separator-char)))
         (setq idx (1+ idx))))
     (when (and page-no (not (zerop page-no)))
       (setq result (concat result (format " [%d]" (1+ page-no)))))
