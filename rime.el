@@ -483,8 +483,8 @@ Currently just deactivate input method."
           (posframe-hide rime-posframe-buffer)
         (apply #'posframe-show rime-posframe-buffer
                :string content
-               :background-color (face-attribute 'rime-default-face :background)
-               :foreground-color (face-attribute 'rime-default-face :foreground)
+               :background-color (face-attribute 'rime-default-face :background nil t)
+               :foreground-color (face-attribute 'rime-default-face :foreground nil t)
                rime-posframe-properties))
     ;; Fallback to popup when not available.
     (rime--popup-display-content content)))
