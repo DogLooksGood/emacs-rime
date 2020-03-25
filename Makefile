@@ -21,10 +21,9 @@ else
 endif
 
 ifdef LIBRIME_ROOT
-	ENV      = env C_INCLUDE_PATH=${LIBRIME_ROOT}include/
+	CFLAGS  += -I ${LIBRIME_ROOT}include/
 	LDFLAGS  += -L ${LIBRIME_ROOT}lib/ -Wl,-rpath ${LIBRIME_ROOT}lib/ -lrime
 else
-	ENV      =
 	LDFLAGS  += -lrime
 endif
 
@@ -38,7 +37,7 @@ clean:
 	-rm $(TARGET)
 
 lib:
-	$(ENV) $(CC) lib.c -o $(TARGET) $(CFLAGS) $(LDFLAGS)
+	$(CC) lib.c -o $(TARGET) $(CFLAGS) $(LDFLAGS)
 
 test:
 	emacs -q test.el -e eval-buffer

@@ -764,9 +764,9 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
   "Build compile env string."
   (concat
    (if (not rime-librime-root) ""
-     (format "LIBRIME_ROOT=%s " (file-name-as-directory rime-librime-root)))
+     (format "LIBRIME_ROOT=%s " (file-name-as-directory (expand-file-name rime-librime-root))))
    (if (not rime-emacs-module-header-root) ""
-     (format "EMACS_MODULE_HEADER_ROOT=%s " (file-name-as-directory rime-emacs-module-header-root)))
+     (format "EMACS_MODULE_HEADER_ROOT=%s " (file-name-as-directory (expand-file-name rime-emacs-module-header-root))))
    (if (not module-file-suffix) (error "module-file-suffix is nil.")
      (format "MODULE_FILE_SUFFIX=%s " module-file-suffix))))
 
