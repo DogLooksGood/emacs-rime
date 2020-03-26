@@ -332,6 +332,69 @@ patch:
 
 #+html: </details>
 
+**** 在 `doom-modeline` 里如何应用 `rime-lighter` 动态图标显示？
+我们需要重新定义 input-method 的 segment ，以修改其 face 设置，并且修改
+`rime-indicator-face` 和 `rime-indicator-dim-face` 的属性，以和 `doom-modeline`
+的颜色风格一致。在配置中加入如下代码：
+#+BEGIN_SRC emacs-lisp
+  (after! doom-modeline
+    (set-face-attribute 'rime-indicator-face nil
+                        :foreground 'unspecified
+                        :inherit 'doom-modeline-buffer-major-mode)
+    (set-face-attribute 'rime-indicator-dim-face nil
+                        :foreground 'unspecified
+                        :inherit 'doom-modeline-buffer-minor-mode)
+
+    (doom-modeline-def-segment input-method
+      "Define the current input method properties."
+      (propertize (cond (current-input-method
+                         (concat (doom-modeline-spc)
+                                 current-input-method-title
+                                 (doom-modeline-spc)))
+                        ((and (bound-and-true-p evil-local-mode)
+                              (bound-and-true-p evil-input-method))
+                         (concat
+                          (doom-modeline-spc)
+                          (nth 3 (assoc default-input-method input-method-alist))
+                          (doom-modeline-spc)))
+                        (t ""))
+                  'face (if (doom-modeline--active)
+                            (or (get-text-property 0 'face (rime-lighter))
+                                'doom-modeline-buffer-major-mode)
+                          'mode-line-inactive)
+                  'help-echo (concat
+                              "Current input method: "
+                              current-input-method
+                              "\n\
+mouse-2: Disable input method\n\
+mouse-3: Describe current input method")
+                  'mouse-face 'mode-line-highlight
+                  'local-map mode-line-input-method-map)))
+#+END_SRC
+
+**** 我的 `emacs-rime` 候选框最后一项不显示，怎么办？
+极少数用户下会偶尔出现最后一个候选词不显示的情况，可以确定跟 `posframe` 有关，但
+目前尚未找到原因，有一个暂时的解决办法，就是给候选词列表最后附加一个全角空格，这
+样即使出现“吃字”的情况也只是把末尾的全角空格“吃”掉，不会影响候选词的显示。代码如
+下：
+#+BEGIN_SRC emacs-lisp
+  (defun +rime--posframe-display-content-a (args)
+    "给 `rime--posframe-display-content' 传入的字符串加一个全角空
+格，以解决 `posframe' 偶尔吃字的问题。"
+    :filter-args #'rime--posframe-display-content
+    (cl-destructuring-bind (content) args
+      (let ((newresult (if (string-blank-p content)
+                           content
+                         (concat content "　"))))
+        (list newresult))))
+
+  (if (fboundp 'rime--posframe-display-content)
+      (advice-add 'rime--posframe-display-content
+                  :filter-args
+                  #'+rime--posframe-display-content-a)
+    (error "Function `rime--posframe-display-content' is not available."))
+#+END_SRC
+
 * 感谢所有的 Contributor
 
 - [[https://github.com/Z572][Z572]]
