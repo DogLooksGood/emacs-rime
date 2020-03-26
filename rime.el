@@ -353,6 +353,13 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 
 (make-obsolete 'rime--after-alphabet-char-p #'rime-predicate-after-alphabet-char-p "2020-03-26")
 
+(defun rime-predicate-after-ascii-char-p ()
+  "If the cursor is after a ascii character.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
+  (and (> (point) (save-excursion (back-to-indentation) (point)))
+       (looking-back "[a-zA-Z0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]" 1)))
+
 (defun rime-predicate-prog-in-code-p ()
   "If cursor is in code.
 
@@ -412,9 +419,8 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'.\""
   "If input a punctuation after a ascii charactor with whitespace.
 
 Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
-  (and (> (point) (save-excursion (back-to-indentation) (point)))
-       (rime-predicate-current-input-punctuation-p)
-       (looking-back "[a-zA-Z0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]" 1)))
+  (and (rime-predicate-current-input-punctuation-p)
+       (rime-predicate-after-ascii-char-p)))
 
 (defun rime-predicate-auto-english-p ()
   "Auto switch Chinese/English input state.
