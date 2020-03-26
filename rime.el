@@ -767,11 +767,11 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
       (if (and (rime--should-enable-p)
                (not (rime--should-inline-ascii-p)))
           (propertize
-           (concat " " rime-title)
+           rime-title
            'face
            'rime-indicator-face)
         (propertize
-         (concat " " rime-title)
+         rime-title
          'face
          'rime-indicator-dim-face))
     ""))
