@@ -335,7 +335,7 @@ Each keybinding in this list, will be bound to `rime-send-keybinding' in `rime-a
 (defun rime-predicate-after-alphabet-char-p ()
   "If the cursor is after a alphabet character.
 
-Can be used in `rime-disable-predicates'."
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (looking-back "[a-zA-Z][0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]*" 1))
 
 (make-obsolete 'rime--after-alphabet-char-p #'rime-predicate-after-alphabet-char-p "2020-03-26")
@@ -343,7 +343,7 @@ Can be used in `rime-disable-predicates'."
 (defun rime-predicate-prog-in-code-p ()
   "If cursor is in code.
 
-Can be used in `rime-disable-predicates'."
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (when (derived-mode-p 'prog-mode 'conf-mode)
     (not (or (nth 3 (syntax-ppss))
              (nth 4 (syntax-ppss))))))
@@ -356,7 +356,7 @@ Can be used in `rime-disable-predicates'."
 Include `evil-normal-state' ,`evil-visual-state' ,
 `evil-motion-state' , `evil-operator-state'.
 
-Can be used in `rime-disable-predicates'."
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (when (fboundp 'evil-mode)
     (or (evil-normal-state-p)
         (evil-visual-state-p)
@@ -371,7 +371,7 @@ Can be used in `rime-disable-predicates'."
   Determines whether the current cursor is at the beginning of a
   line and the character last inputted is symbol.
 
-  Can be used in `rime-disable-predicates'."
+  Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and rime--current-input-key
        (<= (point) (save-excursion (back-to-indentation) (point)))
        (or (and (<= #x21 rime--current-input-key) (<= rime--current-input-key #x2f))
@@ -399,7 +399,7 @@ Can be used in `rime-disable-predicates'."
   That is, a sentence of the form \"我使用 emacs 编辑此函数\"
   automatically switches between Chinese and English input methods.
 
-  Can be used in `rime-disable-predicates'."
+  Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (if (> (point) (save-excursion (back-to-indentation) (point)))
       (if (looking-back " +" 1)
           (looking-back "\\cc +" 2)
