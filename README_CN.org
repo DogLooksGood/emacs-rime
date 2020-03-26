@@ -326,7 +326,7 @@ patch:
 #+html: </details>
 
 #+html: <details>
-#+html: <summary>在 `doom-modeline` 里如何应用 `rime-lighter` 动态图标显示？</summary>
+#+html: <summary>在 doom-modeline 里如何应用 rime-lighter 动态图标显示？</summary>
 
 我们需要重新定义 input-method 的 segment ，以修改其 face 设置，并且修改
 `rime-indicator-face` 和 `rime-indicator-dim-face` 的属性，以和 `doom-modeline`
