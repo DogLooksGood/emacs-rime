@@ -345,56 +345,78 @@ Defaults to `user-emacs-directory'/rime/"
 Currently only Shift, Control, Meta is supported as modifiers.
 Each keybinding in this list, will be bound to `rime-send-keybinding' in `rime-active-mode-map'.")
 
-(defun rime--after-alphabet-char-p ()
+(defun rime-predicate-after-alphabet-char-p ()
   "If the cursor is after a alphabet character.
 
-Can be used in `rime-disable-predicates'."
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (looking-back "[a-zA-Z][0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]*" 1))
 
-(defalias 'rime-predicate-after-alphabet-char-p #'rime--after-alphabet-char-p)
+(make-obsolete 'rime--after-alphabet-char-p #'rime-predicate-after-alphabet-char-p "2020-03-26")
 
-(defun rime--prog-in-code-p ()
+(defun rime-predicate-prog-in-code-p ()
   "If cursor is in code.
 
-Can be used in `rime-disable-predicates'."
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (when (derived-mode-p 'prog-mode 'conf-mode)
     (not (or (nth 3 (syntax-ppss))
              (nth 4 (syntax-ppss))))))
 
-(defalias 'rime-predicate-prog-in-code-p #'rime--prog-in-code-p)
+(make-obsolete 'rime--prog-in-code-p #'rime-predicate-prog-in-code-p "2020-03-26")
 
-(defun rime--evil-mode-p ()
+(defun rime-predicate-evil-mode-p ()
   "Determines whether the current buffer is in `evil' state.
 
 Include `evil-normal-state' ,`evil-visual-state' ,
 `evil-motion-state' , `evil-operator-state'.
 
-Can be used in `rime-disable-predicates'."
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (when (fboundp 'evil-mode)
     (or (evil-normal-state-p)
         (evil-visual-state-p)
         (evil-motion-state-p)
         (evil-operator-state-p))))
 
-(defalias 'rime-predicate-evil-mode-p #'rime--evil-mode-p)
+(make-obsolete 'rime--evil-mode-p #'rime-predicate-evil-mode-p "2020-03-26")
 
-(defun rime--punctuation-line-begin-p ()
-  "Enter half-width punctuation at the beginning of the line.
+(defun rime-predicate-current-input-punctuation-p ()
+  "If the current charactor entered is a punctuation.
 
-  Determines whether the current cursor is at the beginning of a
-  line and the character last inputted is symbol.
-
-  Can be used in `rime-disable-predicates'."
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and rime--current-input-key
-       (<= (point) (save-excursion (back-to-indentation) (point)))
        (or (and (<= #x21 rime--current-input-key) (<= rime--current-input-key #x2f))
            (and (<= #x3a rime--current-input-key) (<= rime--current-input-key #x40))
            (and (<= #x5b rime--current-input-key) (<= rime--current-input-key #x60))
            (and (<= #x7b rime--current-input-key) (<= rime--current-input-key #x7f)))))
 
-(defalias 'rime-predicate-punctuation-line-begin-p #'rime--punctuation-line-begin-p)
+(defun rime-predicate-punctuation-line-begin-p ()
+  "Enter half-width punctuation at the beginning of the line.
 
-(defun rime--auto-english-p ()
+  Determines whether the current cursor is at the beginning of a
+  line and the character last inputted is symbol.
+
+  Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
+  (and (<= (point) (save-excursion (back-to-indentation) (point)))
+       (rime-predicate-current-input-punctuation-p)))
+
+(make-obsolete 'rime--punctuation-line-begin-p #'rime-predicate-punctuation-line-begin-p "2020-03-26")
+
+(defun rime-predicate-punctuation-after-space-cc-p ()
+  "If input a punctuation after a Chinese charactor with whitespace.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'.\""
+  (and (> (point) (save-excursion (back-to-indentation) (point)))
+       (+rime-predicate-current-input-punctuation-p)
+       (looking-back "\\cc +" 2)))
+
+(defun rime-predicate-punctuation-after-ascii-p ()
+  "If input a punctuation after a ascii charactor with whitespace.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
+  (and (> (point) (save-excursion (back-to-indentation) (point)))
+       (+rime-predicate-current-input-punctuation-p)
+       (looking-back "[a-zA-Z0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]" 1)))
+
+(defun rime-predicate-auto-english-p ()
   "Auto switch Chinese/English input state.
 
   After activating this probe function, use the following rules
@@ -412,13 +434,13 @@ Can be used in `rime-disable-predicates'."
   That is, a sentence of the form \"我使用 emacs 编辑此函数\"
   automatically switches between Chinese and English input methods.
 
-  Can be used in `rime-disable-predicates'."
+  Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (if (> (point) (save-excursion (back-to-indentation) (point)))
       (if (looking-back " +" 1)
           (looking-back "\\cc +" 2)
         (not (looking-back "\\cc" 1)))))
 
-(defalias 'rime-predicate-auto-english-p #'rime--auto-english-p)
+(make-obsolete 'rime--auto-english-p #'rime-predicate-auto-english-p "2020-03-26")
 
 (defun rime-predicate-space-after-ascii-p ()
   "If cursor is after a whitespace which follow a ascii character."
@@ -430,6 +452,14 @@ Can be used in `rime-disable-predicates'."
   "If cursor is after a whitespace which follow a non-ascii character."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
        (looking-back "\\cc +" 2)))
+
+(defun rime-predicate-current-uppercase-letter-p ()
+  "If the current charactor entered is a uppercase letter.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
+  (and rime--current-input-key
+       (>= rime--current-input-key ?A)
+       (<= rime--current-input-key ?Z)))
 
 (defun rime--should-enable-p ()
   "If key event should be handled by input-method."
