@@ -405,7 +405,7 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 
 Can be used in `rime-disable-predicates' and `rime-inline-predicates'.\""
   (and (> (point) (save-excursion (back-to-indentation) (point)))
-       (+rime-predicate-current-input-punctuation-p)
+       (rime-predicate-current-input-punctuation-p)
        (looking-back "\\cc +" 2)))
 
 (defun rime-predicate-punctuation-after-ascii-p ()
@@ -413,7 +413,7 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'.\""
 
 Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
-       (+rime-predicate-current-input-punctuation-p)
+       (rime-predicate-current-input-punctuation-p)
        (looking-back "[a-zA-Z0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]" 1)))
 
 (defun rime-predicate-auto-english-p ()
