@@ -242,12 +242,13 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
 
   // 3. context.menu
   if (context.menu.num_candidates) {
-    emacs_value menu_a[6];
+    emacs_value menu_a[7];
     menu_a[0] = CONS(INTERN("highlighted-candidate-index"), INT(context.menu.highlighted_candidate_index));
     menu_a[1] = CONS(INTERN("last-page-p"), context.menu.is_last_page ? t : nil);
     menu_a[2] = CONS(INTERN("num-candidates"), INT(context.menu.num_candidates));
     menu_a[3] = CONS(INTERN("page-no"), INT(context.menu.page_no));
     menu_a[4] = CONS(INTERN("page-size"), INT(context.menu.page_size));
+    menu_a[5] = CONS(INTERN("highlighted-candidate-index"), INT(context.menu.highlighted_candidate_index));
     emacs_value carray[context.menu.num_candidates];
     // Build candidates
     for (int i = 0; i < context.menu.num_candidates; i++) {
@@ -263,8 +264,8 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
       carray[i] = CONS(STRING(ctext), comment);
     }
     emacs_value candidates = LIST(context.menu.num_candidates, carray);
-    menu_a[5] = CONS(INTERN("candidates"), candidates);
-    emacs_value menu = LIST(6, menu_a);
+    menu_a[6] = CONS(INTERN("candidates"), candidates);
+    emacs_value menu = LIST(7, menu_a);
     result_a[2] = CONS(INTERN("menu"), menu);
   } else {
     result_a[2] = CONS(INTERN("menu"), nil);

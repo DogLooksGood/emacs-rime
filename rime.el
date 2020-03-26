@@ -140,9 +140,9 @@
 
 (defface rime-preedit-face
   '((((class color) (background dark))
-     (:underline t))
+     (:inverse-video t))
     (((class color) (background light))
-     (:underline t)))
+     (:inverse-video t)))
   "Face for inline preedit."
   :group 'rime)
 
@@ -179,13 +179,26 @@ Background and default foreground can be set in face `rime-default-face'."
   :group 'rime)
 
 (defface rime-default-face
-  '((t (:background "#333333" :foreground "#dcdccc")))
+  '((((class color) (background dark))
+     (:background "#333333" :foreground "#dcdccc"))
+    (((class color) (background light))
+     (:background "#dcdccc" :foreground "#333333")))
   "Face for default foreground and background."
   :group 'rime)
 
 (defface rime-code-face
   '((t (:inherit font-lock-string-face)))
   "Face for code in candidate, not available in `message' and `popup'."
+  :group 'rime)
+
+(defface rime-cursor-face
+  '((t (:inherit default)))
+  "Face for cursor in candidate menu."
+  :group 'rime)
+
+(defface rime-highlight-candidate-face
+  '((t (:inherit font-lock-constant-face)))
+  "Face for highlighted candidate."
   :group 'rime)
 
 (defface rime-comment-face
@@ -561,27 +574,38 @@ Currently just deactivate input method."
          (sel-start (alist-get 'sel-start composition))
          (sel-end (alist-get 'sel-end composition))
          (menu (alist-get 'menu context))
+         (highlighted-candidate-index (alist-get 'highlighted-candidate-index menu))
          (input (rime-lib-get-input))
          (page-no (alist-get 'page-no menu))
          (idx 1)
          (result ""))
+    ;; (message "%s" context)
     (when (and (rime--has-composition context) candidates)
       (when preedit
         (setq result (concat (propertize
-                              (concat before-cursor rime-cursor after-cursor)
+                              (concat before-cursor)
+                              'face 'rime-code-face)
+                             (propertize
+                              (concat rime-cursor)
+                              'face 'rime-cursor-face)
+                             (propertize
+                              (concat after-cursor)
                               'face 'rime-code-face)
                              (rime--candidate-prefix-char))))
       (dolist (c candidates)
-        (setq result
-              (concat result
-                      (propertize
-                       (format "%d. " idx)
-                       'face 'rime-candidate-num-face)
-                      (car c)
-                      (if-let (comment (cdr c))
-                          (propertize (format " %s" comment) 'face 'rime-comment-face)
-                        "")
-                      (rime--candidate-separator-char)))
+        (let ((candidates-text (concat
+                                (propertize
+                                 (format "%d. " idx)
+                                 'face 'rime-candidate-num-face)
+                                (if (equal (1- idx) highlighted-candidate-index)
+                                   (propertize (car c) 'face 'rime-highlight-candidate-face)
+                                 (car c))
+                                (if-let (comment (cdr c))
+                                    (propertize (format " %s" comment) 'face 'rime-comment-face)
+                                  ""))))
+          (setq result (concat result
+                               candidates-text
+                               (rime--candidate-separator-char))))
         (setq idx (1+ idx))))
     (when (and page-no (not (zerop page-no)))
       (setq result (concat result (format " [%d]" (1+ page-no)))))
@@ -625,7 +649,12 @@ the car is keyCode, the cdr is mask."
       (setq rime--preedit-overlay (make-overlay (point) (point)))
       (overlay-put rime--preedit-overlay
                    'after-string (propertize preedit 'face
-                                             'rime-preedit-face)))))
+                                             (cons 'rime-preedit-face
+                                                   (plist-get (text-properties-at
+                                                               (if (> (point) 1)
+                                                                   (1- (point))
+                                                                 (point)))
+                                                              'face)))))))
 
 (defun rime--rime-lib-module-ready-p ()
   "Return if dynamic module is loaded.
@@ -781,11 +810,11 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
       (if (and (rime--should-enable-p)
                (not (rime--should-inline-ascii-p)))
           (propertize
-           (concat " " rime-title)
+           rime-title
            'face
            'rime-indicator-face)
         (propertize
-         (concat " " rime-title)
+         rime-title
          'face
          'rime-indicator-dim-face))
     ""))
