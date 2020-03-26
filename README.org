@@ -1,6 +1,6 @@
 #+TITLE: Emacs Rime
 
-[[file:README_CN.org][中文文档]]
+[[file:README_CN.org][中文文档(目前更加完善)]]
 
 [[file:https://i.imgur.com/S15IbwJ.gif]]
 
@@ -233,3 +233,5 @@ Put following in the ~:custom~ section.
 - [[https://github.com/shuxiao9058][shuxiao9058]]
 - [[https://github.com/lkzz][lkzz]]
 - [[https://github.com/wsw0108][wsw0108]]
+- [[https://github.com/HesperusArcher][HesperusArcher]]
+- [[https://github.com/longminwang][longminwang]]

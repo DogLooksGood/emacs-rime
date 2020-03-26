@@ -146,7 +146,7 @@
   (setq mode-line-mule-info '((:eval (rime-lighter))))
 #+end_src
 
-* 基于 Rime inline ascii 模式的临时英文
+** 基于 Rime inline ascii 模式的临时英文
 
 设置 ~rime-inline-predicates~ ，结构与 ~rime-disable-predicates~ 相同，具有较低优先级。
 
@@ -183,6 +183,23 @@
 #+BEGIN_SRC emacs-lisp
   (setq rime-cursor "˰")
 #+END_SRC
+
+颜色可通过 ~rime-cursor-face~ 设置。
+
+* 设置嵌入文本的样式
+
+可通过 ~rime-preedit-face~ 设置。
+
+* 在 minibuffer 使用后自动关闭输入法
+
+默认行为为自动关闭，设置 ~rime-deactivate-when-exit-minibuffer~ 为 nil 取消该行为。
+
+* 指定 Rime 共享目录和用户目录
+
+~rime-share-data-dir~ 是 Rime 安装后放置配置的目录，例如 Linux 上默认为 /usr/share/rime-data. 通常使用默认值即可。
+如果使用其它的位置，可以配置该值。
+
+~rime-user-data-dir~ 为 emacs-rime 布署的位置，默认为 ~/.emacs.d/rime ，如果需要其它位置，可以配置该值。
 
 * 打开 Rime 的配置文件
 
@@ -302,8 +319,25 @@ patch:
 #+html: </details>
 
 #+html: <details>
+#+html: <summary>在 isearch 中的使用</summary>
+
+目前在 isearch 中不能正常工作，但是可以使用 [[https://github.com/zk-phi/phi-search][phi-search]].
+
+#+html: </details>
+
+#+html: <details>
 #+html: <summary>无需 librime 纯 Emacs 实现的输入法？</summary>
 
 你可能需要 [[https://github.com/tumashu/pyim][pyim]].
 
 #+html: </details>
+
+* 感谢所有的 Contributor
+
+- [[https://github.com/Z572][Z572]]
+- [[https://github.com/cnsunyour][cnsunyour]]
+- [[https://github.com/shuxiao9058][shuxiao9058]]
+- [[https://github.com/lkzz][lkzz]]
+- [[https://github.com/wsw0108][wsw0108]]
+- [[https://github.com/HesperusArcher][HesperusArcher]]
+- [[https://github.com/longminwang][longminwang]]
