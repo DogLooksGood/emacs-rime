@@ -166,7 +166,7 @@
   (define-key rime-active-mode-map (kbd "M-j") 'rime-inline-ascii)
 #+end_src
 
-* 强制中文模式
+** 断言成立时的强制中文模式
 使用 ~rime-force-enable~ 来临时强制使用强制中文模式（即无视 ~rime-disable-predicates~ 中的规则），
 在 *一次输入行为* 或 *取消输入* 之后会自动关闭强制中文模式。
 
