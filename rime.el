@@ -365,6 +365,16 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 
 (make-obsolete 'rime--evil-mode-p #'rime-predicate-evil-mode-p "2020-03-26")
 
+(defun rime-predicate-current-input-punctuation-p ()
+  "If the current charactor entered is a punctuation.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
+  (and rime--current-input-key
+       (or (and (<= #x21 rime--current-input-key) (<= rime--current-input-key #x2f))
+           (and (<= #x3a rime--current-input-key) (<= rime--current-input-key #x40))
+           (and (<= #x5b rime--current-input-key) (<= rime--current-input-key #x60))
+           (and (<= #x7b rime--current-input-key) (<= rime--current-input-key #x7f)))))
+
 (defun rime-predicate-punctuation-line-begin-p ()
   "Enter half-width punctuation at the beginning of the line.
 
@@ -372,14 +382,26 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   line and the character last inputted is symbol.
 
   Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
-  (and rime--current-input-key
-       (<= (point) (save-excursion (back-to-indentation) (point)))
-       (or (and (<= #x21 rime--current-input-key) (<= rime--current-input-key #x2f))
-           (and (<= #x3a rime--current-input-key) (<= rime--current-input-key #x40))
-           (and (<= #x5b rime--current-input-key) (<= rime--current-input-key #x60))
-           (and (<= #x7b rime--current-input-key) (<= rime--current-input-key #x7f)))))
+  (and (<= (point) (save-excursion (back-to-indentation) (point)))
+       (rime-predicate-current-input-punctuation-p)))
 
 (make-obsolete 'rime--punctuation-line-begin-p #'rime-predicate-punctuation-line-begin-p "2020-03-26")
+
+(defun rime-predicate-punctuation-after-space-cc-p ()
+  "If input a punctuation after a Chinese charactor with whitespace.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'.\""
+  (and (> (point) (save-excursion (back-to-indentation) (point)))
+       (+rime-predicate-current-input-punctuation-p)
+       (looking-back "\\cc +" 2)))
+
+(defun rime-predicate-punctuation-after-ascii-p ()
+  "If input a punctuation after a ascii charactor with whitespace.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
+  (and (> (point) (save-excursion (back-to-indentation) (point)))
+       (+rime-predicate-current-input-punctuation-p)
+       (looking-back "[a-zA-Z0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]" 1)))
 
 (defun rime-predicate-auto-english-p ()
   "Auto switch Chinese/English input state.
@@ -417,6 +439,14 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   "If cursor is after a whitespace which follow a non-ascii character."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
        (looking-back "\\cc +" 2)))
+
+(defun rime-predicate-current-uppercase-letter-p ()
+  "If the current charactor entered is a uppercase letter.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
+  (and rime--current-input-key
+       (>= rime--current-input-key ?A)
+       (<= rime--current-input-key ?Z)))
 
 (defun rime--should-enable-p ()
   "If key event should be handled by input-method."
