@@ -351,7 +351,10 @@ Each keybinding in this list, will be bound to `rime-send-keybinding' in `rime-a
 Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (looking-back "[a-zA-Z][0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]*" 1))
 
-(make-obsolete 'rime--after-alphabet-char-p #'rime-predicate-after-alphabet-char-p "2020-03-26")
+(defun rime--after-alphabet-char-p ()
+  (message "`rime--after-alphabet-char-p' was renamed to `rime-predicate-after-alphabet-char-p'; use that instead.")
+  (rime-predicate-after-alphabet-char-p))
+(make-obsolete 'rime--after-alphabet-char-p 'rime-predicate-after-alphabet-char-p "2020-03-26")
 
 (defun rime-predicate-after-ascii-char-p ()
   "If the cursor is after a ascii character.
@@ -368,7 +371,10 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
     (not (or (nth 3 (syntax-ppss))
              (nth 4 (syntax-ppss))))))
 
-(make-obsolete 'rime--prog-in-code-p #'rime-predicate-prog-in-code-p "2020-03-26")
+(defun rime--prog-in-code-p ()
+  (message "`rime--prog-in-code-p' was renamed to `rime-predicate-prog-in-code-p'; use that instead.")
+  (rime-predicate-prog-in-code-p))
+(make-obsolete 'rime--prog-in-code-p 'rime-predicate-prog-in-code-p "2020-03-26")
 
 (defun rime-predicate-evil-mode-p ()
   "Determines whether the current buffer is in `evil' state.
@@ -383,7 +389,10 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
         (evil-motion-state-p)
         (evil-operator-state-p))))
 
-(make-obsolete 'rime--evil-mode-p #'rime-predicate-evil-mode-p "2020-03-26")
+(defun rime--evil-mode-p ()
+  (message "`rime--evil-mode-p' was renamed to `rime-predicate-evil-mode-p'; use that instead.")
+  (rime-predicate-evil-mode-p))
+(make-obsolete 'rime--evil-mode-p 'rime-predicate-evil-mode-p "2020-03-26")
 
 (defun rime-predicate-current-input-punctuation-p ()
   "If the current charactor entered is a punctuation.
@@ -405,7 +414,10 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (<= (point) (save-excursion (back-to-indentation) (point)))
        (rime-predicate-current-input-punctuation-p)))
 
-(make-obsolete 'rime--punctuation-line-begin-p #'rime-predicate-punctuation-line-begin-p "2020-03-26")
+(defun rime--punctuation-line-begin-p ()
+  (message "`rime--punctuation-line-begin-p' was renamed to `rime-predicate-punctuation-line-begin-p'; use that instead.")
+  (rime-predicate-punctuation-line-begin-p))
+(make-obsolete 'rime--punctuation-line-begin-p 'rime-predicate-punctuation-line-begin-p "2020-03-26")
 
 (defun rime-predicate-punctuation-after-space-cc-p ()
   "If input a punctuation after a Chinese charactor with whitespace.
@@ -446,7 +458,10 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
           (looking-back "\\cc +" 2)
         (not (looking-back "\\cc" 1)))))
 
-(make-obsolete 'rime--auto-english-p #'rime-predicate-auto-english-p "2020-03-26")
+(defun rime--auto-english-p ()
+  (message "`rime--auto-english-p' was renamed to `rime-predicate-auto-english-p'; use that instead.")
+  (rime-predicate-auto-english-p))
+(make-obsolete 'rime--auto-english-p 'rime-predicate-auto-english-p "2020-03-26")
 
 (defun rime-predicate-space-after-ascii-p ()
   "If cursor is after a whitespace which follow a ascii character."
