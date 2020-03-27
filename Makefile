@@ -40,4 +40,4 @@ lib:
 	$(CC) lib.c -o $(TARGET) $(CFLAGS) $(LDFLAGS)
 
 test:
-	emacs -q test.el -e eval-buffer
+	emacs -Q -L "$$(pwd)" -l test.el
