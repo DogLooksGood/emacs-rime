@@ -1,5 +1,6 @@
 # Compiled
 *.so
+*.dylib
 *.elc
 
 # Packaging
