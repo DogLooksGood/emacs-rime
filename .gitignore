@@ -1,5 +1,6 @@
 # Compiled
 *.so
+*.dylib
 *.elc
 
 # Packaging
@@ -14,4 +15,3 @@
 
 # ccls cache directory
 .ccls-cache
-*.dylib
