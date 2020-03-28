@@ -67,10 +67,10 @@ You can download the release.
 #+END_SRC
 #+html: </details>
 
-*NOTE*: If you are on MacOS or don't have librime in standard path, 
+*NOTE*: If you are on MacOS or don't have librime in standard path,
 you *MUST* specify ~rime-librime-root~.
 
-Put following in the ~:custom~ section. 
+Put following in the ~:custom~ section.
 
 (Assuming you unzip librime to ~/.emacs.d/librime)
 
@@ -152,23 +152,47 @@ Following is a example to use ascii mode in ~evil-normal-state~ or when cursor i
 
 - ~rime-predicate-after-alphabet-char-p~
 
-  Only alphabet character can be entered after an alphabet character.
+  After an alphabet character (must beginning with letter [a-zA-Z]).
+
+- ~rime-predicate-after-ascii-char-p~
+
+  After any alphabet character.
 
 - ~rime-predicate-prog-in-code-p~
 
-  In the ~prog-mode~ and ~conf-mode~, Chinese characters can be entered only in comments and quotes.
+  On ~prog-mode~ and ~conf-mode~, not in comments and quotes.
 
 - ~rime-predicate-evil-mode-p~
 
-  Only alphabet character can be entered in the non-editing state of ~evil-mode~.
+  In the non-editing state of ~evil-mode~.
+
+- ~rime-predicate-current-input-punctuation-p~
+
+  When entering punctuation.
+
+- ~rime-predicate-punctuation-after-space-cc-p~
+
+  When entering punctuation after a Chinese character appended with whitespaces.
+
+- ~rime-predicate-punctuation-after-ascii-p~
+
+  When entering punctuation after an ascii character.
 
 - ~rime-predicate-punctuation-line-begin-p~
 
-  Automatically switch to English punctuation when entering punctuation at the beginning of the line.
+  When entering punctuation at the beginning of the line.
 
-- ~rime-predicate-auto-english-p~
+- ~rime-predicate-space-after-ascii-p~
 
-  When entering characters, automatically switch Chinese/English with space as boundary,
+  After an ascii character appended with whitespaces.
+
+- ~rime-predicate-space-after-cc-p~
+
+  After a Chinese character appended with whitespaces.
+
+- ~rime-predicate-current-uppercase-letter-p~
+
+  When entering a uppercase letter.
 
 #+html: </details>
 

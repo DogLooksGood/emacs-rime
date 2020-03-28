@@ -119,7 +119,9 @@ Emacs Rime 已发布到 Melpa 。
 支持的内容参照 [[https://github.com/tumashu/posframe/blob/master/posframe.el#L212][posframe]] 。
 
 * 临时英文模式的切换
-如果使用模式编辑，或是需要在一些特定的场景下自动使用英文，可以 ~rime-disable-predicates~ 。
+如果使用模式编辑，或是在一些特定的场景下需要自动使用英文，可以设
+置~rime-disable-predicates~ ， ~rime-disable-predicates~ 的值是一个断言列表，
+当其中有任何一个断言的值 **不是** nil 时，会自动使用英文。
 
 一个在 ~evil-normal-state~ 中、在英文字母后面以及代码中自动使用英文的例子。
 
@@ -130,17 +132,54 @@ Emacs Rime 已发布到 Melpa 。
           rime-predicate-prog-in-code-p))
 #+END_SRC
 
-目前可用的断言函数有：
+#+html: <details>
+#+html: <summary>目前可用的断言函数</summary>
+
 - ~rime-predicate-after-alphabet-char-p~
-  在英文字符后继续输入英文
+
+  在英文字符串之后（必须为以字母开头的英文字符串）
+
+- ~rime-predicate-after-ascii-char-p~
+
+  任意英文字符后
+
 - ~rime-predicate-prog-in-code-p~
-  在 ~prog-mode~ 和 ~conf-mode~ 里只有注释和引号内可以输入中文
+
+  在 ~prog-mode~ 和 ~conf-mode~ 中除了注释和引号内字符串之外的区域
+
 - ~rime-predicate-evil-mode-p~
-  在 ~evil-mode~ 的非编辑状态下输入为英文方式
+
+  在 ~evil-mode~ 的非编辑状态下
+
+- ~rime-predicate-current-input-punctuation-p~
+
+  当要输入的是符号时
+
+- ~rime-predicate-punctuation-after-space-cc-p~
+
+  当要在中文字符且有空格之后输入符号时
+
+- ~rime-predicate-punctuation-after-ascii-p~
+
+  当要在任意英文字符之后输入符号时
+
 - ~rime-predicate-punctuation-line-begin-p~
-  在行首输入符号时自动转为英文
-- ~rime-predicate-auto-english-p~
-  以空格为界，自动切换中英文
+
+  在行首要输入符号时
+
+- ~rime-predicate-space-after-ascii-p~
+
+  在任意英文字符且有空格之后
+
+- ~rime-predicate-space-after-cc-p~
+
+  在中文字符且有空格之后
+
+- ~rime-predicate-current-uppercase-letter-p~
+
+  将要输入的为大写字母时
+
+#+html: </details>
 
 ** 可提示临时英文状态的提示符
 
