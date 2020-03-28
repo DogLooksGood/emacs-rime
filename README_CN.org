@@ -26,6 +26,14 @@
 
 ** 最小配置
 
+Emacs Rime 已发布到 Melpa 。
+
+#+begin_src emacs-lisp
+  (use-package rime
+    :custom
+    (default-input-method "rime"))
+#+end_src
+
 #+html: <details>
 #+html: <summary>使用 Straight</summary>
 #+BEGIN_SRC emacs-lisp

@@ -1,5 +1,7 @@
 #+TITLE: Emacs Rime
 
+[[https://melpa.org/#/rime][file:https://melpa.org/packages/rime-badge.svg]]
+
 [[file:README_CN.org][中文文档(目前更加完善)]]
 
 [[file:https://i.imgur.com/S15IbwJ.gif]]
@@ -33,6 +35,12 @@ You can download the release.
 #+END_SRC
 
 ** Minimal configuration
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rime
+    :custom
+    (default-input-method "rime"))
+#+END_SRC
 
 #+html: <details>
 #+html: <summary>Use Straight</summary>
