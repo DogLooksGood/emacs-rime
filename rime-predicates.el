@@ -16,7 +16,7 @@
 
 Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
-       (let ((string (buffer-substring (point) (line-beginning-position))))
+       (let ((string (buffer-substring (point) (max (line-beginning-position) (- (point) 80)))))
          (string-match-p "[a-zA-Z][0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]*$" string))))
 
 (defun rime-predicate-after-ascii-char-p ()
@@ -24,7 +24,7 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 
 Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
-       (let ((string (buffer-substring (point) (line-beginning-position))))
+       (let ((string (buffer-substring (point) (max (line-beginning-position) (- (point) 80)))))
          (string-match-p "[a-zA-Z0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]$" string))))
 
 (defun rime-predicate-prog-in-code-p ()
@@ -64,7 +64,7 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
        (rime-predicate-current-input-punctuation-p)
-       (let ((string (buffer-substring (point) (line-beginning-position))))
+       (let ((string (buffer-substring (point) (max (line-beginning-position) (- (point) 80)))))
          (string-match-p "\\cc +$" string))))
 
 (defun rime-predicate-punctuation-after-ascii-p ()
@@ -104,7 +104,7 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 
   Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
-       (let ((string (buffer-substring (point) (line-beginning-position))))
+       (let ((string (buffer-substring (point) (max (line-beginning-position) (- (point) 80)))))
          (if (string-match-p " +$" string)
              (string-match-p "\\cc +$" string)
            (not (string-match-p "\\cc$" string))))))
@@ -112,14 +112,14 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 (defun rime-predicate-space-after-ascii-p ()
   "If cursor is after a whitespace which follow a ascii character."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
-       (let ((string (buffer-substring (point) (line-beginning-position))))
+       (let ((string (buffer-substring (point) (max (line-beginning-position) (- (point) 80)))))
          (and (string-match-p " +$" string)
               (not (string-match-p "\\cc +$" string))))))
 
 (defun rime-predicate-space-after-cc-p ()
   "If cursor is after a whitespace which follow a non-ascii character."
   (and (> (point) (save-excursion (back-to-indentation) (point)))
-       (let ((string (buffer-substring (point) (line-beginning-position))))
+       (let ((string (buffer-substring (point) (max (line-beginning-position) (- (point) 80)))))
          (string-match-p "\\cc +$" string))))
 
 (defun rime-predicate-current-uppercase-letter-p ()
