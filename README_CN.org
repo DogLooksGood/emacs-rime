@@ -41,7 +41,7 @@ Emacs Rime 已发布到 Melpa 。
     :straight (rime :type git
                     :host github
                     :repo "DogLooksGood/emacs-rime"
-                    :files ("rime.el" "Makefile" "lib.c"))
+                    :files ("*.el" "Makefile" "lib.c"))
     :custom
     (default-input-method "rime"))
 #+END_SRC
@@ -53,7 +53,7 @@ Emacs Rime 已发布到 Melpa 。
   (use-package rime
     :quelpa (rime :fetcher github
                   :repo "DogLooksGood/emacs-rime"
-                  :files ("rime.el" "Makefile" "lib.c"))
+                  :files ("*.el" "Makefile" "lib.c"))
     :custom
     (default-input-method "rime"))
 #+END_SRC

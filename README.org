@@ -49,7 +49,7 @@ You can download the release.
     :straight (rime :type git
                     :host github
                     :repo "DogLooksGood/emacs-rime"
-                    :files ("rime.el" "Makefile" "lib.c"))
+                    :files ("*.el" "Makefile" "lib.c"))
     :custom
     (default-input-method "rime"))
 #+END_SRC
@@ -61,7 +61,7 @@ You can download the release.
   (use-package rime
     :quelpa (rime :fetcher github
                   :repo "DogLooksGood/emacs-rime"
-                  :files ("rime.el" "Makefile" "lib.c"))
+                  :files ("*.el" "Makefile" "lib.c"))
     :custom
     (default-input-method "rime"))
 #+END_SRC
