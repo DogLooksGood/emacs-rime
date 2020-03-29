@@ -335,7 +335,7 @@ Defaults to `user-emacs-directory'/rime/"
   "Saved last input key.")
 
 ;;;###autoload
-(defvar rime-title "ㄓ"
+(defvar rime-title (char-to-string 12563)
   "The title of input method.")
 
 (defvar rime-translate-keybindings
