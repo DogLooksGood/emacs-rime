@@ -463,7 +463,6 @@ Currently just deactivate input method."
          (page-no (alist-get 'page-no menu))
          (idx 1)
          (result ""))
-    ;; (message "%s" context)
     (when (and (rime--has-composition context) candidates)
       (when preedit
         (setq result (concat (propertize
@@ -474,8 +473,12 @@ Currently just deactivate input method."
                               'face 'rime-cursor-face)
                              (propertize
                               (concat after-cursor)
-                              'face 'rime-code-face)
-                             (rime--candidate-prefix-char))))
+                              'face 'rime-code-face))))
+      (when (and page-no (not (zerop page-no)))
+        (setq result (concat result (format "  [%d]" (1+ page-no)))))
+
+      (setq result (concat result (rime--candidate-prefix-char)))
+
       (dolist (c candidates)
         (let ((candidates-text (concat
                                 (propertize
@@ -483,7 +486,7 @@ Currently just deactivate input method."
                                  'face 'rime-candidate-num-face)
                                 (if (equal (1- idx) highlighted-candidate-index)
                                    (propertize (car c) 'face 'rime-highlight-candidate-face)
-                                 (car c))
+                                 (propertize (car c) 'face 'rime-default-face))
                                 (if-let (comment (cdr c))
                                     (propertize (format " %s" comment) 'face 'rime-comment-face)
                                   ""))))
@@ -491,8 +494,7 @@ Currently just deactivate input method."
                                candidates-text
                                (rime--candidate-separator-char))))
         (setq idx (1+ idx))))
-    (when (and page-no (not (zerop page-no)))
-      (setq result (concat result (format " [%d]" (1+ page-no)))))
+
     result))
 
 (defun rime--show-candidate ()
