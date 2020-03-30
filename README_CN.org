@@ -71,7 +71,7 @@ Emacs Rime 已发布到 Melpa 。
 
 * 设置输入中发送到 Rime 的组合键。
 
-下面的设置，使输入过程中的 ~C-f~ 和 ~C-b~ 发送给 Rime 。可以用来配合方案中的设置完成光标移动和选字等功能。
+通过变量 ~rime-translate-keybindings~ 可以设置哪些组合键将发送至 Rime 。可以用来配合方案中的设置完成光标移动和选字等功能。
 支持 Control (C-), Meta (M-), Shift (S-)的组合键。
 
 #+BEGIN_SRC emacs-lisp
@@ -80,7 +80,8 @@ Emacs Rime 已发布到 Melpa 。
     '("C-f" "C-b" "C-n" "C-p" "C-g"))
 #+END_SRC
 
-* 候选框展示风格
+* 样式设置
+** 候选框展示风格
 
 设置 ~rime-show-candidate~ 。
 
@@ -118,7 +119,21 @@ Emacs Rime 已发布到 Melpa 。
 #+end_src
 支持的内容参照 [[https://github.com/tumashu/posframe/blob/master/posframe.el#L212][posframe]] 。
 
-* 临时英文模式的切换
+** 设置软光标的样式
+
+默认使用 ~|~ 字符做为软光标，可以通过如下方式修改。
+
+#+BEGIN_SRC emacs-lisp
+  (setq rime-cursor "˰")
+#+END_SRC
+
+颜色可通过 ~rime-cursor-face~ 设置。
+
+** 设置嵌入文本的样式
+
+可通过 ~rime-preedit-face~ 设置。
+
+* 临时英文模式
 如果使用模式编辑，或是在一些特定的场景下需要自动使用英文，可以设
 置~rime-disable-predicates~ ， ~rime-disable-predicates~ 的值是一个断言列表，
 当其中有任何一个断言的值 **不是** nil 时，会自动使用英文。
@@ -223,20 +238,6 @@ Emacs Rime 已发布到 Melpa 。
   (define-key rime-mode-map (kbd "M-j") 'rime-force-enable)
 #+end_src
 
-* 设置软光标的样式
-
-默认使用 ~|~ 字符做为软光标，可以通过如下方式修改。
-
-#+BEGIN_SRC emacs-lisp
-  (setq rime-cursor "˰")
-#+END_SRC
-
-颜色可通过 ~rime-cursor-face~ 设置。
-
-* 设置嵌入文本的样式
-
-可通过 ~rime-preedit-face~ 设置。
-
 * 在 minibuffer 使用后自动关闭输入法
 
 默认行为为自动关闭，设置 ~rime-deactivate-when-exit-minibuffer~ 为 nil 取消该行为。
@@ -250,7 +251,9 @@ Emacs Rime 已发布到 Melpa 。
 
 * 打开 Rime 的配置文件
 
-使用 ~rime-open-configuration~ 打开配置文件。
+使用 ~rime-open-configuration~ 打开自定义配置文件。
+
+使用 ~rime-open-schema~ 打开一个方案的自定义配置文件。
 
 * FAQ
 
