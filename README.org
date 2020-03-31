@@ -217,12 +217,15 @@ Use ~rime-open-configuration~.
 
 * FAQ
 
-** How to get Emacs with dynamic module support?
+#+html: <details>
+#+html: <summary><b>How to get Emacs with dynamic module support?</b></summary><br/>
 
-**** Linux
+- **Linux**
+
 Emacs included in major linux distributions has dynamic module support enabled by default.
 
-**** MacOS
+- **MacOS**
+
 ~emacs-plus~ enables dynamic modules support by default. homebrew installation:
 #+BEGIN_SRC shell
 brew tap d12frosted/emacs-plus
@@ -235,17 +238,23 @@ brew tap railwaycat/emacsmacport
 brew install emacs-mac --with-modules
 #+END_SRC
 
-**** Compile Emacs 26 manually
+- **Compile Emacs 26 manually**
 
 Use ~--with-modules~ option.
 
-** Can't find rime_api.h when compile
+#+html: </details>
+
+#+html: <details>
+#+html: <summary><b>Can't find rime_api.h when compile</b></summary><br/>
 
 You *MUST* specify ~rime-librime-root~ in this case.
 
 Check Installation for how to set.
 
-** Can't find emacs-module.h when compile
+#+html: </details>
+
+#+html: <details>
+#+html: <summary><b>Can't find emacs-module.h when compile</b></summary><br/>
 
 If you build Emacs by yourself and does not install to standard location,
 you *MUST* specify ~rime-emacs-module-header-root~.
@@ -257,6 +266,86 @@ Put following in the ~:custom~ section.
 #+BEGIN_SRC emacs-lisp
 (rime-emacs-module-header-root "~/emacs/include")
 #+END_SRC
+#+html: </details>
+
+#+html: <details>
+#+html: <summary><b>How to show dynamic ~rime-lighter~ logo in ~doom-modeline~ ?</b></summary><br/>
+
+We need to redefine segment of ~input-method~ , to change it's face properties.
+And then, we also need to modify the properties of ~rime-indicator-face~ and
+~rime-indicator-dim-face~, to be same as the color style of ~doome-modeline~.
+#+BEGIN_SRC emacs-lisp
+  (after! doom-modeline
+    (set-face-attribute 'rime-indicator-face nil
+                        :foreground 'unspecified
+                        :inherit 'doom-modeline-buffer-major-mode)
+    (set-face-attribute 'rime-indicator-dim-face nil
+                        :foreground 'unspecified
+                        :inherit 'doom-modeline-buffer-minor-mode)
+
+    (doom-modeline-def-segment input-method
+      "Define the current input method properties."
+      (propertize (cond (current-input-method
+                         (concat (doom-modeline-spc)
+                                 current-input-method-title
+                                 (doom-modeline-spc)))
+                        ((and (bound-and-true-p evil-local-mode)
+                              (bound-and-true-p evil-input-method))
+                         (concat
+                          (doom-modeline-spc)
+                          (nth 3 (assoc default-input-method input-method-alist))
+                          (doom-modeline-spc)))
+                        (t ""))
+                  'face (if (doom-modeline--active)
+                            (or (get-text-property 0 'face (rime-lighter))
+                                'doom-modeline-buffer-major-mode)
+                          'mode-line-inactive)
+                  'help-echo (concat
+                              "Current input method: "
+                              current-input-method
+                              "\n\
+mouse-2: Disable input method\n\
+mouse-3: Describe current input method")
+                  'mouse-face 'mode-line-highlight
+                  'local-map mode-line-input-method-map)))
+#+END_SRC
+#+html: </details>
+
+#+html: <details>
+#+html: <summary><b>The last item of the candidate box is not displayed?</b></summary><br/>
+
+Few users occasionally have a issue that the last candidate word is not displayed.
+It can be determined that this is related to `posframe`, but the reason has not
+been found. A temporary solution is to append a full-width whitespace to the end of
+the candidate list.
+#+BEGIN_SRC emacs-lisp
+(defun +rime--posframe-display-content-a (args)
+  "Append a full-width whitespace to the input string.
+This can temporarily solve the problem of `posframe` occasionally
+\"eating\" words."
+  (cl-destructuring-bind (content) args
+    (let ((newresult (if (string-blank-p content)
+                         content
+                       (concat content "　"))))
+      (list newresult))))
+
+(if (fboundp 'rime--posframe-display-content)
+    (advice-add 'rime--posframe-display-content
+                :filter-args
+                #'+rime--posframe-display-content-a)
+  (error "Function `rime--posframe-display-content' is not available."))
+#+END_SRC
+
+#+html: </details>
+
+#+html: <details>
+#+html: <summary><b>Want a pure emacs input method without `librime`?</b></summary><br/>
+
+Maybe, you need [[https://github.com/tumashu/pyim][pyim]].
+
+#+html: </details>
+
+#+html: </details>
 
 * Thanks for all the contributors
 
