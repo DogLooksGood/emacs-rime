@@ -8,7 +8,7 @@
 
 Emacs in Rime, support multiple schemas.
 
-* Installation
+* Installation & How to use
 
 ** Requirements
 
@@ -77,6 +77,10 @@ Put following in the ~:custom~ section.
 #+BEGIN_SRC emacs-lisp
 (rime-librime-root "~/.emacs.d/librime/dist")
 #+END_SRC
+
+** Activate input method
+
+To activate Rime, use command ~toggle-input-method~ which is bound to ~C-\~ by default.
 
 * Keybindings in Rime.
 

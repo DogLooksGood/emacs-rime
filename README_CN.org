@@ -69,6 +69,10 @@ Emacs Rime 已发布到 Melpa 。
 (rime-librime-root "~/.emacs.d/librime/dist")
 #+END_SRC
 
+** 激活 Rime 输入法
+
+使用 ~toggle-input-method~ 来激活，默认快捷键为 ~C-\~
+
 * 设置输入中发送到 Rime 的组合键。
 
 通过变量 ~rime-translate-keybindings~ 可以设置哪些组合键将发送至 Rime 。可以用来配合方案中的设置完成光标移动和选字等功能。
