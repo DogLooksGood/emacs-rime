@@ -1,0 +1,33 @@
+name: 'Build on Ubuntu'
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 'Install deps for librime'
+      id: librime-deps
+      run: |
+        sudo apt install git build-essential cmake libboost-all-dev libgoogle-glog-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgtest-dev
+    - name: 'Clone librime source'
+      uses: actions/checkout@v2
+      with:
+        repository: rime/librime
+        path: librime
+    - name: 'Build librime'
+      working-directory: librime
+      run: |
+        make
+        sudo make install
+    - uses: actions/checkout@v2
+    - name: 'Build emacs-rime dynamic module'
+      run: |
+        LIBRIME_ROOT=librime/ make lib
+
