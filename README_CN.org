@@ -12,7 +12,23 @@
 
 *** Linux
 
-通过包管理器来安装 ~librime~ ，在 ~Arch/Manjaro~ 中为 ~librime~ ，在 ~Debian/Ubuntu~ 中为 ~librime-dev~ 。
+**** ArchLinux/Manjaro 
+
+#+begin_src emacs-lisp
+  sudo pacman -S librime
+#+end_src
+
+**** Debian/Ubuntu
+
+请注意 ~librime-dev~ 的版本，如果在1.5.3以下，则需要自行编译。
+
+#+begin_src emacs-lisp
+  sudo apt install git build-essential cmake libboost-all-dev libgoogle-glog-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgtest-dev
+  git clone https://github.com/rime/librime.git ~/.emacs.d/librime
+  cd ~/.emacs.d/librime
+  make
+  sudo make install
+#+end_src
 
 *** MacOS
 

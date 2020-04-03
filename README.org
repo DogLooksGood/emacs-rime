@@ -18,11 +18,27 @@ emacs-rime will build dynamic module automatically.
 
 ** Install librime
 
+
+
 *** Linux
 
-You can install librime with package manager.
+**** ArchLinux/Manjaro
 
-It is named ~librime~ in Arch/Manjaro, and ~librime-dev~ in Debian/Ubuntu, etc.
+#+begin_src emacs-lisp
+  sudo pacman -S librime
+#+end_src
+
+**** Debian/Ubuntu
+
+Check the version of ~librime-dev~ in repositiory, if it's older than 1.5.3, you need compile it from source.
+
+#+begin_src emacs-lisp
+  sudo apt install git build-essential cmake libboost-all-dev libgoogle-glog-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgtest-dev
+  git clone https://github.com/rime/librime.git ~/.emacs.d/librime
+  cd ~/.emacs.d/librime
+  make
+  sudo make install
+#+end_src
 
 *** MacOS
 
