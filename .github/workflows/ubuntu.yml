@@ -16,6 +16,12 @@ jobs:
       id: librime-deps
       run: |
         sudo apt install git build-essential cmake libboost-all-dev libgoogle-glog-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgtest-dev
+    - name: 'Build GTest'
+      working-directory: /usr/src/gtest
+      run: |
+        make CMakeLists.txt
+        make
+        cp *.a /usr/lib
     - name: 'Clone librime source'
       uses: actions/checkout@v2
       with:
