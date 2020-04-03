@@ -130,6 +130,11 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
        (>= rime--current-input-key ?A)
        (<= rime--current-input-key ?Z)))
 
+(defun rime-predicate-org-latex-mode-p ()
+  "If cursor is inside a org-mode's LaTeX fragment, macro or its arguments."
+  (when (eq major-mode 'org-mode)
+    (or (org-inside-LaTeX-fragment-p)
+        (org-inside-latex-macro-p))))
 
 ;; Obsoleted functions:
 (define-obsolete-function-alias 'rime--after-alphabet-char-p 'rime-predicate-after-alphabet-char-p "2020-03-26")
