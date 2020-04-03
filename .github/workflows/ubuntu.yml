@@ -19,9 +19,9 @@ jobs:
     - name: 'Build GTest'
       working-directory: /usr/src/gtest
       run: |
-        cmake CMakeLists.txt
-        make
-        cp *.a /usr/lib
+        sudo cmake CMakeLists.txt
+        sudo make
+        sudo cp *.a /usr/lib
     - name: 'Clone librime source'
       uses: actions/checkout@v2
       with:
