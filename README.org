@@ -4,7 +4,7 @@
 
 [[file:README_CN.org][中文文档(目前更加完善)]]
 
-[[file:https://i.imgur.com/S15IbwJ.gif]]
+[[file:https://i.imgur.com/jHpk7BT.gif]]
 
 Emacs in Rime, support multiple schemas.
 
