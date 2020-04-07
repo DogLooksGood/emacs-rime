@@ -53,14 +53,14 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 
 Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (featurep 'hydra)
-       (bound-and-true-p 'hydra-curr-map)))
+       (bound-and-true-p hydra-curr-map)))
 
 (defun rime-predicate-ace-window-p ()
   "Detect if the `ace-window-mode' is enabled.
 
 Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (featurep 'ace-window)
-       (bound-and-true-p 'ace-window-mode)))
+       (bound-and-true-p ace-window-mode)))
 
 (defun rime-predicate-current-input-punctuation-p ()
   "If the current charactor entered is a punctuation.
