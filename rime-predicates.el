@@ -141,6 +141,13 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (derived-mode-p 'org-mode)
        (org-in-src-block-p)))
 
+(defun rime-predicate-tex-math-p ()
+  "If point is inside a (La)TeX math environment.
+
+Can be used in `rime-disable-predicates'."
+  (and (featurep 'tex-site)
+       (texmathp)))
+
 ;; Obsoleted functions:
 (define-obsolete-function-alias 'rime--after-alphabet-char-p 'rime-predicate-after-alphabet-char-p "2020-03-26")
 (define-obsolete-function-alias 'rime--prog-in-code-p 'rime-predicate-prog-in-code-p "2020-03-26")
