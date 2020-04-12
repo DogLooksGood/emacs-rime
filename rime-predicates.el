@@ -48,6 +48,20 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
            (evil-motion-state-p)
            (evil-operator-state-p))))
 
+(defun rime-predicate-hydra-p ()
+  "Whether a hydra keymap is activated.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
+  (and (featurep 'hydra)
+       (bound-and-true-p hydra-curr-map)))
+
+(defun rime-predicate-ace-window-p ()
+  "Detect if the `ace-window-mode' is enabled.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
+  (and (featurep 'ace-window)
+       (bound-and-true-p ace-window-mode)))
+
 (defun rime-predicate-current-input-punctuation-p ()
   "If the current charactor entered is a punctuation.
 
