@@ -214,6 +214,10 @@ Following is a example to use ascii mode in ~evil-normal-state~ or when cursor i
 
   When entering a uppercase letter.
 
+- ~rime-predicate-tex-math-or-command-p~
+
+  When inside a (La)TeX math environment or entering a (La)TeX command.
+
 #+html: </details>
 
 ** Force enable

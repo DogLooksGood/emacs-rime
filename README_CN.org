@@ -214,6 +214,10 @@ Emacs Rime 已发布到 Melpa 。
 
   将要输入的为大写字母时
 
+- ~rime-predicate-tex-math-or-command-p~
+
+  在 (La)TeX 数学环境中或者输入 (La)TeX 命令时
+
 #+html: </details>
 
 ** 可提示临时英文状态的提示符
