@@ -214,9 +214,9 @@ Emacs Rime 已发布到 Melpa 。
 
   将要输入的为大写字母时
 
-- ~rime-predicate-tex-math-p~
+- ~rime-predicate-tex-math-or-command-p~
 
-  在 (La)TeX 数学环境中时
+  在 (La)TeX 数学环境中或者输入 (La)TeX 命令时
 
 #+html: </details>
 

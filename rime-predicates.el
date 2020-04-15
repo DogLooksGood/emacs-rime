@@ -155,12 +155,29 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (derived-mode-p 'org-mode)
        (org-in-src-block-p)))
 
-(defun rime-predicate-tex-math-p ()
-  "If point is inside a (La)TeX math environment.
+(defun rime-predicate-tex-math-or-command-p ()
+  "If point is inside a (La)TeX math environment, or a (La)TeX command.
 
-Can be used in `rime-disable-predicates'."
-  (and (featurep 'tex-site)
-       (texmathp)))
+Return true if the buffer is in `tex-mode' and one of the following three cases occurs:
+
+  1. The point is inside a (La)TeX math environment;
+  2. The current character is `$' or `\\', either at the beginning of a line, or after an ascii/space.
+  3. The string before the point is of the form a (La)TeX command. If the command have a parameter, it is closed by `}' or `%'. If not, it is closed by a space or `%'.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
+  (and (derived-mode-p 'tex-mode)
+       (or (and (featurep 'tex-site)
+                (texmathp))
+           (and rime--current-input-key
+                (or (= #x24 rime--current-input-key)
+                    (= #x5c rime--current-input-key))
+                (or (= (point) (line-beginning-position))
+                    (= #x20 (char-before))
+                    (rime-predicate-after-ascii-char-p)))
+           (and (> (point) (save-excursion (back-to-indentation) (point)))
+                (let ((string (buffer-substring (point) (max (line-beginning-position) (- (point) 80)))))
+                  (or (string-match-p "[\x5c][\x21-\x24\x26-\x7e]*$" string)
+                      (string-match-p "[\x5c][a-zA-Z\x23\x40]+[\x7b][^\x7d\x25]*$" string)))))))
 
 ;; Obsoleted functions:
 (define-obsolete-function-alias 'rime--after-alphabet-char-p 'rime-predicate-after-alphabet-char-p "2020-03-26")
