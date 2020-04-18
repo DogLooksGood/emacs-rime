@@ -153,6 +153,17 @@ Emacs Rime 已发布到 Melpa 。
 
 可通过 ~rime-preedit-face~ 设置。
 
+** 编码的展示形式
+
+设置 ~rime-show-preedit~, 可选值有
+| 可选值 | 说明         |
+|--------+--------------|
+| ~t~      | 展示在菜单中 |
+| ~inline~ | 替换上屏预览 |
+| ~nil~    | 不展示       |
+
+注意：使用 ~inline~ 或 ~nil~ 将不再展示软光标。
+
 * 临时英文模式
 如果使用模式编辑，或是在一些特定的场景下需要自动使用英文，可以设
 置~rime-disable-predicates~ ， ~rime-disable-predicates~ 的值是一个断言列表，

@@ -4,7 +4,7 @@
 ;; Author: Shi Tianshu
 ;; Keywords: convenience, input-method
 ;; Package-Requires: ((emacs "26.3") (dash "2.12.0") (cl-lib "0.6.1") (popup "0.5.3") (posframe "0.1.0"))
-;; Version: 1.0.1
+;; Version: 1.0.2
 ;; URL: https://www.github.com/DogLooksGood/emacs-rime
 ;;
 ;; This file is not part of GNU Emacs.
@@ -138,6 +138,8 @@
 (require 'popup nil t)
 (require 'posframe nil t)
 
+(defconst rime-version "1.0.3")
+
 (defface rime-preedit-face
   '((((class color) (background dark))
      (:inverse-video t))
@@ -209,6 +211,17 @@ Background and default foreground can be set in face `rime-default-face'."
 (defface rime-candidate-num-face
   '((t (:inherit font-lock-comment-face)))
   "Face for the number before each candidate, not available in `message' and `popup'."
+  :group 'rime)
+
+(defcustom rime-show-preedit t
+  "If display preedit in candidate menu.
+
+Options:
+t, display in candidate menu, default behavior.
+inline, display in inline text, replacing commit text preview.
+nil, don't display."
+  :type 'symbol
+  :options '(t inline nil)
   :group 'rime)
 
 (defcustom rime-librime-root nil
@@ -464,27 +477,30 @@ Currently just deactivate input method."
          (idx 1)
          (result ""))
     (when (and (rime--has-composition context) candidates)
-      (when preedit
-        (setq result (concat (propertize
-                              (concat before-cursor)
-                              'face 'rime-code-face)
-                             (propertize
-                              (concat rime-cursor)
-                              'face 'rime-cursor-face)
-                             (propertize
-                              (concat after-cursor)
-                              'face 'rime-code-face))))
-      (when (and page-no (not (zerop page-no)))
-        (setq result (concat result (format "  [%d]" (1+ page-no)))))
+      (when (eq t rime-show-preedit)
+        (when preedit
+          (setq result (concat (propertize
+                                (concat before-cursor)
+                                'face 'rime-code-face)
+                               (propertize
+                                (concat rime-cursor)
+                                'face 'rime-cursor-face)
+                               (propertize
+                                (concat after-cursor)
+                                'face 'rime-code-face))))
+        (when (and page-no (not (zerop page-no)))
+          (setq result (concat result (format "  [%d]" (1+ page-no)))))
 
-      (setq result (concat result (rime--candidate-prefix-char)))
+        (setq result (concat result (rime--candidate-prefix-char))))
 
       (dolist (c candidates)
-        (let ((candidates-text (concat
+        (let* ((curr (equal (1- idx) highlighted-candidate-index))
+               (candidates-text (concat
                                 (propertize
                                  (format "%d. " idx)
-                                 'face 'rime-candidate-num-face)
-                                (if (equal (1- idx) highlighted-candidate-index)
+                                 'face
+                                 'rime-candidate-num-face)
+                                (if curr
                                    (propertize (car c) 'face 'rime-highlight-candidate-face)
                                  (propertize (car c) 'face 'rime-default-face))
                                 (if-let (comment (cdr c))
@@ -527,7 +543,11 @@ the car is keyCode, the cdr is mask."
 
 (defun rime--display-preedit ()
   "Display inline preedit."
-  (let ((preedit (alist-get 'commit-text-preview (rime-lib-get-context))))
+  (let ((preedit (if (eq rime-show-preedit 'inline)
+                     (thread-last (rime-lib-get-context)
+                       (alist-get 'composition)
+                       (alist-get 'preedit))
+                   (alist-get 'commit-text-preview (rime-lib-get-context)))))
     ;; Always delete the old overlay.
     (rime--clear-overlay)
     ;; Create the new preedit
@@ -757,16 +777,14 @@ Argument NAME ignored."
     (rime-mode 1)
 
     (setq-local input-method-function 'rime-input-method)
-    (setq-local deactivate-current-input-method-function #'rime-deactivate)
-    (message "Rime activate.")))
+    (setq-local deactivate-current-input-method-function #'rime-deactivate)))
 
 (defun rime-deactivate ()
   "Deactivate rime."
   (rime--clear-state)
   (dolist (hook rime--hooks-for-clear-state)
     (remove-hook hook 'rime--clear-state t))
-  (rime-mode -1)
-  (message "Rime deactivate."))
+  (rime-mode -1))
 
 (defvar rime-active-mode-map
   (let ((keymap (make-sparse-keymap)))

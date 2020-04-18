@@ -280,6 +280,23 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
 }
 
 emacs_value
+version(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
+  return STRING("1.0.2");
+}
+
+
+emacs_value
+set_cursor_pos(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
+    EmacsRime *rime = (EmacsRime*) data;
+    int pos = env->extract_integer(env, args[0]);
+
+    rime->api->set_caret_pos(rime->session_id, pos);
+
+    return nil;
+}
+
+
+emacs_value
 clear_composition(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
   EmacsRime *rime = (EmacsRime*) data;
 
@@ -438,6 +455,8 @@ emacs_module_init (struct emacs_runtime *ert)
   t = REF("t");
   /* Make functions */
 
+  emacs_defun(env, rime, version, "rime-lib-version", "Version", 0, 0);
+  emacs_defun(env, rime, set_cursor_pos, "rime-lib-set-cursor-pos", "Set Cursor Pos", 1, 1);
   emacs_defun(env, rime, start, "rime-lib-start", "Start", 2, 2);
   emacs_defun(env, rime, finalize, "rime-lib-finalize", "Finalize", 0, 0);
   emacs_defun(env, rime, sync_user_data, "rime-lib-sync-user-data", "Sync user data.", 0, 0);
