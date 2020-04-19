@@ -12,7 +12,7 @@
 
 *** Linux
 
-**** ArchLinux/Manjaro 
+**** ArchLinux/Manjaro
 
 #+begin_src emacs-lisp
   sudo pacman -S librime
@@ -185,6 +185,14 @@ Emacs Rime 已发布到 Melpa 。
 - ~rime-predicate-evil-mode-p~
 
   在 ~evil-mode~ 的非编辑状态下
+
+- ~rime-predicate-ace-window-p~
+
+  激活 ~ace-window-mode~
+
+- ~rime-predicate-hydra-p~
+
+  如果激活了一个 ~hydra~ keymap
 
 - ~rime-predicate-current-input-punctuation-p~
 
