@@ -186,6 +186,14 @@ Following is a example to use ascii mode in ~evil-normal-state~ or when cursor i
 
   In the non-editing state of ~evil-mode~.
 
+- ~rime-predicate-ace-window-p~
+
+  If the ~ace-window-mode~ is activated.
+
+- ~rime-predicate-hydra-p~
+
+  If a ~hydra~ keymap is activated.
+
 - ~rime-predicate-current-input-punctuation-p~
 
   When entering punctuation.
