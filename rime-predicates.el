@@ -1,5 +1,5 @@
-;;; rime-predicates.el --- Predicates for emacs-rime to automatic input Chinese/English.
-;;; cnsunyour/chinese/rime-predicates.el -*- lexical-binding: t; -*-
+;;; rime-predicates.el --- Predicates for emacs-rime to automatic input Chinese/English. -*- lexical-binding: t; -*-
+;;; cnsunyour/chinese/rime-predicates.el
 
 
 ;;; Commentary:
