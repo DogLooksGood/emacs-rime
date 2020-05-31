@@ -305,7 +305,9 @@ Defaults to `user-emacs-directory'/rime/"
                   (xdg-data-dirs)
                 '("/usr/share/local" "/usr/share"))))
     ('darwin
-     "/Library/Input Methods/Squirrel.app/Contents/SharedSupport"))
+     "/Library/Input Methods/Squirrel.app/Contents/SharedSupport")
+    ('windows-nt
+     (concat (getenv "MSYSTEM_PREFIX") "/share/rime-data")))
   "Rime share data directory."
   :type 'string
   :group 'rime)

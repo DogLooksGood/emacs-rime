@@ -56,7 +56,7 @@ The easiest way to build librime-emacs on Windows is via [[msys2.org][msys2]].
 
 #+begin_src bash
   pacman -S pactoys base-devel
-  pacboy -S librime:x emacs:x toolchain:x
+  pacboy -S librime:x librime-data:x rime-pinyin-simp:x emacs:x toolchain:x
 #+end_src
 
 Start emacs from mingw64's environment to get the correct =SHELL= environment variable for building librime-emacs inside Emacs and =MSYSTEM_PREFIX= for specifying the ~rime-share-data-dir~ variable.
