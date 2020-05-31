@@ -42,7 +42,7 @@
 
 *** Windows
 
-在 Windows 下构建 librime-emacs 的最简单的方法是使用 [[msys2.org][msys2]] 。
+在 Windows 下构建 librime-emacs 的最简单的方法是使用 [[https://www.msys2.org/][msys2]] 。
 
 #+begin_src bash
   pacman -S pactoys base-devel

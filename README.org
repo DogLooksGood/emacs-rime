@@ -52,7 +52,7 @@ You can download the release.
 
 *** Windows
 
-The easiest way to build librime-emacs on Windows is via [[msys2.org][msys2]].
+The easiest way to build librime-emacs on Windows is via [[https://www.msys2.org/][msys2]].
 
 #+begin_src bash
   pacman -S pactoys base-devel
