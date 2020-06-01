@@ -46,7 +46,8 @@
 
 #+begin_src bash
   pacman -S pactoys base-devel
-  pacboy -S librime:x librime-data:x rime-pinyin-simp:x emacs:x toolchain:x
+  pacboy -S librime:x librime-data:x emacs:x toolchain:x
+  ln -s /mingw64/share/opencc/* /mingw64/share/rime-data/opencc # Fix the Simplified Chinese input
 #+end_src
 
 在 mingw64 环境中启动 emacs 来获取正确的 =SHELL= 环境变量，用来在 Emacs 内构建 librime-emacs 以及  =MSYSTEM_PREFIX= 环境变量来设置 ~rime-share-data-dir~ 变量。
