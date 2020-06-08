@@ -472,3 +472,6 @@ patch:
 - [[https://github.com/wsw0108][wsw0108]]
 - [[https://github.com/HesperusArcher][HesperusArcher]]
 - [[https://github.com/longminwang][longminwang]]
+- [[https://github.com/chuxubank][chuxubank]]
+- [[https://github.com/jixiuf][jixiuf]]
+- [[https://github.com/cireu][cireu]]
