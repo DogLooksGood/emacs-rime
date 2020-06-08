@@ -109,7 +109,7 @@ Emacs Rime 已发布到 Melpa 。
 #+BEGIN_SRC emacs-lisp
   ;; 默认值
   (setq rime-translate-keybindings
-    '("C-f" "C-b" "C-n" "C-p" "C-g"))
+    '("C-f" "C-b" "C-n" "C-p" "C-g" "<left>" "<right>" "<up>" "<down>" "<prior>" "<next>" "<delete>"))
 #+END_SRC
 
 * 样式设置

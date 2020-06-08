@@ -120,7 +120,7 @@ Currently the keybinding with Control(C-), Meta(M-) and Shift(S-) is supported.
 #+BEGIN_SRC emacs-lisp
   ;; defaults
   (setq rime-translate-keybindings
-    '("C-f" "C-b" "C-n" "C-p" "C-g"))
+    '("C-f" "C-b" "C-n" "C-p" "C-g" "<left>" "<right>" "<up>" "<down>" "<prior>" "<next>" "<delete>"))
 #+END_SRC
 
 * Candidate menu style

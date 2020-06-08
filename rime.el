@@ -353,7 +353,7 @@ Defaults to `user-emacs-directory'/rime/"
   "The title of input method.")
 
 (defvar rime-translate-keybindings
-  '("C-f" "C-b" "C-n" "C-p" "C-g")
+  '("C-f" "C-b" "C-n" "C-p" "C-g" "<left>" "<right>" "<up>" "<down>" "<prior>" "<next>" "<delete>")
   "A list of keybindings those sent to Rime during composition.
 
 Currently only Shift, Control, Meta is supported as modifiers.
@@ -665,8 +665,22 @@ By default the input-method will not handle DEL, so we need this command."
   "Send key event to librime."
   (interactive)
   (let* ((parsed (rime--parse-key-event last-input-event))
-         (key (car parsed))
+         (key-raw (car parsed))
+         (key (if (numberp key-raw)
+                  key-raw
+                (case key-raw
+                  (home #xff50)
+                  (left #xff51)
+                  (up #xff52)
+                  (right #xff53)
+                  (down #xff54)
+                  (prior #xff55)
+                  (next #xff56)
+                  (delete #xffff)
+                  (t key-raw))))
          (mask (cdr parsed)))
+    (unless (numberp key)
+      (error "Can't send this keybinding to librime"))
     (rime-lib-process-key key mask)
     (rime--redisplay)
     (rime--refresh-mode-state)))
