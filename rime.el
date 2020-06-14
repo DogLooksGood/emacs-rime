@@ -223,6 +223,8 @@ nil, don't display."
   :options '(t inline nil)
   :group 'rime)
 
+
+
 (defcustom rime-librime-root nil
   "The path to the directory of librime.
 
@@ -318,6 +320,11 @@ Defaults to `user-emacs-directory'/rime/"
 (defvar rime--module-path
   (concat rime--root "librime-emacs" module-file-suffix)
   "The path to the dynamic module.")
+
+(defcustom rime-inline-ascii-holder nil
+  "A character that used to hold the inline ascii mode.
+
+When inline ascii is triggered, this characeter will be inserted as the beginning of composition, the origin character follows. Then this character will be deleted.")
 
 (defcustom rime-inline-ascii-trigger 'shift-l
   "How to trigger into inline ascii mode."
@@ -638,28 +645,39 @@ By default the input-method will not handle DEL, so we need this command."
     (if (and (not (rime--should-enable-p))
              (not (rime--has-composition (rime-lib-get-context))))
         (list key)
-      (let ((handled (rime-lib-process-key key 0)))
-        (with-silent-modifications
-          (let* ((context (rime-lib-get-context))
-                 (commit-text-preview (alist-get 'commit-text-preview context))
-                 (preedit (thread-last context
-                            (alist-get 'composition)
-                            (alist-get 'preedit)))
-                 (commit (rime-lib-get-commit)))
-            (unwind-protect
-                (cond
-                 ((not handled)
-                  (list key))
-                 (commit
-                  (rime--clear-overlay)
-                  (mapcar 'identity commit))
-                 (t
-                  (when (and (rime--should-inline-ascii-p)
-                             commit-text-preview
-                             (not (rime--ascii-mode-p)))
-                    (rime--inline-ascii))
-                  (rime--redisplay)))
-              (rime--refresh-mode-state))))))))
+      (let ((should-inline-ascii (rime--should-inline-ascii-p))
+            (inline-ascii-prefix nil))
+        (when (and should-inline-ascii rime-inline-ascii-holder
+                   (string-blank-p (rime-lib-get-input)))
+          (rime-lib-process-key rime-inline-ascii-holder 0)
+          (rime--inline-ascii)
+          (setq inline-ascii-prefix t))
+        (let ((handled (rime-lib-process-key key 0)))
+          (with-silent-modifications
+            (let* ((context (rime-lib-get-context))
+                   (commit-text-preview (alist-get 'commit-text-preview context))
+                   (preedit (thread-last context
+                              (alist-get 'composition)
+                              (alist-get 'preedit)))
+                   (commit (rime-lib-get-commit)))
+              (unwind-protect
+                  (cond
+                   ((not handled)
+                    (list key))
+                   (commit
+                    (rime--clear-overlay)
+                    (mapcar 'identity commit))
+                   (t
+                    (when should-inline-ascii
+                      (if (and (not (rime--ascii-mode-p))
+                               commit-text-preview)
+                          (rime--inline-ascii)
+                        (when inline-ascii-prefix
+                          (rime-lib-set-cursor-pos 1)
+                          (rime-lib-process-key 65288 0)
+                          (rime-lib-set-cursor-pos 1))))
+                    (rime--redisplay)))
+                (rime--refresh-mode-state)))))))))
 
 (defun rime-send-keybinding ()
   "Send key event to librime."
