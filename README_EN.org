@@ -1,8 +1,6 @@
 #+TITLE: Emacs Rime
 
-[[https://melpa.org/#/rime][file:https://melpa.org/packages/rime-badge.svg]]
-
-[[https://stable.melpa.org/#/rime][file:https://stable.melpa.org/packages/rime-badge.svg]]
+[[https://melpa.org/#/rime][file:https://melpa.org/packages/rime-badge.svg]] [[https://stable.melpa.org/#/rime][file:https://stable.melpa.org/packages/rime-badge.svg]]
 
 [[file:https://i.imgur.com/jHpk7BT.gif]]
 
