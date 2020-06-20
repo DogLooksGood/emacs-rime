@@ -223,7 +223,10 @@ nil, don't display."
   :options '(t inline nil)
   :group 'rime)
 
-
+(defcustom rime-posframe-fixed-position nil
+  "Use a fixed position for posframe candidate."
+  :type :boolean
+  :group 'rime)
 
 (defcustom rime-librime-root nil
   "The path to the directory of librime.
@@ -424,16 +427,40 @@ Currently just deactivate input method."
     (deactivate-input-method)
     (remove-hook 'minibuffer-exit-hook 'rime--minibuffer-deactivate)))
 
+(defun rime--string-pixel-width (string)
+  "Get the pixel width for STRING."
+  (let ((window (selected-window))
+        (remapping face-remapping-alist))
+    (with-temp-buffer
+      (make-local-variable 'face-remapping-alist)
+      (setq face-remapping-alist remapping)
+      (set-window-buffer window (current-buffer))
+      (insert string)
+      (let ((p (point-min))
+            (w 0))
+        (while (< p (point-max))
+          (setq w (+ w (aref (aref (font-get-glyphs (font-at p) p (1+ p)) 0) 4)))
+          (setq p (1+ p)))
+        w))))
+
 (defun rime--posframe-display-content (content)
   "Display CONTENT with posframe."
   (if (and (featurep 'posframe) (display-graphic-p))
       (if (string-blank-p content)
           (posframe-hide rime-posframe-buffer)
-        (apply #'posframe-show rime-posframe-buffer
-               :string content
-               :background-color (face-attribute 'rime-default-face :background nil t)
-               :foreground-color (face-attribute 'rime-default-face :foreground nil t)
-               rime-posframe-properties))
+        (let*
+            ((preedit (rime--current-preedit))
+             (x (cond
+                 ((not rime-posframe-fixed-position) 0)
+                 ((not preedit) 0)
+                 ((not (overlayp rime--preedit-overlay)) 0)
+                 (t (rime--string-pixel-width preedit)))))
+          (apply #'posframe-show rime-posframe-buffer
+                 :string content
+                 :x-pixel-offset (- x)
+                 :background-color (face-attribute 'rime-default-face :background nil t)
+                 :foreground-color (face-attribute 'rime-default-face :foreground nil t)
+                 rime-posframe-properties)))
     ;; Fallback to popup when not available.
     (rime--popup-display-content content)))
 
@@ -549,13 +576,16 @@ the car is keyCode, the cdr is mask."
     (delete-overlay rime--preedit-overlay)
     (setq rime--preedit-overlay nil)))
 
+(defun rime--current-preedit ()
+  (if (eq rime-show-preedit 'inline)
+      (thread-last (rime-lib-get-context)
+        (alist-get 'composition)
+        (alist-get 'preedit))
+    (alist-get 'commit-text-preview (rime-lib-get-context))))
+
 (defun rime--display-preedit ()
   "Display inline preedit."
-  (let ((preedit (if (eq rime-show-preedit 'inline)
-                     (thread-last (rime-lib-get-context)
-                       (alist-get 'composition)
-                       (alist-get 'preedit))
-                   (alist-get 'commit-text-preview (rime-lib-get-context)))))
+  (let ((preedit (rime--current-preedit)))
     ;; Always delete the old overlay.
     (rime--clear-overlay)
     ;; Create the new preedit
