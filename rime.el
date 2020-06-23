@@ -308,7 +308,7 @@ Defaults to `user-emacs-directory'/rime/"
                     dir)))
               (if (fboundp 'xdg-data-dirs)
                   (xdg-data-dirs)
-                '("/usr/share/local" "/usr/share"))))
+                '("/usr/local/share" "/usr/share"))))
     ('darwin
      "/Library/Input Methods/Squirrel.app/Contents/SharedSupport")
     ('windows-nt
