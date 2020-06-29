@@ -37,14 +37,21 @@
 #+end_src
 
 *** MacOS
-
-直接下载编译好的 Release 。
+1. 先安装[[https://rime.im/download/][鼠须管]]，里面有输入法方案。
+2. 然后直接下载编译好的librime的Release版本。
 
 #+BEGIN_SRC bash
-  wget https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
+  curl -OJ  https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
   unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
   rm -rf rime-1.5.3-osx.zip
 #+END_SRC
+
+如果MacOS Gatekeeper阻止第三方软件运行，可以暂时关闭它：
+
+#+begin_src bash
+  sudo spctl --master-disable
+  # later: sudo spctl --master-enable
+#+end_src
 
 *** Windows
 
