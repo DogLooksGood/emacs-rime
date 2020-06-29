@@ -16,3 +16,4 @@
 
 # ccls cache directory
 .ccls-cache
+*.eln
