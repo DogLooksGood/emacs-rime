@@ -37,14 +37,21 @@ Check the version of ~librime-dev~ in repositiory, if it's older than 1.5.3, you
 #+end_src
 
 *** MacOS
-
-You can download the release.
+1. First of all, make sure you have installed [[https://rime.im/download/][Squirrel]], the MacOS Rime client.
+2. Then download the librime release.
 
 #+BEGIN_SRC bash
-  wget https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
+  curl -OJ  https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
   unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
   rm -rf rime-1.5.3-osx.zip
 #+END_SRC
+
+If the MacOS Gatekeeper blocks the librime executable, you can disable it temporarily with:
+
+#+begin_src bash
+  sudo spctl --master-disable
+  # later: sudo spctl --master-enable
+#+end_src
 
 *** Windows
 
