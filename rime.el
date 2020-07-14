@@ -339,6 +339,12 @@ When inline ascii is triggered, this characeter will be inserted as the beginnin
   :type 'string
   :group 'rime)
 
+(defcustom rime-with-evil-escape nil
+  "Set to non-nil to activate integrate with `evil-escape'.
+NOTE Use it carefully, because this will abort all editing contents."
+  :type 'boolean
+  :group 'rime)
+
 (defvar-local rime--preedit-overlay nil
   "Overlay on preedit.")
 
@@ -721,6 +727,10 @@ Mainly from `evil-escape-pre-command-hook'"
   ;; (when (and (featurep 'evil-escape) (evil-escape-p))
   (when (featurep 'evil-escape)
     (let* (
+           ;; NOTE Add syl20bnr/evil-escape#91: inhibit redisplay and
+           ;;      refontification after a `read-event'.
+           (inhibit-redisplay nil)
+           (fontification-functions nil)
            (fkey (elt evil-escape-key-sequence 0))
            (skey (elt evil-escape-key-sequence 1))
            (evt (read-event nil nil evil-escape-delay))
@@ -883,7 +893,7 @@ Argument NAME ignored."
     (rime-mode 1)
 
     (setq-local input-method-function 'rime-input-method)
-    (when (featurep 'evil-escape)
+    (when (and (featurep 'evil-escape) rime-with-evil-escape)
       (advice-add 'rime-input-method :around #'rime-evil-escape-advice))
     (setq-local deactivate-current-input-method-function #'rime-deactivate)))
 
