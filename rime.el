@@ -339,12 +339,6 @@ When inline ascii is triggered, this characeter will be inserted as the beginnin
   :type 'string
   :group 'rime)
 
-(defcustom rime-with-evil-escape nil
-  "Set to non-nil to activate integrate with `evil-escape'.
-NOTE Use it carefully, because this will abort all editing contents."
-  :type 'boolean
-  :group 'rime)
-
 (defvar-local rime--preedit-overlay nil
   "Overlay on preedit.")
 
@@ -719,49 +713,6 @@ By default the input-method will not handle DEL, so we need this command."
                     (rime--redisplay)))
                 (rime--refresh-mode-state)))))))))
 
-;; make rime work with evil-escape
-;;;###autoload
-(defun rime-evil-escape-advice (orig-fun key)
-  "advice for `rime-input-method' to make it work together with `evil-escape'.
-Mainly from `evil-escape-pre-command-hook'"
-  ;; (when (and (featurep 'evil-escape) (evil-escape-p))
-  (when (featurep 'evil-escape)
-    (let* (
-           ;; NOTE Add syl20bnr/evil-escape#91: inhibit redisplay and
-           ;;      refontification after a `read-event'.
-           (inhibit-redisplay nil)
-           (fontification-functions nil)
-           (fkey (elt evil-escape-key-sequence 0))
-           (skey (elt evil-escape-key-sequence 1))
-           (evt (read-event nil nil evil-escape-delay))
-           )
-      (cond
-       ((and (characterp evt)
-             (or (and (char-equal key fkey) (char-equal evt skey))
-                 (and evil-escape-unordered-key-sequence
-                      (char-equal key skey) (char-equal evt fkey))))
-        (evil-repeat-stop)
-        ;; need 2 escape: one escapes from input method, the other one escapes from else
-        ;; TODO better escape logic
-        (rime--escape)
-        (evil-normal-state)
-        (let ((esc-fun (evil-escape-func)))
-              (when esc-fun
-                (setq this-command esc-fun)
-                (setq this-original-command esc-fun))))
-       ((null evt) (apply orig-fun (list key)))
-       (t
-        ;; (setq
-        ;;  unread-post-input-method-events
-        ;;       (append unread-post-input-method-events (list evt))
-        ;;       unread-command-events
-        ;;       (append unread-command-events (list evt)))
-          (apply orig-fun (list key))
-          (apply orig-fun (list evt)))))))
-
-
-
-
 (defun rime-send-keybinding ()
   "Send key event to librime."
   (interactive)
@@ -893,8 +844,6 @@ Argument NAME ignored."
     (rime-mode 1)
 
     (setq-local input-method-function 'rime-input-method)
-    (when (and (featurep 'evil-escape) rime-with-evil-escape)
-      (advice-add 'rime-input-method :around #'rime-evil-escape-advice))
     (setq-local deactivate-current-input-method-function #'rime-deactivate)))
 
 (defun rime-deactivate ()
