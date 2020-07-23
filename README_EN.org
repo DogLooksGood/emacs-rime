@@ -343,14 +343,14 @@ This can temporarily solve the problem of `posframe` occasionally
 #+html: </details>
 
 #+html: <details>
-#+html: <summary><b>Want a pure emacs input method without ~librime~?</b></summary><br/>
+#+html: <summary><b>Want a pure emacs input method without <code>librime</code>?</b></summary><br/>
 
 Maybe, you need [[https://github.com/tumashu/pyim][pyim]].
 
 #+html: </details>
 
 #+html: <details>
-#+html: <summary><b>How to integrate this with ~evil-escape~?</b></summary>
+#+html: <summary><b>How to integrate this with <code>evil-escape</code>?</b></summary>
 
 Add the following code snippet in your configuration files, then you can use [[https://github.com/syl20bnr/evil-escape][evil-escape]]
 to return to normal state when having nothing in editing(no preedit overlay).
