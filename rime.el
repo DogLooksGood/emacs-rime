@@ -745,6 +745,11 @@ By default the input-method will not handle DEL, so we need this command."
   (rime--show-candidate)
   (rime--refresh-mode-state))
 
+(defun rime--clear-state-before-unrelated-command ()
+  "Clear state if this command is unrelated to rime."
+  (unless (string-prefix-p "rime-" (symbol-name this-command))
+    (rime--clear-state)))
+
 (defun rime--refresh-mode-state ()
   "Toggle variable `rime-active-mode' based on if context is available."
   (if (rime--has-composition (rime-lib-get-context))
@@ -893,12 +898,14 @@ Argument NAME ignored."
 
 (defun rime-active-mode--init ()
   "Init for command `rime-active-mode'."
+  (add-hook 'pre-command-hook #'rime--clear-state-before-unrelated-command t t)
   (cl-case major-mode
     (vterm-mode (rime--init-hook-vterm))
     (t (rime--init-hook-default))))
 
 (defun rime-active-mode--uninit ()
   "Uninit for command `rime-active-mode'."
+  (remove-hook 'pre-command-hook #'rime--clear-state-before-unrelated-command t)
   (cl-case major-mode
     (vterm-mode (rime--uninit-hook-vterm))
     (t (rime--uninit-hook-default))))
