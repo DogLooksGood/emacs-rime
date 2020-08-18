@@ -131,6 +131,7 @@
 
 ;;; Code:
 
+(require 'seq)
 (require 'subr-x)
 (require 'dash)
 (require 'cl-lib)
