@@ -155,6 +155,10 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (derived-mode-p 'org-mode)
        (org-in-src-block-p)))
 
+(defun rime-predicate-in-code-string ()
+  "Whether point is in the code string(not comment string)."
+  (eq (plist-get (text-properties-at (point)) 'face) 'font-lock-string-face))
+
 (defun rime-predicate-tex-math-or-command-p ()
   "If point is inside a (La)TeX math environment, or a (La)TeX command.
 
