@@ -41,7 +41,7 @@ Check the version of ~librime-dev~ in repositiory, if it's older than 1.5.3, you
 2. Then download the librime release.
 
 #+BEGIN_SRC bash
-  curl -OJ  https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
+  curl -L -O  https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
   unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
   rm -rf rime-1.5.3-osx.zip
 #+END_SRC
