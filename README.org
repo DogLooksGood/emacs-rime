@@ -218,6 +218,10 @@ Emacs Rime 已发布到 Melpa 。
 
   在 ~prog-mode~ 和 ~conf-mode~ 中除了注释和引号内字符串之外的区域
 
+- ~rime-predicate-in-code-string-p~
+
+  在代码的字符串中，不含注释的字符串。
+
 - ~rime-predicate-evil-mode-p~
 
   在 ~evil-mode~ 的非编辑状态下

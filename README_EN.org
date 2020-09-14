@@ -197,6 +197,10 @@ Following is a example to use ascii mode in ~evil-normal-state~ or when cursor i
 
   On ~prog-mode~ and ~conf-mode~, not in comments and quotes.
 
+- ~rime-predicate-in-code-string-p~
+
+  In the code string(not comment string).
+
 - ~rime-predicate-evil-mode-p~
 
   In the non-editing state of ~evil-mode~.

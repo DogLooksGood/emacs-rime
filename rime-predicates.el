@@ -155,7 +155,7 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (and (derived-mode-p 'org-mode)
        (org-in-src-block-p)))
 
-(defun rime-predicate-in-code-string ()
+(defun rime-predicate-in-code-string-p ()
   "Whether point is in the code string(not comment string)."
   (eq (plist-get (text-properties-at (point)) 'face) 'font-lock-string-face))
 
