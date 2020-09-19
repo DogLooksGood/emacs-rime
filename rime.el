@@ -164,6 +164,20 @@
   "Face for mode-line indicator when input-method is temporarily disabled."
   :group 'rime)
 
+(defcustom rime-popup-properties
+  (list :margin 1)
+  "Properties for popup."
+  :group 'rime)
+
+(defcustom rime-popup-style 'horizontal
+  "Display style when using popup.
+
+`simple', preedit and candidate list in a single line.
+`horizontal', list candidates in a single line.'
+`vertical', display candidates in multiple lines."
+  :options '(simple horizontal vertical)
+  :group 'rime)
+
 (defcustom rime-posframe-properties
   (list :internal-border-width 10)
   "Properties for posframe.
@@ -399,7 +413,7 @@ Each keybinding in this list, will be bound to `rime-send-keybinding' in `rime-a
           (popup-delete rime--popup)
           (setq rime--popup nil))
         (unless (string-blank-p content)
-          (setq rime--popup (popup-tip content :nowait t))))
+          (setq rime--popup (apply #'popup-tip content :nowait t rime-popup-properties))))
     ;; Fallback to popup when not available.
     (rime--minibuffer-display-content content)))
 
@@ -482,18 +496,25 @@ Currently just deactivate input method."
 
 (defun rime--candidate-prefix-char ()
   "Character used to separate preedit and candidates."
-  (if (and (eq 'posframe rime-show-candidate)
-           (or (eq 'horizontal rime-posframe-style)
-               (eq 'vertical rime-posframe-style))
-           (not (minibufferp)))
+  (if (or (and (eq 'popup rime-show-candidate)
+            (or (eq 'horizontal rime-popup-style)
+                (eq 'vertical rime-popup-style))
+            (not (minibufferp)))
+      (and (eq 'posframe rime-show-candidate)
+            (or (eq 'horizontal rime-posframe-style)
+                (eq 'vertical rime-posframe-style))
+            (not (minibufferp))))
       "\n"
     " "))
 
 (defun rime--candidate-separator-char ()
   "Character used to spereate each candidate."
-  (if (and (eq 'posframe rime-show-candidate)
+  (if (or (and (eq 'popup rime-show-candidate)
+                  (eq 'vertical rime-popup-style)
+                  (not (minibufferp)))
+        (and (eq 'posframe rime-show-candidate)
            (eq 'vertical rime-posframe-style)
-           (not (minibufferp)))
+           (not (minibufferp))))
       "\n"
     " "))
 
