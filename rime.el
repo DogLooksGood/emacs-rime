@@ -742,7 +742,7 @@ By default the input-method will not handle DEL, so we need this command."
          (key-raw (car parsed))
          (key (if (numberp key-raw)
                   key-raw
-                (case key-raw
+                (cl-case key-raw
                   (home #xff50)
                   (left #xff51)
                   (up #xff52)
