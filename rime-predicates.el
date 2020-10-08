@@ -159,6 +159,12 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   "Whether point is in the code string(not comment string)."
   (eq (plist-get (text-properties-at (point)) 'face) 'font-lock-string-face))
 
+(defun rime-predicate-in-code-string-after-ascii-p ()
+  "Whether point is in the code string and after a ascii character."
+  (and
+   (eq (plist-get (text-properties-at (point)) 'face) 'font-lock-string-face)
+   (rime-predicate-after-ascii-char-p)))
+
 (defun rime-predicate-tex-math-or-command-p ()
   "If point is inside a (La)TeX math environment, or a (La)TeX command.
 
