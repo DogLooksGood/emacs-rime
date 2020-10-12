@@ -704,6 +704,7 @@ By default the input-method will not handle DEL, so we need this command."
       (let ((should-inline-ascii (rime--should-inline-ascii-p))
             (inline-ascii-prefix nil))
         (when (and should-inline-ascii rime-inline-ascii-holder
+                   (not (equal 32 rime--current-input-key))
                    (string-blank-p (rime-lib-get-input)))
           (rime-lib-process-key rime-inline-ascii-holder 0)
           (rime--inline-ascii)
