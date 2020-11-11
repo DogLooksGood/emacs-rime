@@ -694,12 +694,20 @@ By default the input-method will not handle DEL, so we need this command."
   (rime--inline-ascii)
   (rime--redisplay))
 
+(defun rime--text-read-only-p ()
+  "Return t if the text at point is read-only."
+  (and (or buffer-read-only
+           (get-char-property (point) 'read-only))
+       (not (or inhibit-read-only
+		(get-char-property (point) 'inhibit-read-only)))))
+
 (defun rime-input-method (key)
   "Process KEY with input method."
   (setq rime--current-input-key key)
   (when (rime--rime-lib-module-ready-p)
-    (if (and (not (rime--should-enable-p))
-             (not (rime--has-composition (rime-lib-get-context))))
+    (if (or (rime--text-read-only-p)
+            (and (not (rime--should-enable-p))
+                 (not (rime--has-composition (rime-lib-get-context)))))
         (list key)
       (let ((should-inline-ascii (rime--should-inline-ascii-p))
             (inline-ascii-prefix nil))
