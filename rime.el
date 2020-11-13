@@ -888,7 +888,8 @@ Argument NAME ignored."
   (rime--clear-state)
   (dolist (hook rime--hooks-for-clear-state)
     (remove-hook hook 'rime--clear-state t))
-  (rime-mode -1))
+  (rime-mode -1)
+  (kill-local-variable 'input-method-function))
 
 (defvar rime-active-mode-map
   (let ((keymap (make-sparse-keymap)))
