@@ -752,6 +752,7 @@ By default the input-method will not handle DEL, so we need this command."
          (key (if (numberp key-raw)
                   key-raw
                 (cl-case key-raw
+                  (tab #xff09)
                   (home #xff50)
                   (left #xff51)
                   (up #xff52)
