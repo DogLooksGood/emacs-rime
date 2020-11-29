@@ -779,7 +779,8 @@ By default the input-method will not handle DEL, so we need this command."
 
 (defun rime--clear-state-before-unrelated-command ()
   "Clear state if this command is unrelated to rime."
-  (unless (or (string-prefix-p "rime-" (symbol-name this-command))
+  (unless (or (not (symbolp this-command))
+              (string-prefix-p "rime-" (symbol-name this-command))
               (string-match-p "self-insert" (symbol-name this-command)))
     (rime--clear-state)))
 
