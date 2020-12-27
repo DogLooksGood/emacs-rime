@@ -26,6 +26,10 @@ emacs-rime will build dynamic module automatically.
 
 **** Debian/Ubuntu
 
+#+begin_src emacs-lisp
+  sudo apt install librime-dev
+#+end_src
+
 Check the version of ~librime-dev~ in repositiory, if it's older than 1.5.3, you need compile it from source.
 
 #+begin_src emacs-lisp
@@ -363,7 +367,7 @@ to return to normal state when having nothing in editing(no preedit overlay).
     "advice for `rime-input-method' to make it work together with `evil-escape'.
 	Mainly modified from `evil-escape-pre-command-hook'"
     (if rime--preedit-overlay
-	;; if `rime--preedit-overlay' is non-nil, then we are editing something, do not abort 
+	;; if `rime--preedit-overlay' is non-nil, then we are editing something, do not abort
 	(apply orig-fun (list key))
       (when (featurep 'evil-escape)
 	(let* (
@@ -402,4 +406,14 @@ to return to normal state when having nothing in editing(no preedit overlay).
 - [[https://github.com/chuxubank][chuxubank]]
 - [[https://github.com/jixiuf][jixiuf]]
 - [[https://github.com/cireu][cireu]]
-
+- [[https://github.com/ilupin][ilupin]]
+- [[https://github.com/dwuggh][dwuggh]]
+- [[https://github.com/zilongshanren][zilongshanren]]
+- [[https://github.com/zhmars][zhmars]]
+- [[https://github.com/syohex][syohex]]
+- [[https://github.com/pmeiyu][pmeiyu]]
+- [[https://github.com/p1uxtar][p1uxtar]]
+- [[https://github.com/gemone][gemone]]
+- [[https://github.com/casouri][casouri]]
+- [[https://github.com/Tubo][Tubo]]
+- [[https://github.com/Eason0210][Eason0210]]
