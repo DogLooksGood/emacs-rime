@@ -140,6 +140,10 @@
 
 (defconst rime-version "1.0.3")
 
+(defgroup rime nil
+  "Custom group for emacs-rime."
+  :group 'rime-module)
+
 (defface rime-preedit-face
   '((((class color) (background dark))
      (:inverse-video t))
@@ -167,6 +171,7 @@
 (defcustom rime-popup-properties
   (list :margin 1)
   "Properties for popup."
+  :type 'list
   :group 'rime)
 
 (defcustom rime-popup-style 'horizontal
@@ -175,6 +180,7 @@
 `simple', preedit and candidate list in a single line.
 `horizontal', list candidates in a single line.'
 `vertical', display candidates in multiple lines."
+  :type 'symbol
   :options '(simple horizontal vertical)
   :group 'rime)
 
@@ -183,6 +189,7 @@
   "Properties for posframe.
 
 Background and default foreground can be set in face `rime-default-face'."
+  :type 'list
   :group 'rime)
 
 (defcustom rime-posframe-style 'horizontal
@@ -191,6 +198,7 @@ Background and default foreground can be set in face `rime-default-face'."
 `simple', preedit and candidate list in a single line.
 `horizontal', list candidates in a single line.'
 `vertical', display candidates in multiple lines."
+  :type 'symbol
   :options '(simple horizontal vertical)
   :group 'rime)
 
@@ -285,7 +293,9 @@ Will be reset to nil when symbol `rime-active-mode' is disabled.")
   "A list of predicate functions, each receive no argument.
 
 When one of functions in `rime-disable-predicates' return t, and
-one of these functions return t, the input-method will toggle to inline mode.")
+one of these functions return t, the input-method will toggle to inline mode."
+  :type 'list
+  :group 'rime)
 
 (defcustom rime-disable-predicates nil
   "A list of predicate functions, each receive no argument.
@@ -342,10 +352,13 @@ Defaults to `user-emacs-directory'/rime/"
 (defcustom rime-inline-ascii-holder nil
   "A character that used to hold the inline ascii mode.
 
-When inline ascii is triggered, this characeter will be inserted as the beginning of composition, the origin character follows. Then this character will be deleted.")
+When inline ascii is triggered, this characeter will be inserted as the beginning of composition, the origin character follows. Then this character will be deleted."
+  :type 'char
+  :group 'rime)
 
 (defcustom rime-inline-ascii-trigger 'shift-l
   "How to trigger into inline ascii mode."
+  :type 'symbol
   :options '(shift-l shift-r control-l control-r alt-l alt-r)
   :group 'rime)
 
@@ -523,17 +536,16 @@ Currently just deactivate input method."
   (let* ((context (rime-lib-get-context))
          (candidates (alist-get 'candidates (alist-get 'menu context)))
          (composition (alist-get 'composition context))
-         (length (alist-get 'length composition))
          (preedit (alist-get 'preedit composition))
-         (commit-text-preview (alist-get 'commit-text-preview context))
-         (cursor-pos (alist-get 'cursor-pos composition))
          (before-cursor (alist-get 'before-cursor composition))
          (after-cursor (alist-get 'after-cursor composition))
-         (sel-start (alist-get 'sel-start composition))
-         (sel-end (alist-get 'sel-end composition))
+         ;; (commit-text-preview (alist-get 'commit-text-preview context))
+         ;; (cursor-pos (alist-get 'cursor-pos composition))
+         ;; (sel-start (alist-get 'sel-start composition))
+         ;; (sel-end (alist-get 'sel-end composition))
+         ;; (input (rime-lib-get-input))
          (menu (alist-get 'menu context))
          (highlighted-candidate-index (alist-get 'highlighted-candidate-index menu))
-         (input (rime-lib-get-input))
          (page-no (alist-get 'page-no menu))
          (idx 1)
          (result ""))
@@ -632,7 +644,7 @@ the car is keyCode, the cdr is mask."
 If module is loaded, `rime-lib-clear-composition' should be available."
   (fboundp 'rime-lib-clear-composition))
 
-(defun rime--redisplay (&rest ignores)
+(defun rime--redisplay (&rest _ignores)
   "Display inline preedit and candidates.
 Optional argument IGNORES ignored."
   (rime--display-preedit)
@@ -721,9 +733,9 @@ By default the input-method will not handle DEL, so we need this command."
           (with-silent-modifications
             (let* ((context (rime-lib-get-context))
                    (commit-text-preview (alist-get 'commit-text-preview context))
-                   (preedit (thread-last context
-                              (alist-get 'composition)
-                              (alist-get 'preedit)))
+                   ;; (preedit (thread-last context
+                   ;;            (alist-get 'composition)
+                   ;;            (alist-get 'preedit)))
                    (commit (rime-lib-get-commit)))
               (unwind-protect
                   (cond
@@ -863,7 +875,7 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
       (error "Activate Rime failed"))))
 
 ;;;###autoload
-(defun rime-activate (name)
+(defun rime-activate (_name)
   "Activate rime.
 Argument NAME ignored."
   (unless rime--lib-loaded
@@ -924,12 +936,14 @@ Argument NAME ignored."
 (defun rime--init-hook-vterm ()
   "Rime initialize for vterm-mode."
   (advice-add 'vterm--redraw :after 'rime--redisplay)
-  (define-key vterm-mode-map (kbd "<backspace>") 'rime--backspace))
+  (when (bound-and-true-p vterm-mode-map)
+    (define-key vterm-mode-map (kbd "<backspace>") 'rime--backspace)))
 
 (defun rime--uninit-hook-vterm ()
   "Rime finalize for vterm-mode."
   (advice-add 'vterm--redraw :after 'rime--redisplay)
-  (define-key vterm-mode-map (kbd "<backspace>") 'vterm-send-backspace))
+  (when (bound-and-true-p vterm-mode-map)
+    (define-key vterm-mode-map (kbd "<backspace>") 'vterm-send-backspace)))
 
 (defun rime-active-mode--init ()
   "Init for command `rime-active-mode'."
