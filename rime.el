@@ -235,11 +235,6 @@ Background and default foreground can be set in face `rime-default-face'."
   "Face for the number before each candidate, not available in `message' and `popup'."
   :group 'rime)
 
-(defcustom rime-candidate-num-format "%d. "
-  "Format for the number before each candidate, not available in `message' and `popup'."
-  :type 'string
-  :group 'rime)
-
 (defcustom rime-show-preedit t
   "If display preedit in candidate menu.
 
@@ -536,6 +531,10 @@ Currently just deactivate input method."
       "\n"
     " "))
 
+(defun rime--candidate-num-format (num)
+  "Format for the number before each candidate."
+  (format "%d. " num))
+
 (defun rime--build-candidate-content ()
   "Build candidate menu content from librime context."
   (let* ((context (rime-lib-get-context))
@@ -575,7 +574,7 @@ Currently just deactivate input method."
         (let* ((curr (equal (1- idx) highlighted-candidate-index))
                (candidates-text (concat
                                 (propertize
-                                 (format rime-candidate-num-format idx)
+                                 (rime--candidate-num-format idx)
                                  'face
                                  'rime-candidate-num-face)
                                 (if curr
