@@ -423,6 +423,14 @@ Each keybinding in this list, will be bound to `rime-send-keybinding' in `rime-a
     (erase-buffer)
     (insert content)))
 
+(defun rime--message-display-content (content)
+  "Display CONTENT via message."
+  (let ((message-log-max nil))
+    (save-window-excursion
+      (with-temp-message
+          content
+        (sit-for most-positive-fixnum)))))
+
 (defun rime--popup-display-content (content)
   "Display CONTENT with popup.el."
   (if (featurep 'popup)
@@ -507,7 +515,7 @@ Currently just deactivate input method."
       (rime--minibuffer-message content)
     (cl-case rime-show-candidate
       (minibuffer (rime--minibuffer-display-content content))
-      (message (message content))
+      (message (rime--message-display-content content))
       (popup (rime--popup-display-content content))
       (posframe (rime--posframe-display-content content))
       (t (progn)))))
