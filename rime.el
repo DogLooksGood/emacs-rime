@@ -648,12 +648,14 @@ the car is keyCode, the cdr is mask."
       (setq rime--preedit-overlay (make-overlay (point) (point)))
       (overlay-put rime--preedit-overlay
                    'after-string (propertize preedit 'face
-                                             (cons 'rime-preedit-face
-                                                   (plist-get (text-properties-at
-                                                               (if (> (point) 1)
-                                                                   (1- (point))
-                                                                 (point)))
-                                                              'face)))))))
+                                             (if (derived-mode-p 'org-mode 'markdown-mode)
+                                                 'rime-preedit-face
+                                               (cons 'rime-preedit-face
+                                                     (plist-get (text-properties-at
+                                                                 (if (> (point) 1)
+                                                                     (1- (point))
+                                                                   (point)))
+                                                                'face))))))))
 
 (defun rime--rime-lib-module-ready-p ()
   "Return if dynamic module is loaded.
