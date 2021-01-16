@@ -868,20 +868,25 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
 
 (defun rime--build-compile-env ()
   "Build compile env string."
-  (concat
-   (if (not rime-librime-root) ""
-     (format "LIBRIME_ROOT=%s " (file-name-as-directory (expand-file-name rime-librime-root))))
-   (if (not rime-emacs-module-header-root) ""
-     (format "EMACS_MODULE_HEADER_ROOT=%s " (file-name-as-directory (expand-file-name rime-emacs-module-header-root))))
-   (if (not module-file-suffix) (error "Variable `module-file-suffix' is nil")
-     (format "MODULE_FILE_SUFFIX=%s " module-file-suffix))))
+  (if (not module-file-suffix)
+      (error "Variable `module-file-suffix' is nil")
+    (list
+     (if rime-librime-root
+         (format "LIBRIME_ROOT=%s" (file-name-as-directory (expand-file-name rime-librime-root))))
+     (if rime-emacs-module-header-root
+         (format "EMACS_MODULE_HEADER_ROOT=%s" (file-name-as-directory (expand-file-name rime-emacs-module-header-root))))
+     (format "MODULE_FILE_SUFFIX=%s" module-file-suffix))))
 
 (defun rime-compile-module ()
   "Compile dynamic module."
   (interactive)
-  (let ((env (rime--build-compile-env)))
-    (if (zerop (shell-command
-                (format "cd %s; env %s make lib" rime--root env)))
+  (let ((env (rime--build-compile-env))
+        (process-environment process-environment)
+        (default-directory rime--root))
+    (cl-loop for pair in env
+             when pair
+             do (add-to-list 'process-environment pair))
+    (if (zerop (shell-command "make lib"))
         (message "Compile succeed!")
       (error "Compile Rime dynamic module failed"))))
 
