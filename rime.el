@@ -350,7 +350,10 @@ Defaults to `user-emacs-directory'/rime/"
     ('darwin
      "/Library/Input Methods/Squirrel.app/Contents/SharedSupport")
     ('windows-nt
-     (concat (or (getenv "MSYSTEM_PREFIX") (getenv "LIBRIME_ROOT")) "/share/rime-data")))
+     (if (getenv "MSYSTEM_PREFIX")
+         (concat (getenv "MSYSTEM_PREFIX") "/share/rime-data")
+       (if (getenv "LIBRIME_ROOT")
+           (expand-file-name (concat (getenv "LIBRIME_ROOT") "/share/rime-data"))))))
   "Rime share data directory."
   :type 'string
   :group 'rime)
