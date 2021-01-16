@@ -57,6 +57,18 @@ If the MacOS Gatekeeper blocks the librime executable, you can disable it tempor
   # later: sudo spctl --master-enable
 #+end_src
 
+*** Windows(scoop)
+
+To build librime-emacs automatically, you can install build dependencies through [scoop](https://scoop.sh).
+
+#+begin_src powershell
+  scoop install gcc
+  scoop bucket add wsw0108 https://github.com/wsw0108/scoop-bucket.git
+  scoop install librime
+#+end_src
+
+Then start emacs normally.
+
 *** Windows
 
 The easiest way to build librime-emacs on Windows is via [[https://www.msys2.org/][msys2]].

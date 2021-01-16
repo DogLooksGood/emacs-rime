@@ -264,10 +264,18 @@ Otherwise you should set this to where you put librime."
   :type 'string
   :group 'rime)
 
-(defcustom rime-emacs-module-header-root
-  (let ((module-header (expand-file-name "emacs-module.h" (concat source-directory "src/"))))
-    (when (file-exists-p module-header)
-      (file-name-directory module-header)))
+(defun rime--guess-emacs-module-header-root ()
+  "Guess `emacs-module-module-header-root' from some known places."
+  (or
+   (let ((module-header (expand-file-name "emacs-module.h" (concat source-directory "src/"))))
+     (when (file-exists-p module-header)
+       (file-name-directory module-header)))
+   (let* ((emacs-dir (getenv "emacs_dir")) ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Misc-Variables.html
+          (header-file (expand-file-name "emacs-module.h" (concat emacs-dir "/include/"))))
+     (when (and emacs-dir (file-exists-p header-file))
+       (file-name-directory header-file)))))
+
+(defcustom rime-emacs-module-header-root (rime--guess-emacs-module-header-root)
   "The path to the directory of Emacs module header file.
 
 Leave it nil if you using Emacs shipped with your system.
@@ -342,7 +350,7 @@ Defaults to `user-emacs-directory'/rime/"
     ('darwin
      "/Library/Input Methods/Squirrel.app/Contents/SharedSupport")
     ('windows-nt
-     (concat (getenv "MSYSTEM_PREFIX") "/share/rime-data")))
+     (concat (or (getenv "MSYSTEM_PREFIX") (getenv "LIBRIME_ROOT")) "/share/rime-data")))
   "Rime share data directory."
   :type 'string
   :group 'rime)
