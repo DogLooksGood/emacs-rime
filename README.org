@@ -57,6 +57,18 @@
   # later: sudo spctl --master-enable
 #+end_src
 
+*** Windows(scoop)
+
+可以使用[https://scoop.sh](https://scoop.sh)来安装自动构建所需的依赖。
+
+#+begin_src powershell
+  scoop install gcc
+  scoop bucket add wsw0108 https://github.com/wsw0108/scoop-bucket.git
+  scoop install librime
+#+end_src
+
+然后正常启动 emacs 即可。
+
 *** Windows
 
 在 Windows 下构建 librime-emacs 的最简单的方法是使用 [[https://www.msys2.org/][msys2]] 。

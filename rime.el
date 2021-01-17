@@ -264,10 +264,18 @@ Otherwise you should set this to where you put librime."
   :type 'string
   :group 'rime)
 
-(defcustom rime-emacs-module-header-root
-  (let ((module-header (expand-file-name "emacs-module.h" (concat source-directory "src/"))))
-    (when (file-exists-p module-header)
-      (file-name-directory module-header)))
+(defun rime--guess-emacs-module-header-root ()
+  "Guess `emacs-module-module-header-root' from some known places."
+  (or
+   (let ((module-header (expand-file-name "emacs-module.h" (concat source-directory "src/"))))
+     (when (file-exists-p module-header)
+       (file-name-directory module-header)))
+   (let* ((emacs-dir (getenv "emacs_dir")) ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Misc-Variables.html
+          (header-file (expand-file-name "emacs-module.h" (concat emacs-dir "/include/"))))
+     (when (and emacs-dir (file-exists-p header-file))
+       (file-name-directory header-file)))))
+
+(defcustom rime-emacs-module-header-root (rime--guess-emacs-module-header-root)
   "The path to the directory of Emacs module header file.
 
 Leave it nil if you using Emacs shipped with your system.
@@ -342,7 +350,10 @@ Defaults to `user-emacs-directory'/rime/"
     ('darwin
      "/Library/Input Methods/Squirrel.app/Contents/SharedSupport")
     ('windows-nt
-     (concat (getenv "MSYSTEM_PREFIX") "/share/rime-data")))
+     (if (getenv "MSYSTEM_PREFIX")
+         (concat (getenv "MSYSTEM_PREFIX") "/share/rime-data")
+       (if (getenv "LIBRIME_ROOT")
+           (expand-file-name (concat (getenv "LIBRIME_ROOT") "/share/rime-data"))))))
   "Rime share data directory."
   :type 'string
   :group 'rime)
@@ -868,20 +879,25 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
 
 (defun rime--build-compile-env ()
   "Build compile env string."
-  (concat
-   (if (not rime-librime-root) ""
-     (format "LIBRIME_ROOT=%s " (file-name-as-directory (expand-file-name rime-librime-root))))
-   (if (not rime-emacs-module-header-root) ""
-     (format "EMACS_MODULE_HEADER_ROOT=%s " (file-name-as-directory (expand-file-name rime-emacs-module-header-root))))
-   (if (not module-file-suffix) (error "Variable `module-file-suffix' is nil")
-     (format "MODULE_FILE_SUFFIX=%s " module-file-suffix))))
+  (if (not module-file-suffix)
+      (error "Variable `module-file-suffix' is nil")
+    (list
+     (if rime-librime-root
+         (format "LIBRIME_ROOT=%s" (file-name-as-directory (expand-file-name rime-librime-root))))
+     (if rime-emacs-module-header-root
+         (format "EMACS_MODULE_HEADER_ROOT=%s" (file-name-as-directory (expand-file-name rime-emacs-module-header-root))))
+     (format "MODULE_FILE_SUFFIX=%s" module-file-suffix))))
 
 (defun rime-compile-module ()
   "Compile dynamic module."
   (interactive)
-  (let ((env (rime--build-compile-env)))
-    (if (zerop (shell-command
-                (format "cd %s; env %s make lib" rime--root env)))
+  (let ((env (rime--build-compile-env))
+        (process-environment process-environment)
+        (default-directory rime--root))
+    (cl-loop for pair in env
+             when pair
+             do (add-to-list 'process-environment pair))
+    (if (zerop (shell-command "make lib"))
         (message "Compile succeed!")
       (error "Compile Rime dynamic module failed"))))
 
