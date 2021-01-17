@@ -59,7 +59,7 @@ If the MacOS Gatekeeper blocks the librime executable, you can disable it tempor
 
 *** Windows(scoop)
 
-To build librime-emacs automatically, you can install build dependencies through [scoop](https://scoop.sh).
+To build librime-emacs automatically, you can install build dependencies through [[https://scoop.sh][scoop]].
 
 #+begin_src powershell
   scoop install gcc

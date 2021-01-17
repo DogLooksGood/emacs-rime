@@ -59,7 +59,7 @@
 
 *** Windows(scoop)
 
-可以使用[https://scoop.sh](https://scoop.sh)来安装自动构建所需的依赖。
+可以使用 [[https://scoop.sh][scoop]] 来安装自动构建所需的依赖。
 
 #+begin_src powershell
   scoop install gcc
