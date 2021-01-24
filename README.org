@@ -353,7 +353,7 @@ Emacs Rime 已发布到 Melpa 。
 #+html: <details>
 #+html: <summary>如何获得支持动态模块的 Emacs</summary>
 **** Linux
-Linux 各主要发行版自带 emacs 默认已启用动态模块支持。
+Linux 各主要发行版自带 emacs 默认已启用动态模块支持。注：Fedora 需要安装  `emacs-devel`，OpenSUSE 需要安装 `emacs-el`。
 
 **** MacOS
 ***** emacs-plus 默认启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下：
