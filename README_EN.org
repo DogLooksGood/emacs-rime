@@ -20,25 +20,50 @@ emacs-rime will build dynamic module automatically.
 
 **** ArchLinux/Manjaro
 
-#+begin_src emacs-lisp
+#+begin_src bash
   sudo pacman -S librime
 #+end_src
 
 **** Debian/Ubuntu
 
-#+begin_src emacs-lisp
+#+begin_src bash
   sudo apt install librime-dev
 #+end_src
 
 Check the version of ~librime-dev~ in repositiory, if it's older than 1.5.3, you need compile it from source.
 
-#+begin_src emacs-lisp
+#+begin_src bash
   sudo apt install git build-essential cmake libboost-all-dev libgoogle-glog-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgtest-dev
   git clone https://github.com/rime/librime.git ~/.emacs.d/librime
   cd ~/.emacs.d/librime
   make
   sudo make install
 #+end_src
+
+**** Fedora
+
+#+begin_src bash
+  sudo dnf install librime
+#+end_src
+
+Required module `emacs-module.h` is included in package `emacs-devel`
+
+#+begin_src bash
+  sudo dnf install emacs-devel
+#+end_src
+
+**** openSUSE
+
+#+begin_src bash
+  sudo dnf install librime
+#+end_src
+
+Required module `emacs-module.h` is included in package `emacs-el`
+
+#+begin_src bash
+  sudo dnf install emacs-el
+#+end_src
+
 
 *** MacOS
 1. First of all, make sure you have installed [[https://rime.im/download/][Squirrel]], the MacOS Rime client.
@@ -322,6 +347,8 @@ Check Installation for how to set.
 
 #+html: <details>
 #+html: <summary><b>Can't find emacs-module.h when compile</b></summary><br/>
+
+If you are using a system based on RPM, you will need to install extra dependencies. For Fedora, you will need `emacs-devel`; for openSUSE, you will need `emacs-el`.
 
 If you build Emacs by yourself and does not install to standard location,
 you *MUST* specify ~rime-emacs-module-header-root~.
