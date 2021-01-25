@@ -30,6 +30,18 @@
   sudo apt install librime-dev
 #+end_src
 
+**** Fedora
+
+#+begin_src emacs-lisp
+  sudo dnf install librime-devel
+#+end_src
+
+**** openSUSE
+
+#+begin_src emacs-lisp
+  sudo zypper in librime-devel
+#+end_src
+
 请注意 ~librime-dev~ 的版本，如果在1.5.3以下，则需要自行编译。
 
 #+begin_src emacs-lisp
