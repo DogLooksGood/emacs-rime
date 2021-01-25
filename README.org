@@ -20,24 +20,48 @@
 
 **** ArchLinux/Manjaro
 
-#+begin_src emacs-lisp
+#+begin_src bash
   sudo pacman -S librime
 #+end_src
 
 **** Debian/Ubuntu
 
-#+begin_src emacs-lisp
+#+begin_src bash
   sudo apt install librime-dev
 #+end_src
 
 请注意 ~librime-dev~ 的版本，如果在1.5.3以下，则需要自行编译。
 
-#+begin_src emacs-lisp
+#+begin_src bash
   sudo apt install git build-essential cmake libboost-all-dev libgoogle-glog-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgtest-dev
   git clone https://github.com/rime/librime.git ~/.emacs.d/librime
   cd ~/.emacs.d/librime
   make
   sudo make install
+#+end_src
+
+**** Fedora
+
+#+begin_src bash
+  sudo dnf install librime
+#+end_src
+
+需求的`emacs-module.h`在`emacs-devel`包中
+
+#+begin_src bash
+  sudo dnf install emacs-devel
+#+end_src
+
+**** openSUSE
+
+#+begin_src bash
+  sudo dnf install librime
+#+end_src
+
+需求的`emacs-module.h`在`emacs-el`包中
+
+#+begin_src bash
+  sudo dnf install emacs-el
 #+end_src
 
 *** MacOS
@@ -382,6 +406,8 @@ brew install emacs-mac --with-modules
 
 #+html: <details>
 #+html: <summary>编译时无法找到 emacs-module.h</summary>
+
+如果是系统为rpm系，需先安装对应包含了`emacs-module.h`的包，Fedora需安装`emacs-devel`，openSUSE需安装`emacs-el`
 
 如果自己编译 Emacs 且没有安装到标准目录（/usr/, /usr/local/），
 *必须* 指定 ~rime-emacs-module-header-root~ 。
