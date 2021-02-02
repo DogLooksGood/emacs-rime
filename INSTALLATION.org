@@ -73,8 +73,6 @@
       scoop install librime
     #+end_src
 
-    然后正常启动 emacs 即可。
-
 **** 使用 msys2
 
     使用 [[https://www.msys2.org/][msys2]] 构建所需的依赖。
