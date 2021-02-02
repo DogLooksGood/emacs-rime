@@ -32,6 +32,18 @@
        sudo make install
      #+end_src
 
+**** Fedora
+
+     #+begin_src emacs-lisp
+       sudo dnf install librime emacs-devel
+     #+end_src
+
+**** openSUSE
+
+     #+begin_src emacs-lisp
+       sudo dnf install librime emacs-el
+     #+end_src
+
 *** MacOS
     1. 先安装[[https://rime.im/download/][鼠须管]]，里面有输入法方案。
     2. 然后直接下载编译好的librime的Release版本。
