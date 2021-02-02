@@ -41,7 +41,7 @@
 **** openSUSE
 
      #+begin_src emacs-lisp
-       sudo dnf install librime emacs-el
+       sudo zypper install librime-devel emacs-el
      #+end_src
 
 *** MacOS
