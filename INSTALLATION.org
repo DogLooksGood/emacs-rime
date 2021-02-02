@@ -1,0 +1,125 @@
+#+title: Emacs Rime 安装与使用方法
+
+** 依赖
+
+   - Emacs 26.1+ ，且需启用动态支持模块。
+
+   - emacs-rime 会自动构建所需的动态模块，这需要 ~make~ 和 ~gcc~ 可用。
+
+** 安装 librime
+
+*** Linux
+
+**** ArchLinux/Manjaro
+
+     #+begin_src emacs-lisp
+       sudo pacman -S librime
+     #+end_src
+
+**** Debian/Ubuntu
+
+     #+begin_src emacs-lisp
+       sudo apt install librime-dev
+     #+end_src
+
+     请注意 ~librime-dev~ 的版本，如果在1.5.3以下，则需要自行编译。
+
+     #+begin_src emacs-lisp
+       sudo apt install git build-essential cmake libboost-all-dev libgoogle-glog-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgtest-dev
+       git clone https://github.com/rime/librime.git ~/.emacs.d/librime
+       cd ~/.emacs.d/librime
+       make
+       sudo make install
+     #+end_src
+
+*** MacOS
+    1. 先安装[[https://rime.im/download/][鼠须管]]，里面有输入法方案。
+    2. 然后直接下载编译好的librime的Release版本。
+
+    #+BEGIN_SRC bash
+      curl -OJ  https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
+      unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
+      rm -rf rime-1.5.3-osx.zip
+    #+END_SRC
+
+    如果MacOS Gatekeeper阻止第三方软件运行，可以暂时关闭它：
+
+    #+begin_src bash
+      sudo spctl --master-disable
+      # later: sudo spctl --master-enable
+    #+end_src
+
+*** Windows
+
+**** 使用 scoop
+
+    可以使用 [[https://scoop.sh][scoop]] 来安装自动构建所需的依赖。
+
+    #+begin_src powershell
+      scoop install gcc
+      scoop bucket add wsw0108 https://github.com/wsw0108/scoop-bucket.git
+      scoop install librime
+    #+end_src
+
+    然后正常启动 emacs 即可。
+
+**** 使用 msys2
+
+    使用 [[https://www.msys2.org/][msys2]] 构建所需的依赖。
+
+    #+begin_src bash
+      pacman -S pactoys base-devel
+      pacboy -S librime:x librime-data:x emacs:x toolchain:x
+      ln -s /mingw64/share/opencc/* /mingw64/share/rime-data/opencc # Fix the Simplified Chinese input
+    #+end_src
+
+    在 mingw64 环境中启动 emacs 来获取正确的 =SHELL= 环境变量，用来在 Emacs 内构建 librime-emacs 以及  =MSYSTEM_PREFIX= 环境变量来设置 ~rime-share-data-dir~ 变量。
+
+** 最小配置
+
+   Emacs Rime 已发布到 Melpa 。
+
+   #+begin_src emacs-lisp
+     (use-package rime
+       :custom
+       (default-input-method "rime"))
+   #+end_src
+
+   #+html: <details>
+   #+html: <summary>使用 Straight</summary>
+   #+BEGIN_SRC emacs-lisp
+     (use-package rime
+       :straight (rime :type git
+                       :host github
+                       :repo "DogLooksGood/emacs-rime"
+                       :files ("*.el" "Makefile" "lib.c"))
+       :custom
+       (default-input-method "rime"))
+   #+END_SRC
+   #+html: </details>
+
+   #+html: <details>
+   #+html: <summary>使用 Quelpa</summary>
+   #+BEGIN_SRC emacs-lisp
+     (use-package rime
+       :quelpa (rime :fetcher github
+                     :repo "DogLooksGood/emacs-rime"
+                     :files ("*.el" "Makefile" "lib.c"))
+       :custom
+       (default-input-method "rime"))
+   #+END_SRC
+   #+html: </details>
+
+   *NOTE* 如果你在 MacOS 上或是选择自己编译 librime （没有放在系统路径中）， *必须* 指定 ~rime-librime-root~ 。
+
+   在 ~:custom~ 中加入如下内容.
+
+   (假设将 librime 解压到了 ~/.emacs.d/librime)
+
+   #+BEGIN_SRC emacs-lisp
+     (rime-librime-root "~/.emacs.d/librime/dist")
+   #+END_SRC
+
+** 激活 Rime 输入法
+
+   使用 ~toggle-input-method~ 来激活，默认快捷键为 ~C-\~
