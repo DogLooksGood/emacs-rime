@@ -47,11 +47,12 @@
 *** MacOS
     1. First of all, make sure you have installed [[https://rime.im/download/][Squirrel]], the MacOS Rime client.
     2. Then download the librime release.
+    3. If you upgrade Squirrel in future, please check its [[https://github.com/rime/squirrel/blob/master/CHANGELOG.md][CHANGELOG]] and upgrade librime to a matching version.
 
     #+BEGIN_SRC bash
-      curl -L -O  https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
-      unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
-      rm -rf rime-1.5.3-osx.zip
+      curl -L -O https://github.com/rime/librime/releases/download/1.7.1/rime-1.7.1-osx.zip
+      unzip rime-1.7.1-osx.zip -d ~/.emacs.d/librime
+      rm -rf rime-1.7.1-osx.zip
     #+END_SRC
 
     If the MacOS Gatekeeper blocks the librime executable, you can disable it temporarily with:

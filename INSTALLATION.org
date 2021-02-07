@@ -47,11 +47,12 @@
 *** MacOS
     1. 先安装[[https://rime.im/download/][鼠须管]]，里面有输入法方案。
     2. 然后直接下载编译好的librime的Release版本。
+    3. 如果后续安装了鼠须管的升级版本，请查阅它的[[https://github.com/rime/squirrel/blob/master/CHANGELOG.md][更新日志]]，将librime也升级到相匹配的版本。
 
     #+BEGIN_SRC bash
-      curl -OJ  https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
-      unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
-      rm -rf rime-1.5.3-osx.zip
+      curl -L -O https://github.com/rime/librime/releases/download/1.7.1/rime-1.7.1-osx.zip
+      unzip rime-1.7.1-osx.zip -d ~/.emacs.d/librime
+      rm -rf rime-1.7.1-osx.zip
     #+END_SRC
 
     如果MacOS Gatekeeper阻止第三方软件运行，可以暂时关闭它：
