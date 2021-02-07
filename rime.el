@@ -49,9 +49,9 @@
 ;; Download librime release.
 ;;
 ;; #+BEGIN_SRC bash
-;;   wget https://github.com/rime/librime/releases/download/1.5.3/rime-1.5.3-osx.zip
-;;   unzip rime-1.5.3-osx.zip -d ~/.emacs.d/librime
-;;   rm -rf rime-1.5.3-osx.zip
+;;   wget https://github.com/rime/librime/releases/download/1.7.1/rime-1.7.1-osx.zip
+;;   unzip rime-1.7.1-osx.zip -d ~/.emacs.d/librime
+;;   rm -rf rime-1.7.1-osx.zip
 ;; #+END_SRC
 ;;
 ;; Emacs configuration:
