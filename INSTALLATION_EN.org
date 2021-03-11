@@ -44,6 +44,41 @@
        sudo zypper install librime-devel emacs-el
      #+end_src
 
+**** NixOS
+
+Requirements: =librime= is installed
+
+#+begin_src shell
+nix-env -i librime
+#+end_src
+
+In the configuration file:
+
+#+begin_src nix
+# System-wide
+environment.systemPackages = [ pkgs.librime ];
+# Home-manager
+home.packages = [ pkgs.librime ];
+#+end_src
+
+Ref: https://emacs-china.org/t/nixos-emacs-rime/13512/2
+
+***** Without Nix Flakes
+
+#+begin_src emacs-lisp
+(rime-emacs-module-header-root(concat(shell-command-to-string "nix eval --raw '(let pkgs = import <nixpkgs> {}; in with pkgs; lib.getLib emacs)'") "/include"))
+(rime-librime-root (shell-command-to-string "nix eval --raw '(let pkgs = import <nixpkgs> {}; in with pkgs; lib.getLib librime)'"))
+(rime-share-data-dir (concat (shell-command-to-string "nix eval --raw '(let pkgs = import <nixpkgs> {}; in with pkgs; lib.getLib brise)'") "/share/rime-data"))
+#+end_src
+
+***** With Nix Flakes
+
+#+begin_src emasc-lisp
+(rime-emacs-module-header-root (concat (shell-command-to-string "nix eval --raw nixpkgs#emacs") "/include"))
+(rime-librime-root (shell-command-to-string "nix eval --raw nixpkgs#librime"))
+(rime-share-data-dir (concat (shell-command-to-string "nix eval --raw nixpkgs#brise") "/share/rime-data"))
+#+end_src
+
 *** MacOS
     1. First of all, make sure you have installed [[https://rime.im/download/][Squirrel]], the MacOS Rime client.
     2. Then download the librime release.

@@ -44,6 +44,41 @@
        sudo zypper install librime-devel emacs-el
      #+end_src
 
+**** NixOS
+
+前提：安装 librime
+
+#+begin_src shell
+nix-env -i librime
+#+end_src
+
+或者在配置文件声明
+
+#+begin_src nix
+# System-wide
+environment.systemPackages = [ pkgs.librime ];
+# Home-manager
+home.packages = [ pkgs.librime ];
+#+end_src
+
+参考：https://emacs-china.org/t/nixos-emacs-rime/13512/2
+
+***** 对于未安装 Nix Flakes 的用户
+
+#+begin_src emacs-lisp
+(rime-emacs-module-header-root(concat(shell-command-to-string "nix eval --raw '(let pkgs = import <nixpkgs> {}; in with pkgs; lib.getLib emacs)'") "/include"))
+(rime-librime-root (shell-command-to-string "nix eval --raw '(let pkgs = import <nixpkgs> {}; in with pkgs; lib.getLib librime)'"))
+(rime-share-data-dir (concat (shell-command-to-string "nix eval --raw '(let pkgs = import <nixpkgs> {}; in with pkgs; lib.getLib brise)'") "/share/rime-data"))
+#+end_src
+
+***** 对于已经安装了 Nix Flakes 的用户
+
+#+begin_src emasc-lisp
+(rime-emacs-module-header-root (concat (shell-command-to-string "nix eval --raw nixpkgs#emacs") "/include"))
+(rime-librime-root (shell-command-to-string "nix eval --raw nixpkgs#librime"))
+(rime-share-data-dir (concat (shell-command-to-string "nix eval --raw nixpkgs#brise") "/share/rime-data"))
+#+end_src
+
 *** MacOS
     1. 先安装[[https://rime.im/download/][鼠须管]]，里面有输入法方案。
     2. 然后直接下载编译好的librime的Release版本。
