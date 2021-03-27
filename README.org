@@ -384,6 +384,8 @@ patch:
 #+html: <details>
 #+html: <summary>如何结合evil-escape一起使用？</summary>
 
+*以下代码可能有性能问题*
+
 在你的配置中添加如下内容，即可在当前没有输入内容（没有preedit overlay）的情况
 下，用[[https://github.com/syl20bnr/evil-escape][evil-escape]]的按键回到normal模式。
 
