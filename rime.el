@@ -264,6 +264,20 @@ Otherwise you should set this to where you put librime."
   :type 'string
   :group 'rime)
 
+(defcustom rime-candidate-num-format "%s. "
+  "The rime candidate num format.
+
+The '%s' will replace with num."
+  :type 'string
+  :group 'rime)
+
+(defcustom rime-candidate-labels '()
+  "The rime candidate labels.
+
+E.g. `(\"〡\" \"〢\" \"〣\" \"〤\" \"〥\" \"〦\" \"〧\" \"〨\" \"〩\")'."
+  :type '(repeat string)
+  :group 'rime)
+
 (defun rime--guess-emacs-module-header-root ()
   "Guess `emacs-module-module-header-root' from some known places."
   (or
@@ -556,8 +570,11 @@ Currently just deactivate input method."
     " "))
 
 (defun rime--candidate-num-format (num)
-  "Format for the number before each candidate."
-  (format "%d. " num))
+  "Format for the NUM before each candidate."
+  (let ((label (nth (- num 1) rime-candidate-labels)))
+    (if label
+        (format rime-candidate-num-format label)
+      (format rime-candidate-num-format num))))
 
 (defun rime--build-candidate-content ()
   "Build candidate menu content from librime context."
