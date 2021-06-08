@@ -188,7 +188,7 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
     return nil;
   }
 
-  size_t result_size = 3;
+  size_t result_size = 4;
   emacs_value result_a[result_size];
 
   // 0. context.commit_text_preview
@@ -198,7 +198,7 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
   else
     result_a[0] = CONS(INTERN("commit-text-preview"), nil);
 
-  // 2. context.composition
+  // 1. context.composition
   emacs_value composition_a[7];
 
   int length = context.composition.length;
@@ -240,7 +240,7 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
   emacs_value composition_value = LIST(7, composition_a);
   result_a[1] = CONS(INTERN("composition"), composition_value);
 
-  // 3. context.menu
+  // 2. context.menu
   if (context.menu.num_candidates) {
     emacs_value menu_a[7];
     menu_a[0] = CONS(INTERN("highlighted-candidate-index"), INT(context.menu.highlighted_candidate_index));
@@ -271,6 +271,19 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
     result_a[2] = CONS(INTERN("menu"), nil);
   }
 
+  // 3. context.select_labels
+  size_t page_size = context.menu.page_size;
+  if (context.select_labels && page_size > 0) {
+    emacs_value select_labels_a[page_size];
+    for (int i = 0; i < page_size; i++) {
+      char* label = context.select_labels[i];
+      select_labels_a[i] = STRING(label);
+    }
+    result_a[3] = CONS(INTERN("select-labels"), LIST(page_size, select_labels_a));
+  } else {
+    result_a[3] = CONS(INTERN("select-labels"), nil);
+  }
+
   // build result
   emacs_value result = LIST(result_size, result_a);
 
@@ -281,7 +294,7 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
 
 emacs_value
 version(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
-  return STRING("1.0.2");
+  return STRING("1.0.4");
 }
 
 

@@ -138,7 +138,7 @@
 (require 'popup nil t)
 (require 'posframe nil t)
 
-(defconst rime-version "1.0.3")
+(defconst rime-version "1.0.4")
 
 (defgroup rime nil
   "Custom group for emacs-rime."
@@ -555,15 +555,18 @@ Currently just deactivate input method."
       "\n"
     " "))
 
-(defun rime--candidate-num-format (num)
+(defun rime--candidate-num-format (num select-labels)
   "Format for the number before each candidate."
-  (format "%d. " num))
+  (if select-labels
+      (format "%s. " (nth (1- num) select-labels))
+    (format "%d. " num)))
 
 (defun rime--build-candidate-content ()
   "Build candidate menu content from librime context."
   (let* ((context (rime-lib-get-context))
          (candidates (alist-get 'candidates (alist-get 'menu context)))
          (composition (alist-get 'composition context))
+         (select-labels (alist-get 'select-labels context))
          (preedit (alist-get 'preedit composition))
          (before-cursor (alist-get 'before-cursor composition))
          (after-cursor (alist-get 'after-cursor composition))
@@ -598,7 +601,7 @@ Currently just deactivate input method."
         (let* ((curr (equal (1- idx) highlighted-candidate-index))
                (candidates-text (concat
                                 (propertize
-                                 (funcall rime-candidate-num-format-function idx)
+                                 (funcall rime-candidate-num-format-function idx select-labels)
                                  'face
                                  'rime-candidate-num-face)
                                 (if curr
@@ -921,6 +924,10 @@ Argument NAME ignored."
     (unless (file-exists-p rime--module-path)
       (rime-compile-module))
     (rime--load-dynamic-module))
+
+  (unless (string-equal rime-version (rime-lib-version))
+    (rime-compile-module)
+    (error "Dynamic module recompiled, please restart Emacs"))
 
   (when rime--lib-loaded
     (dolist (binding rime-translate-keybindings)
