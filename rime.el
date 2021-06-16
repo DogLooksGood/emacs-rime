@@ -755,6 +755,12 @@ By default the input-method will not handle DEL, so we need this command."
   (setq rime--current-input-key key)
   (when (rime--rime-lib-module-ready-p)
     (if (or (rime--text-read-only-p)
+            (and (not rime-active-mode)
+                 (or (and overriding-terminal-local-map
+                          (or (not (eq (cadr overriding-terminal-local-map)
+                                       universal-argument-map))
+                              (lookup-key overriding-terminal-local-map (vector key))))
+                     overriding-local-map))
             (and (not (rime--should-enable-p))
                  (not (rime--has-composition (rime-lib-get-context)))))
         (list key)
