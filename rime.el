@@ -207,6 +207,7 @@ Background and default foreground can be set in face `rime-default-face'."
 
 One of `top', `bottom', `left', `right'."
   :type 'symbol
+  :options '(top bottom left right)
   :group 'rime)
 
 (defcustom rime-sidewindow-style 'horizontal
