@@ -202,6 +202,23 @@ Background and default foreground can be set in face `rime-default-face'."
   :options '(simple horizontal vertical)
   :group 'rime)
 
+(defcustom rime-sidewindow-side 'bottom
+  "Side for sidewindow.
+
+One of `top', `bottom', `left', `right'."
+  :type 'symbol
+  :group 'rime)
+
+(defcustom rime-sidewindow-style 'horizontal
+  "Display style when using sidewindow.
+
+`simple', preedit and candidate list in a single line.
+`horizontal', list candidates in a single line.'
+`vertical', display candidates in multiple lines."
+  :type 'symbol
+  :options '(simple horizontal vertical)
+  :group 'rime)
+
 (defface rime-default-face
   '((((class color) (background dark))
      (:background "#333333" :foreground "#dcdccc"))
@@ -327,7 +344,7 @@ nil means don't display candidate at all.
 replacement for `minibuffer' if you use minibuffer as the mode-line.
 `posframe', display candidate in posframe, will fallback to popup in TUI."
   :type 'symbol
-  :options '(minibuffer message popup posframe)
+  :options '(minibuffer message popup posframe sidewindow)
   :group 'rime)
 
 (defcustom rime-user-data-dir (locate-user-emacs-file "rime/")
@@ -394,6 +411,9 @@ When inline ascii is triggered, this characeter will be inserted as the beginnin
 
 (defvar rime-posframe-buffer " *rime-posframe*"
   "The buffer name for candidate posframe.")
+
+(defvar rime-sidewindow-buffer "*rime-sidewindow*"
+  "The buffer name for candidate sidewindow.")
 
 (defvar rime--hooks-for-clear-state
   '()
@@ -520,6 +540,29 @@ Currently just deactivate input method."
     ;; Fallback to popup when not available.
     (rime--popup-display-content content)))
 
+
+(defun rime--sidewindow-display-content (content)
+  "Display CONTENT with sidewindow."
+  (if (fboundp 'display-buffer-in-side-window)
+      (let* ((buffer (get-buffer-create rime-sidewindow-buffer))
+             (window
+              (display-buffer-in-side-window
+               buffer
+               `((side . ,rime-sidewindow-side)
+                 (window-height . fit-window-to-buffer)
+                 (window-weight . fit-window-to-buffer)))))
+        (with-current-buffer buffer
+          (when (string-blank-p content)
+            (with-selected-window window
+                                 (quit-window)))
+          (erase-buffer)
+          (insert content)
+          (unless (derived-mode-p 'rime--candidate-mode)
+            (rime--candidate-mode))))
+    ;; Fallback to minibuffer when not available.
+    (rime--minibuffer-display-content content)))
+
+
 (defun rime--show-content (content)
   "Display CONTENT as candidate."
   (if (minibufferp)
@@ -529,29 +572,37 @@ Currently just deactivate input method."
       (message (rime--message-display-content content))
       (popup (rime--popup-display-content content))
       (posframe (rime--posframe-display-content content))
+      (sidewindow (rime--sidewindow-display-content content))
       (t (progn)))))
 
 (defun rime--candidate-prefix-char ()
   "Character used to separate preedit and candidates."
   (if (or (and (eq 'popup rime-show-candidate)
-            (or (eq 'horizontal rime-popup-style)
-                (eq 'vertical rime-popup-style))
-            (not (minibufferp)))
-      (and (eq 'posframe rime-show-candidate)
-            (or (eq 'horizontal rime-posframe-style)
-                (eq 'vertical rime-posframe-style))
-            (not (minibufferp))))
+               (or (eq 'horizontal rime-popup-style)
+                   (eq 'vertical rime-popup-style))
+               (not (minibufferp)))
+          (and (eq 'posframe rime-show-candidate)
+               (or (eq 'horizontal rime-posframe-style)
+                   (eq 'vertical rime-posframe-style))
+               (not (minibufferp)))
+          (and (eq 'sidewindow rime-show-candidate)
+               (or (eq 'horizontal rime-sidewindow-style)
+                   (eq 'vertical   rime-sidewindow-style))
+               (not (minibufferp))))
       "\n"
     " "))
 
 (defun rime--candidate-separator-char ()
   "Character used to spereate each candidate."
   (if (or (and (eq 'popup rime-show-candidate)
-                  (eq 'vertical rime-popup-style)
-                  (not (minibufferp)))
-        (and (eq 'posframe rime-show-candidate)
-           (eq 'vertical rime-posframe-style)
-           (not (minibufferp))))
+               (eq 'vertical rime-popup-style)
+               (not (minibufferp)))
+          (and (eq 'posframe rime-show-candidate)
+               (eq 'vertical rime-posframe-style)
+               (not (minibufferp)))
+          (and (eq 'sidewindow rime-show-candidate)
+               (eq 'vertical   rime-sidewindow-style)
+               (not (minibufferp))))
       "\n"
     " "))
 
@@ -600,16 +651,16 @@ Currently just deactivate input method."
       (dolist (c candidates)
         (let* ((curr (equal (1- idx) highlighted-candidate-index))
                (candidates-text (concat
-                                (propertize
-                                 (funcall rime-candidate-num-format-function idx select-labels)
-                                 'face
-                                 'rime-candidate-num-face)
-                                (if curr
-                                   (propertize (car c) 'face 'rime-highlight-candidate-face)
-                                 (propertize (car c) 'face 'rime-default-face))
-                                (if-let (comment (cdr c))
-                                    (propertize (format " %s" comment) 'face 'rime-comment-face)
-                                  ""))))
+                                 (propertize
+                                  (funcall rime-candidate-num-format-function idx select-labels)
+                                  'face
+                                  'rime-candidate-num-face)
+                                 (if curr
+                                    (propertize (car c) 'face 'rime-highlight-candidate-face)
+                                  (propertize (car c) 'face 'rime-default-face))
+                                 (if-let (comment (cdr c))
+                                     (propertize (format " %s" comment) 'face 'rime-comment-face)
+                                   ""))))
           (setq result (concat result
                                candidates-text
                                (rime--candidate-separator-char))))
@@ -748,7 +799,7 @@ By default the input-method will not handle DEL, so we need this command."
   (and (or buffer-read-only
            (get-char-property (point) 'read-only))
        (not (or inhibit-read-only
-		(get-char-property (point) 'inhibit-read-only)))))
+                (get-char-property (point) 'inhibit-read-only)))))
 
 (defun rime-input-method (key)
   "Process KEY with input method."
@@ -937,7 +988,7 @@ Argument NAME ignored."
 
   (when rime--lib-loaded
     (dolist (binding rime-translate-keybindings)
-	  (define-key rime-active-mode-map (kbd binding) 'rime-send-keybinding))
+          (define-key rime-active-mode-map (kbd binding) 'rime-send-keybinding))
 
     (rime--clear-state)
     (when (and rime-deactivate-when-exit-minibuffer (minibufferp))
@@ -1083,6 +1134,16 @@ Will resume when finish composition."
                             (car (-find (lambda (arg) (equal (cadr arg) schema-name)) schema-list)))
                     rime-user-data-dir)))
     (message "Rime is not activated.")))
+
+
+(define-derived-mode rime--candidate-mode special-mode
+  "RC" "Mode for displaying the rime candidate."
+  (setq truncate-lines   t
+        buffer-read-only nil
+        cursor-type      nil
+        mode-line-format nil
+        tab-line-format  nil)
+  (jit-lock-mode -1))
 
 
 (require 'rime-predicates)
