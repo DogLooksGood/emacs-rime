@@ -413,7 +413,7 @@ When inline ascii is triggered, this characeter will be inserted as the beginnin
 (defvar rime-posframe-buffer " *rime-posframe*"
   "The buffer name for candidate posframe.")
 
-(defvar rime-sidewindow-buffer "*rime-sidewindow*"
+(defvar rime-sidewindow-buffer " *rime-sidewindow*"
   "The buffer name for candidate sidewindow.")
 
 (defvar rime--hooks-for-clear-state
