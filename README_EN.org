@@ -34,6 +34,7 @@ Set via ~rime-show-candidate~.
 | ~message~    | Display with ~message~ function, useful when you use minibuffer as mode-line. |
 | ~popup~      | Use popup.                                                                  |
 | ~posframe~   | Use posfarme, will fallback to popup in TUI                                 |
+| ~sidewindow~ | Use sidewindow.
 
 * Open Rime menu
 

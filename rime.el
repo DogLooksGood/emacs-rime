@@ -207,6 +207,7 @@ Background and default foreground can be set in face `rime-default-face'."
 
 One of `top', `bottom', `left', `right'."
   :type 'symbol
+  :options '(top bottom left right)
   :group 'rime)
 
 (defcustom rime-sidewindow-style 'horizontal
@@ -412,7 +413,7 @@ When inline ascii is triggered, this characeter will be inserted as the beginnin
 (defvar rime-posframe-buffer " *rime-posframe*"
   "The buffer name for candidate posframe.")
 
-(defvar rime-sidewindow-buffer "*rime-sidewindow*"
+(defvar rime-sidewindow-buffer " *rime-sidewindow*"
   "The buffer name for candidate sidewindow.")
 
 (defvar rime--hooks-for-clear-state
