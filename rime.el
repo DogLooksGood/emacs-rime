@@ -859,6 +859,7 @@ By default the input-method will not handle DEL, so we need this command."
          (key (if (numberp key-raw)
                   key-raw
                 (cl-case key-raw
+                  (return #xff0d)
                   (tab #xff09)
                   (home #xff50)
                   (left #xff51)
@@ -873,6 +874,12 @@ By default the input-method will not handle DEL, so we need this command."
     (unless (numberp key)
       (error "Can't send this keybinding to librime"))
     (rime-lib-process-key key mask)
+    ;; check if there is something to commit only when no input available
+    ;; since the context is not committed via input method
+    ;; we may have some edge cases here.
+    (when (string-blank-p (rime-lib-get-input))
+      (-some-> (rime-lib-get-commit)
+        (insert)))
     (rime--redisplay)
     (rime--refresh-mode-state)))
 
