@@ -202,6 +202,11 @@ Background and default foreground can be set in face `rime-default-face'."
   :options '(simple horizontal vertical)
   :group 'rime)
 
+(defcustom rime-sidewindow-keep-window nil
+  "Non-nil keep sidewindow open."
+  :type 'boolean
+  :group 'rime)
+
 (defcustom rime-sidewindow-side 'bottom
   "Side for sidewindow.
 
@@ -553,10 +558,13 @@ Currently just deactivate input method."
                  (window-height . fit-window-to-buffer)
                  (window-weight . fit-window-to-buffer)))))
         (with-current-buffer buffer
-          (when (string-blank-p content)
+          (when (and (string-blank-p content)
+                     (not rime-sidewindow-keep-window))
             (with-selected-window window
                                  (quit-window)))
           (erase-buffer)
+          (insert rime-title)
+          (insert " ")
           (insert content)
           (unless (derived-mode-p 'rime--candidate-mode)
             (rime--candidate-mode))))

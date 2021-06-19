@@ -70,6 +70,8 @@
 
 设置 ~rime-sidewindow-style~ ，可选值有 ~top~, ~bottom~, ~left~, ~right~ ，分别指 sidewindow 出现的位置位于上下左右。
 
+设置 ~rime-sidewindow-keep-window~ ，为 ~t~ 时可保持 sidewindow 为开启状态。
+
 ** 设置软光标的样式
 
 默认使用 ~|~ 字符做为软光标，可以通过如下方式修改。
