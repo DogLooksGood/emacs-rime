@@ -3,7 +3,7 @@
 ;; Author: Shi Tianshu
 ;; Keywords: convenience, input-method
 ;; Package-Requires: ((emacs "26.3") (dash "2.17.0") (cl-lib "0.6.1") (popup "0.5.3") (posframe "0.1.0"))
-;; Version: 1.0.2
+;; Version: 1.0.5
 ;; URL: https://www.github.com/DogLooksGood/emacs-rime
 ;;
 ;; This file is not part of GNU Emacs.
@@ -138,7 +138,7 @@
 (require 'popup nil t)
 (require 'posframe nil t)
 
-(defconst rime-version "1.0.4")
+(defconst rime-version "1.0.5")
 
 (defgroup rime nil
   "Custom group for emacs-rime."

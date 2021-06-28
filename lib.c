@@ -294,7 +294,7 @@ get_context(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
 
 emacs_value
 version(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data) {
-  return STRING("1.0.4");
+  return STRING("1.0.5");
 }
 
 
