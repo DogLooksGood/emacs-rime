@@ -1050,7 +1050,8 @@ Argument NAME ignored."
 (defun rime--uninit-hook-default ()
   "Rime deactivate remove hooks."
   (setq overriding-terminal-local-map nil)
-  (remove-hook 'post-self-insert-hook 'rime--redisplay))
+  (remove-hook 'post-self-insert-hook 'rime--redisplay t)
+  (rime--redisplay))
 
 (defun rime--init-hook-vterm ()
   "Rime initialize for vterm-mode."
@@ -1060,7 +1061,8 @@ Argument NAME ignored."
 
 (defun rime--uninit-hook-vterm ()
   "Rime finalize for vterm-mode."
-  (advice-add 'vterm--redraw :after 'rime--redisplay)
+  (advice-remove 'vterm--redraw 'rime--redisplay)
+  (rime--redisplay)
   (when (bound-and-true-p vterm-mode-map)
     (define-key vterm-mode-map (kbd "<backspace>") 'vterm-send-backspace)))
 
