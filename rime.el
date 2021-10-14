@@ -1043,13 +1043,12 @@ Argument NAME ignored."
 
 (defun rime--init-hook-default ()
   "Rime activate set hooks."
-  (let ((keymap (copy-keymap rime-active-mode-map)))
-    (setq overriding-terminal-local-map keymap))
+  (internal-push-keymap rime-active-mode-map 'overriding-terminal-local-map)
   (add-hook 'post-self-insert-hook 'rime--redisplay nil t))
 
 (defun rime--uninit-hook-default ()
   "Rime deactivate remove hooks."
-  (setq overriding-terminal-local-map nil)
+  (internal-pop-keymap rime-active-mode-map 'overriding-terminal-local-map)
   (remove-hook 'post-self-insert-hook 'rime--redisplay t)
   (rime--redisplay))
 
