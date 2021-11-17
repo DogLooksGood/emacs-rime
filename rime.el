@@ -575,7 +575,8 @@ Currently just deactivate input method."
 (defun rime--show-content (content)
   "Display CONTENT as candidate."
   (if (minibufferp)
-      (rime--minibuffer-message content)
+      (when rime-show-candidate
+        (rime--minibuffer-message content))
     (cl-case rime-show-candidate
       (minibuffer (rime--minibuffer-display-content content))
       (message (rime--message-display-content content))
