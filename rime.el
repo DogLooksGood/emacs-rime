@@ -806,9 +806,9 @@ By default the input-method will not handle DEL, so we need this command."
 (defun rime--text-read-only-p ()
   "Return t if the text at point is read-only."
   (and (or buffer-read-only
-           (get-char-property (point) 'read-only))
+           (get-pos-property (point) 'read-only))
        (not (or inhibit-read-only
-                (get-char-property (point) 'inhibit-read-only)))))
+                (get-pos-property (point) 'inhibit-read-only)))))
 
 (defun rime-input-method (key)
   "Process KEY with input method."
