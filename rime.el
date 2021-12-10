@@ -1084,18 +1084,18 @@ Argument NAME ignored."
   "Mode used in composition.
 
 Should not be enabled manually."
-  nil
-  nil
-  nil
+  :lighter nil
+  :init-value nil
+  :keymap nil
   (if rime-active-mode
       (rime-active-mode--init)
     (rime-active-mode--uninit)))
 
 (define-minor-mode rime-mode
   "Mode used when input method is activated."
-  nil
-  nil
-  rime-mode-map)
+  :lighter nil
+  :init-value nil
+  :keymap rime-mode-map)
 
 ;;;###autoload
 (register-input-method "rime" "euc-cn" 'rime-activate rime-title)
