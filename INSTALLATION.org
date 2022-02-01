@@ -131,6 +131,14 @@
      (rime-librime-root "~/.emacs.d/librime/dist")
    #+END_SRC
 
+   *NOTE* 若要在 MacOS 上使用鼠须管的配置方案，需要指定 ~rime-userdata-dir~
+   
+   默认情况下，鼠须管的配置文件位于 =~/Library/rime= ，在 ~:custom~ 中加入如下内容即可：
+   
+   #+BEGIN_SRC emacs-lisp
+     (rime-user-data-dir "~/Library/rime/")
+   #+END_SRC
+   
 ** 激活 Rime 输入法
 
    使用 ~toggle-input-method~ 来激活，默认快捷键为 ~C-\~
