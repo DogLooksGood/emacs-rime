@@ -35,7 +35,7 @@
 **** Fedora
 
      #+begin_src emacs-lisp
-       sudo dnf install librime emacs-devel
+       sudo dnf install librime-devel emacs-devel
      #+end_src
 
 **** openSUSE
