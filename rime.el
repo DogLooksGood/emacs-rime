@@ -137,6 +137,7 @@
 (require 'cl-lib)
 (require 'popup nil t)
 (require 'posframe nil t)
+(require 'xdg)
 
 (defconst rime-version "1.0.5")
 
