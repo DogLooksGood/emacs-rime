@@ -81,13 +81,14 @@
 ;;
 ;; Set via ~rime-show-candidate~.
 ;;
-;; | Value      | description                                                                 |
-;; |------------+-----------------------------------------------------------------------------|
-;; | ~nil~        | don't show candidate at all.                                                |
-;; | ~minibuffer~ | Display in minibuffer.                                                      |
-;; | ~message~    | Display with ~message~ function, useful when you use minibuffer as mode-line.  |
-;; | ~popup~      | Use popup.                                                                  |
-;; | ~posframe~   | Use posfarme, will fallback to popup in TUI                                 |
+;; | Value        | description                                                                   |
+;; |--------------+-------------------------------------------------------------------------------|
+;; | ~nil~        | don't show candidate at all.                                                  |
+;; | ~minibuffer~ | Display in minibuffer.                                                        |
+;; | ~message~    | Display with ~message~ function, useful when you use minibuffer as mode-line. |
+;; | ~popup~      | Use popup.                                                                    |
+;; | ~posframe~   | Use posfarme, will fallback to popup in TUI                                   |
+;; | ~sidewindow~ | Use sidewindow.                                                               |
 ;;
 ;; * The lighter
 ;;
@@ -349,7 +350,8 @@ nil means don't display candidate at all.
 `popup', display with popup.el.
 `message', display with function `message', this is a
 replacement for `minibuffer' if you use minibuffer as the mode-line.
-`posframe', display candidate in posframe, will fallback to popup in TUI."
+`posframe', display candidate in posframe, will fallback to popup in TUI.
+`sidewindow', display in sidewindow."
   :type 'symbol
   :options '(minibuffer message popup posframe sidewindow)
   :group 'rime)
