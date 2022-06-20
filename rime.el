@@ -292,7 +292,7 @@ Otherwise you should set this to where you put librime."
 (defun rime--guess-emacs-module-header-root ()
   "Guess `emacs-module-module-header-root' from some known places."
   (or
-   (let ((module-header (expand-file-name "emacs-module.h" (concat source-directory "src/"))))
+   (let ((module-header (expand-file-name "emacs-module.h" (concat source-directory "/src/"))))
      (when (file-exists-p module-header)
        (file-name-directory module-header)))
    (let* ((emacs-dir (getenv "emacs_dir")) ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Misc-Variables.html
