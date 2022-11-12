@@ -365,7 +365,7 @@ Defaults to `user-emacs-directory'/rime/"
 
 (defcustom rime-share-data-dir
   (cl-case system-type
-    ('gnu/linux
+    (gnu/linux
      (cl-some (lambda (parent)
                 (let ((dir (expand-file-name "rime-data" parent)))
                   (when (file-directory-p dir)
@@ -373,9 +373,9 @@ Defaults to `user-emacs-directory'/rime/"
               (if (fboundp 'xdg-data-dirs)
                   (xdg-data-dirs)
                 '("/usr/local/share" "/usr/share"))))
-    ('darwin
+    (darwin
      "/Library/Input Methods/Squirrel.app/Contents/SharedSupport")
-    ('windows-nt
+    (windows-nt
      (if (getenv "MSYSTEM_PREFIX")
          (concat (getenv "MSYSTEM_PREFIX") "/share/rime-data")
        (if (getenv "LIBRIME_ROOT")
