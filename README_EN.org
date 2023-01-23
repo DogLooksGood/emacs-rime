@@ -160,6 +160,10 @@ Default to ~|~ , you can customize it with
   (setq rime-cursor "˰")
 #+END_SRC
 
+* Commit the first item automatically when toggle input method
+
+Give =rime-commit-and-toggle-input-method= a keybinding to replace what =toggle-input-method= does.
+
 * Shortcut to open Rime configuration file
 
 Use ~rime-open-configuration~.
