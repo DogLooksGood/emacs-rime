@@ -1166,6 +1166,14 @@ Will resume when finish composition."
         tab-line-format  nil)
   (jit-lock-mode -1))
 
+(defun rime-commit-and-toggle-input-method ()
+  "Commit the first item if exists, then toggle input method."
+  (interactive)
+  (when (rime-lib-process-key 32 0)
+    (let ((commit (rime-lib-get-commit)))
+      (insert commit)
+      (rime--clear-state)))
+  (toggle-input-method))
 
 (require 'rime-predicates)
 

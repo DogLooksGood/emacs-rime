@@ -227,6 +227,10 @@
 
 默认行为为自动关闭，设置 ~rime-deactivate-when-exit-minibuffer~ 为 nil 取消该行为。
 
+* 在切换输入法时自动上屏
+
+可将 ~rime-commit-and-toggle-input-method~ 绑定到某个按键上来替代原本 ~toggle-input-method~ 的功能。
+
 * 指定 Rime 共享目录和用户目录
 
 ~rime-share-data-dir~ 是 Rime 安装后放置配置的目录，例如 Linux 上默认为 /usr/share/rime-data. 通常使用默认值即可。
