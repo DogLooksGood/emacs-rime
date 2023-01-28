@@ -160,9 +160,16 @@ Default to ~|~ , you can customize it with
   (setq rime-cursor "˰")
 #+END_SRC
 
-* Commit the first item automatically when toggle input method
+* Commit the 1st item automatically when toggle input method
 
-Give =rime-commit-and-toggle-input-method= a keybinding to replace what =toggle-input-method= does.
+Give =rime-commit1-and-toggle-input-method= a keybinding to replace what =toggle-input-method= does.
+
+* Commit the 1st item automatically when switch to evil-normal-state
+
+Give ~rime-commit1-and-toggle-input-method~ a rebind in ~rime-active-mode-map~ on =<escape>= , example configuration:
+#+BEGIN_SRC elisp
+(define-key rime-active-mode-map (kbd "<escape>") 'rime-commit1-and-evil-normal)
+#+END_SRC
 
 * Shortcut to open Rime configuration file
 

@@ -29,7 +29,7 @@
 | 可选值     | 说明                                                   |
 |------------+--------------------------------------------------------|
 | ~nil~        | 不展示                                                 |
-| ~minibuffer~ | 在minibuffer中展示， 推荐使用的方式                    |
+| ~minibuffer~ | 在 minibuffer 中展示， 推荐使用的方式                    |
 | ~message~    | 直接使用 ~message~ 输出，兼容控制 ~minibuffer~ 内容的插件  |
 | ~popup~      | 使用 ~popup.el~ 展示跟随的候选                           |
 | ~posframe~   | 使用 ~posframe~ 展示跟随的候选，在不可用的时候会用 ~popup~ |
@@ -39,7 +39,7 @@
 
 | Face                    | 说明                               |
 |-------------------------+------------------------------------|
-| ~rime-default-face~       | 默认的前景色和背景色（仅posframe） |
+| ~rime-default-face~       | 默认的前景色和背景色（仅 posframe） |
 | ~rime-code-face~          | 编码的颜色                         |
 | ~rime-candidate-num-face~ | 候选序号颜色                       |
 | ~rime-comment-face~       | 编码提示颜色                       |
@@ -229,14 +229,21 @@
 
 * 在切换输入法时自动上屏
 
-可将 ~rime-commit-and-toggle-input-method~ 绑定到某个按键上来替代原本 ~toggle-input-method~ 的功能。
+可将 ~rime-commit1-and-toggle-input-method~ 绑定到某个按键上来替代原本 ~toggle-input-method~ 的功能。
+
+* 在切换到 evil-normal-state 时自动上屏
+
+可将 ~rime-commit1-and-toggle-input-method~ 绑定到 ~rime-active-mode-map~ 中的 =<escape>= 键，示例配置如下：
+#+BEGIN_SRC elisp
+(define-key rime-active-mode-map (kbd "<escape>") 'rime-commit1-and-evil-normal)
+#+END_SRC
 
 * 指定 Rime 共享目录和用户目录
 
-~rime-share-data-dir~ 是 Rime 安装后放置配置的目录，例如 Linux 上默认为 /usr/share/rime-data. 通常使用默认值即可。
+~rime-share-data-dir~ 是 Rime 安装后放置配置的目录，例如 Linux 上默认为 =/usr/share/rime-data= ，fcitx5-rime 则默认为 =~/.local/share/fcitx5/rime= ，通常使用默认值即可。
 如果使用其它的位置，可以配置该值。
 
-~rime-user-data-dir~ 为 emacs-rime 布署的位置，默认为 ~/.emacs.d/rime ，如果需要其它位置，可以配置该值。
+~rime-user-data-dir~ 为 emacs-rime 布署的位置，默认为 =~/.emacs.d/rime= ，如果需要其它位置，可以配置该值。
 
 * 打开 Rime 的配置文件
 
@@ -295,7 +302,7 @@ brew install emacs-mac --with-modules
 #+html: <details>
 #+html: <summary>如何重新部署？</summary>
 
-~emacs-rime~ 的配置文件更新之后，与RIME一样，都需要重新部署才可生效。
+~emacs-rime~ 的配置文件更新之后，与 RIME 一样，都需要重新部署才可生效。
 
 以添加 ~地球拼音（terra_pinyin）~ 为例。
 
@@ -319,13 +326,13 @@ patch:
 #+html: <details>
 #+html: <summary>如何同步词库？</summary>
 
-~M-x rime-sync~ 可对RIME输入方案和词库进行同步与备份，每次同步双向进行，词库生成的备份文件为 ~sync/ins_id/schema.userdb.txt~ ，其本身是文件夹 ~schema.userdb/~ 中词库与词频使用记录的纯文本形式，方便用户跨平台、多设备使用。
+~M-x rime-sync~ 可对 RIME 输入方案和词库进行同步与备份，每次同步双向进行，词库生成的备份文件为 ~sync/ins_id/schema.userdb.txt~ ，其本身是文件夹 ~schema.userdb/~ 中词库与词频使用记录的纯文本形式，方便用户跨平台、多设备使用。
 
-所谓双向同步，即当前设备中的词频或用户自造词（ ~schema.userdb/~ 中）与备份文件（ ~sync/ins_id/schema.userdb.txt~ 中）所记录的词库会被RIME合并，其 *并集* 将会继续记录在 ~schema.userdb/~ 中，同时生成一份新的备份文件，仍名为 ~sync/ins_id/schema.userdb.txt~ ，并（在不询问用户的情况下）将旧的覆盖。
+所谓双向同步，即当前设备中的词频或用户自造词（ ~schema.userdb/~ 中）与备份文件（ ~sync/ins_id/schema.userdb.txt~ 中）所记录的词库会被 RIME 合并，其 *并集* 将会继续记录在 ~schema.userdb/~ 中，同时生成一份新的备份文件，仍名为 ~sync/ins_id/schema.userdb.txt~ ，并（在不询问用户的情况下）将旧的覆盖。
 
 上述路径中 ~sync~ 文件夹与配置文件 ~default.custom.yaml~ 在同一目录， ~ins_id~ 对应的是 ~installation.yaml~ 文件中 ~installation_id~ 的值，默认值为随机生成，可自定义为其他字符串。
 
-以添加 ~地球拼音（terra_pinyin）~ 后同步为例。启用该方案后，在RIME数据目录下会产生名为 ~terra_pinyin.userdb~ 的文件夹，其中为使用频率与自造词的记录，不可随意修改。同步前先修改 ~installation.yaml~ 中内容为自定义的 ~installation_id: "hesperus"~ ，之后 ~M-x rime-sync~ ，将会在 ~sync/hesperus/~ 生成文件 ~terra_pinyin.userdb.txt~ （词库）与 ~terra_pinyin.schema.yaml~ （输入方案）。
+以添加 ~地球拼音（terra_pinyin）~ 后同步为例。启用该方案后，在 RIME 数据目录下会产生名为 ~terra_pinyin.userdb~ 的文件夹，其中为使用频率与自造词的记录，不可随意修改。同步前先修改 ~installation.yaml~ 中内容为自定义的 ~installation_id: "hesperus"~ ，之后 ~M-x rime-sync~ ，将会在 ~sync/hesperus/~ 生成文件 ~terra_pinyin.userdb.txt~ （词库）与 ~terra_pinyin.schema.yaml~ （输入方案）。
 
 若在其他设备或系统中有个人积累的词库，想继续使用。则先在旧系统中进行同步，将生成的 ~terra_pinyin.userdb.txt~ 复制到当前系统的 ~sync/hesperus/~ 下，再进行同步或部署，此时旧系统中备份的词库将会被合并到当前系统的 ~terra_pinyin.userdb/~ ，新的并集也将会被同时导出，并覆盖 ~terra_pinyin.userdb.txt~ 。
 
@@ -334,7 +341,7 @@ patch:
 #+html: <details>
 #+html: <summary>重新部署后原有个人词库丢失</summary>
 
-（以地球拼音方案在fcitx-rime与emacs-rime中使用为例。）
+（以地球拼音方案在 fcitx-rime 与 emacs-rime 中使用为例。）
 
 *不建议 ~emacs-rime~ 与 ~fcitx-rime~ 共用数据文件夹* 。若设置
 #+BEGIN_SRC emacs-lisp
@@ -402,8 +409,8 @@ patch:
 
 *以下代码可能有性能问题*
 
-在你的配置中添加如下内容，即可在当前没有输入内容（没有preedit overlay）的情况
-下，用[[https://github.com/syl20bnr/evil-escape][evil-escape]]的按键回到normal模式。
+在你的配置中添加如下内容，即可在当前没有输入内容（没有 preedit overlay）的情况
+下，用[[https://github.com/syl20bnr/evil-escape][evil-escape]]的按键回到 normal 模式。
 
 #+BEGIN_SRC emacs-lisp
   (defun rime-evil-escape-advice (orig-fun key)

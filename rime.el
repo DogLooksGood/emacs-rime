@@ -1166,15 +1166,32 @@ Will resume when finish composition."
         tab-line-format  nil)
   (jit-lock-mode -1))
 
-(defun rime-commit-and-toggle-input-method ()
-  "Commit the first item if exists, then toggle input method."
+(defun rime-commit1 ()
+  "Commit the 1st item if exists."
   (interactive)
-  (ignore-errors
-    (when (rime-lib-process-key 32 0)
-      (let ((commit (rime-lib-get-commit)))
-        (insert commit)
-        (rime--clear-state))))
+  (when (rime-lib-process-key 32 0)
+    (let ((commit (rime-lib-get-commit)))
+      (insert commit)
+      (rime--clear-state))))
+
+(defun rime-commit1-and-evil-normal ()
+  "Commit the 1st item if exists, then go to evil normal state."
+  (interactive)
+  (rime-commit1)
+  (evil-normal-state))
+
+(defun rime-commit1-and-toggle-input-method ()
+  "Commit the 1st item if exists, then toggle input method."
+  (interactive)
+  (ignore-errors (rime-commit1))
   (toggle-input-method))
+
+(defun rime-commit-and-toggle-input-method ()
+  "[OBSOLETE] alias of `rime-commit1-and-toggle-input-method'.
+
+Will be removed in the future."
+  (interactive)
+  (rime-commit1-and-toggle-input-method))
 
 (require 'rime-predicates)
 
