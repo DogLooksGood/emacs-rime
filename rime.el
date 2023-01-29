@@ -1191,6 +1191,7 @@ Will resume when finish composition."
 
 Will be removed in the future."
   (interactive)
+  (message "The `rime-commit-and-toggle-input-method' is OBSOLETE. Use `rime-commit1-and-toggle-input-method' instead. See README for details.")
   (rime-commit1-and-toggle-input-method))
 
 (require 'rime-predicates)
