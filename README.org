@@ -369,7 +369,35 @@ patch:
 #+html: </details>
 
 #+html: </details>
-* 五、FAQ
+* 五、杂项
+#+html: <details>
+#+html: <summary>切换折叠</summary>
+** 打开 Rime 菜单
+
+假设你为菜单使用 ~C-~~ 。
+
+#+begin_src yaml
+  switcher:
+    caption: 〔方案選單〕
+    hotkeys:
+      - Control+grave
+#+end_src
+
+你可用函数 ~rime-send-keybinding~ 将此按键绑定到 ~rime-mode-map~ 。
+
+#+begin_src emacs-lisp
+  (use-package
+    ...
+
+    :bind
+    (:map rime-mode-map
+          ("C-`" . 'rime-send-keybinding))
+    ...
+    )
+#+end_src
+
+#+html: </details>
+* 六、FAQ
 #+html: <details>
 #+html: <summary>切换折叠</summary>
 ** 在 isearch 中的使用

@@ -5,6 +5,31 @@
    Emacs 26.1+ with dynamic modules support, ~gcc~ and ~make~.
 
    emacs-rime will build dynamic module automatically.
+*** How to get Emacs with dynamic module support?
+
+- **Linux**
+
+Emacs included in major linux distributions has dynamic module support enabled by default.
+
+- **MacOS**
+
+~emacs-plus~ enables dynamic modules support by default. homebrew installation:
+#+BEGIN_SRC shell
+brew tap d12frosted/emacs-plus
+brew install emacs-plus
+#+END_SRC
+
+When installing ~emacs-mac~, you need to add ~--with-modules~ option. homebrew installation:
+#+BEGIN_SRC shell
+brew tap railwaycat/emacsmacport
+brew install emacs-mac --with-modules
+#+END_SRC
+
+- **Compile Emacs 26 manually**
+
+Use ~--with-modules~ option.
+
+
 
 ** Install librime
 
@@ -85,6 +110,25 @@
      #+end_src
 
      Start emacs from mingw64's environment to get the correct =SHELL= environment variable for building librime-emacs inside Emacs and =MSYSTEM_PREFIX= for specifying the ~rime-share-data-dir~ variable.
+
+*** Can't find rime_api.h when compile?
+
+You *MUST* specify ~rime-librime-root~ in this case.
+
+Check Installation for how to set.
+
+*** Can't find emacs-module.h when compile?
+
+If you build Emacs by yourself and does not install to standard location,
+you *MUST* specify ~rime-emacs-module-header-root~.
+
+Put following in the ~:custom~ section.
+
+(Assuming you install Emacs to ~/emacs)
+
+#+BEGIN_SRC emacs-lisp
+(rime-emacs-module-header-root "~/emacs/include")
+#+END_SRC
 
 ** Minimal configuration
 

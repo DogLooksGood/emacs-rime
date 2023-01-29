@@ -6,11 +6,13 @@
 
 Emacs in Rime, support multiple schemas.
 
-* Installation & How to use
+* Part 1: Installation & How to use
 
   Check [[file:INSTALLATION_EN.org][Intallation]].
-
-* Keybindings in Rime.
+* Part 2: Rime Configuration and Data
+#+html: <details>
+#+html: <summary>toggle-folding</summary>
+** Keybindings in Rime.
 
 With following configuration, you can send a serials of keybindings to Rime.
 Since you may want them to help you with cursor navigation, candidate pagination and selection.
@@ -23,7 +25,15 @@ Currently the keybinding with Control(C-), Meta(M-) and Shift(S-) is supported.
     '("C-f" "C-b" "C-n" "C-p" "C-g" "<left>" "<right>" "<up>" "<down>" "<prior>" "<next>" "<delete>"))
 #+END_SRC
 
-* Candidate menu style
+** Shortcut to open Rime configuration file
+
+Use ~rime-open-configuration~.
+
+#+html: </details>
+* Part 3: Appearance
+#+html: <details>
+#+html: <summary>toggle-folding</summary>
+** Candidate menu style
 
 Set via ~rime-show-candidate~.
 
@@ -36,38 +46,26 @@ Set via ~rime-show-candidate~.
 | ~posframe~   | Use posfarme, will fallback to popup in TUI                                 |
 | ~sidewindow~ | Use sidewindow.
 
-* Open Rime menu
-
-Assuming you use ~C-~~ for the menu.
-
-#+begin_src yaml
-  switcher:
-    caption: 〔方案選單〕
-    hotkeys:
-      - Control+grave
-#+end_src
-
-You can bind this key to ~rime-mode-map~ with command ~rime-send-keybinding~.
-
-#+begin_src emacs-lisp
-  (use-package
-    ...
-
-    :bind
-    (:map rime-mode-map
-          ("C-`" . 'rime-send-keybinding))
-    ...
-    )
-#+end_src
-
-* The lighter
+** The lighter
 
 You can get a lighter via ~(rime-lighter)~, which returns you a colored ~ㄓ~.
 Put it in modeline or anywhere you want.
 
 You can customize with ~rime-title~, ~rime-indicator-face~ and ~rime-indicator-dim-face~.
 
-* Temporarily ascii mode
+** The soft cursor
+
+Default to ~|~ , you can customize it with
+
+#+BEGIN_SRC emacs-lisp
+  (setq rime-cursor "˰")
+#+END_SRC
+
+#+html: </details>
+* Part 4: Automation
+#+html: <details>
+#+html: <summary>toggle-folding</summary>
+** Temporarily ascii mode
 
 If you want specific a list of rules to automatically enable ascii mode, you can customize ~rime-disable-predicates~.
 
@@ -145,125 +143,25 @@ Following is a example to use ascii mode in ~evil-normal-state~ or when cursor i
 
 #+html: </details>
 
-** Force enable
+*** Force enable
 
 If one of ~rime-disable-predicates~ returns t, you can still force enable the input method with ~rime-force-enable~.
 The effect will only last for one input behavior.
 
 You probably want to give this command a keybinding.
 
-* The soft cursor
-
-Default to ~|~ , you can customize it with
-
-#+BEGIN_SRC emacs-lisp
-  (setq rime-cursor "˰")
-#+END_SRC
-
-* Commit the 1st item automatically when toggle input method
+** Commit the 1st item automatically when toggle input method
 
 Give =rime-commit1-and-toggle-input-method= a keybinding to replace what =toggle-input-method= does.
 
-* Commit the 1st item automatically when switch to evil-normal-state
+** Commit the 1st item automatically when switch to evil-normal-state
 
 Give ~rime-commit1-and-toggle-input-method~ a rebind in ~rime-active-mode-map~ on =<escape>= , example configuration:
 #+BEGIN_SRC elisp
 (define-key rime-active-mode-map (kbd "<escape>") 'rime-commit1-and-evil-normal)
 #+END_SRC
 
-* Shortcut to open Rime configuration file
-
-Use ~rime-open-configuration~.
-
-* FAQ
-
-#+html: <details>
-#+html: <summary><b>How to get Emacs with dynamic module support?</b></summary><br/>
-
-- **Linux**
-
-Emacs included in major linux distributions has dynamic module support enabled by default.
-
-- **MacOS**
-
-~emacs-plus~ enables dynamic modules support by default. homebrew installation:
-#+BEGIN_SRC shell
-brew tap d12frosted/emacs-plus
-brew install emacs-plus
-#+END_SRC
-
-When installing ~emacs-mac~, you need to add ~--with-modules~ option. homebrew installation:
-#+BEGIN_SRC shell
-brew tap railwaycat/emacsmacport
-brew install emacs-mac --with-modules
-#+END_SRC
-
-- **Compile Emacs 26 manually**
-
-Use ~--with-modules~ option.
-
-#+html: </details>
-
-#+html: <details>
-#+html: <summary><b>Can't find rime_api.h when compile</b></summary><br/>
-
-You *MUST* specify ~rime-librime-root~ in this case.
-
-Check Installation for how to set.
-
-#+html: </details>
-
-#+html: <details>
-#+html: <summary><b>Can't find emacs-module.h when compile</b></summary><br/>
-
-If you build Emacs by yourself and does not install to standard location,
-you *MUST* specify ~rime-emacs-module-header-root~.
-
-Put following in the ~:custom~ section.
-
-(Assuming you install Emacs to ~/emacs)
-
-#+BEGIN_SRC emacs-lisp
-(rime-emacs-module-header-root "~/emacs/include")
-#+END_SRC
-#+html: </details>
-
-#+html: <details>
-#+html: <summary><b>The last item of the candidate box is not displayed?</b></summary><br/>
-
-Few users occasionally have a issue that the last candidate word is not displayed.
-It can be determined that this is related to `posframe`, but the reason has not
-been found. A temporary solution is to append a full-width whitespace to the end of
-the candidate list.
-#+BEGIN_SRC emacs-lisp
-(defun +rime--posframe-display-content-a (args)
-  "Append a full-width whitespace to the input string.
-This can temporarily solve the problem of `posframe` occasionally
-\"eating\" words."
-  (cl-destructuring-bind (content) args
-    (let ((newresult (if (string-blank-p content)
-                         content
-                       (concat content "　"))))
-      (list newresult))))
-
-(if (fboundp 'rime--posframe-display-content)
-    (advice-add 'rime--posframe-display-content
-                :filter-args
-                #'+rime--posframe-display-content-a)
-  (error "Function `rime--posframe-display-content' is not available."))
-#+END_SRC
-
-#+html: </details>
-
-#+html: <details>
-#+html: <summary><b>Want a pure emacs input method without <code>librime</code>?</b></summary><br/>
-
-Maybe, you need [[https://github.com/tumashu/pyim][pyim]].
-
-#+html: </details>
-
-#+html: <details>
-#+html: <summary><b>How to integrate this with <code>evil-escape</code>?</b></summary>
+** How to integrate this with <code>evil-escape</code>?
 
 *The following code may have performance issue*
 
@@ -304,10 +202,74 @@ to return to normal state when having nothing in editing(no preedit overlay).
 
   (advice-add 'rime-input-method :around #'rime-evil-escape-advice)
 #+END_SRC
+#+html: </details>
+* Part 5: Misc
+#+html: <details>
+#+html: <summary>toggle-folding</summary>
+** Open Rime menu
+
+Assuming you use ~C-~~ for the menu.
+
+#+begin_src yaml
+  switcher:
+    caption: 〔方案選單〕
+    hotkeys:
+      - Control+grave
+#+end_src
+
+You can bind this key to ~rime-mode-map~ with command ~rime-send-keybinding~.
+
+#+begin_src emacs-lisp
+  (use-package
+    ...
+
+    :bind
+    (:map rime-mode-map
+          ("C-`" . 'rime-send-keybinding))
+    ...
+    )
+#+end_src
+
+#+html: </details>
+* Part 6: FAQ
+
+#+html: <details>
+#+html: <summary>toggle-folding</summary>
+** The last item of the candidate box is not displayed?
+
+Few users occasionally have a issue that the last candidate word is not displayed.
+It can be determined that this is related to `posframe`, but the reason has not
+been found. A temporary solution is to append a full-width whitespace to the end of
+the candidate list.
+#+BEGIN_SRC emacs-lisp
+(defun +rime--posframe-display-content-a (args)
+  "Append a full-width whitespace to the input string.
+This can temporarily solve the problem of `posframe` occasionally
+\"eating\" words."
+  (cl-destructuring-bind (content) args
+    (let ((newresult (if (string-blank-p content)
+                         content
+                       (concat content "　"))))
+      (list newresult))))
+
+(if (fboundp 'rime--posframe-display-content)
+    (advice-add 'rime--posframe-display-content
+                :filter-args
+                #'+rime--posframe-display-content-a)
+  (error "Function `rime--posframe-display-content' is not available."))
+#+END_SRC
+
+
+** Want a pure emacs input method without <code>librime</code>?
+
+Maybe, you need [[https://github.com/tumashu/pyim][pyim]].
 
 #+html: </details>
 
-* Thanks for all the contributors
+
+#+html: </details>
+
+* Part Fin: Thanks for all the contributors
 
 - [[https://github.com/Z572][Z572]]
 - [[https://github.com/cnsunyour][cnsunyour]]
