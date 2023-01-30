@@ -138,8 +138,7 @@ Put following in the ~:custom~ section.
     (default-input-method "rime"))
    #+END_SRC
 
-   #+html: <details>
-   #+html: <summary>Use Straight</summary>
+*** Use Straight
    #+BEGIN_SRC emacs-lisp
      (use-package rime
        :straight (rime :type git
@@ -149,10 +148,8 @@ Put following in the ~:custom~ section.
        :custom
        (default-input-method "rime"))
    #+END_SRC
-   #+html: </details>
 
-   #+html: <details>
-   #+html: <summary>Use Quelpa</summary>
+*** Use Quelpa
    #+BEGIN_SRC emacs-lisp
      (use-package rime
        :quelpa (rime :fetcher github
@@ -161,9 +158,9 @@ Put following in the ~:custom~ section.
        :custom
        (default-input-method "rime"))
    #+END_SRC
-   #+html: </details>
 
-   *NOTE*: If you are on MacOS or don't have librime in standard path,
+*** NOTICE (MacOS)
+If you are on MacOS or don't have librime in standard path,
    you *MUST* specify ~rime-librime-root~.
 
    Put following in the ~:custom~ section.

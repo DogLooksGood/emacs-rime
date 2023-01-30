@@ -201,9 +201,9 @@ patch:
           rime-predicate-after-alphabet-char-p
           rime-predicate-prog-in-code-p))
 #+END_SRC
-
+*** 目前可用的断言函数
 #+html: <details>
-#+html: <summary>目前可用的断言函数</summary>
+#+html: <summary>切换折叠</summary>
 
 - ~rime-predicate-after-alphabet-char-p~
 
@@ -266,7 +266,6 @@ patch:
   在 (La)TeX 数学环境中或者输入 (La)TeX 命令时
 
 #+html: </details>
-
 *** 可提示临时英文状态的提示符
 
 使用函数 ~(rime-lighter)~ 返回一个用于展示的 ~ㄓ~ 符号。
