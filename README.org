@@ -54,7 +54,7 @@
 
 以添加 ~地球拼音（terra_pinyin）~ 为例。
 
-找到 ~emacs-rime~ 配置所在路径，或使用 ~M-x rime-open-configuration~ 打开文件 ~default.custome.yaml~ ，在 ~patch:schema_list~ 中添加 ~- schema: terra_pinyin~ ，需要 ~M-x rime-deploy~ 重新部署才可启用地球拼音方案，重新部署成功后按 ~C-`~ 选择输入方案。
+找到 ~emacs-rime~ 配置所在路径，或使用 ~M-x rime-open-configuration~ 打开文件 ~default.custom.yaml~ ，在 ~patch:schema_list~ 中添加 ~- schema: terra_pinyin~ ，需要 ~M-x rime-deploy~ 重新部署才可启用地球拼音方案，重新部署成功后按 ~C-`~ 选择输入方案。
 
 示例如下：
 #+BEGIN_SRC yaml
@@ -71,9 +71,9 @@ patch:
 
 *** 重新部署后原有个人词库丢失？
 
-这很可能是 ~emacs-rime~ 与 ~fcitx-rime~ 共用数据文件夹导致的。
+这很可能是 ~emacs-rime~ 与 ~fcitx-rime~ 共用用户数据文件夹导致的。
 
-如何找回：设置 ~emacs-rime~ 用户数据目录到其他文件夹，删除 ~terra_pinyin.userdb/~ 并将 ~terra_pinyin.userdb.old/~ 重命名为前者，再次同步或部署， ~terra_pinyin.userdb.txt~ 亦将恢复。
+如何找回：（依然以地球拼音为例）设置 ~emacs-rime~ 用户数据目录到其他文件夹，删除 ~terra_pinyin.userdb/~ 并将 ~terra_pinyin.userdb.old/~ 重命名为前者，再次同步或部署， ~terra_pinyin.userdb.txt~ 亦将恢复。
 
 #+html: </details>
 ** 同步词库

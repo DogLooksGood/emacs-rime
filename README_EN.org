@@ -41,7 +41,7 @@ the default path is =~/.emacs.d/rime= .
 Configure the variable to use another location.
 
 *Making ~emacs-rime~ 与 ~fcitx-rime~ share user-data-dir is NOT recommended* 。
-Take using terra-pinyin in fcitx-rime and emacs-rime as example, if configured
+Take using terra-pinyin in fcitx-rime and emacs-rime as an example, if configured
 #+BEGIN_SRC emacs-lisp
 (setq rime-user-data-dir "~/.config/fcitx/rime/")
 #+END_SRC
@@ -51,34 +51,38 @@ then after first deployment of ~emacs-rime~ , a new ~terra_pinyin.userdb/~ folde
 
 Use ~rime-open-configuration~.
 
-** (TTBD)重新部署
+** Redeploy
 #+html: <details>
 #+html: <summary>toggle-folding</summary>
 
-~emacs-rime~ 的配置文件更新之后，与 RIME 一样，都需要重新部署才可生效。
+Same as RIME, the configuration file of ~emacs-rime~ does NOT take effect until redeployment.
 
-以添加 ~地球拼音（terra_pinyin）~ 为例。
+Take adding terra-pinyin as an example.
 
-找到 ~emacs-rime~ 配置所在路径，或使用 ~M-x rime-open-configuration~ 打开文件 ~default.custome.yaml~ ，在 ~patch:schema_list~ 中添加 ~- schema: terra_pinyin~ ，需要 ~M-x rime-deploy~ 重新部署才可启用地球拼音方案，重新部署成功后按 ~C-`~ 选择输入方案。
+Find the path where the configuration of ~emacs-rime~ locates,
+or use ~M-x rime-open-configuration~ to open ~default.custom.yaml~ ,
+goto ~patch:schema_list~ and add ~- schema: terra_pinyin~ .
+Now you need ~M-x rime-deploy~ to redeploy to enable terra-pinyin.
+After that you may press ~C-`~ to pop up rime menu and select desired one.
 
-示例如下：
+Example:
 #+BEGIN_SRC yaml
 patch:
   schema_list:
     - schema: luna_pinyin
     - schema: pinyin_simp
     - schema: terra_pinyin
-  menu/page_size: 7 # 每页显示7个候选字词。
+  menu/page_size: 7 # show 7 candidates per page.
   switcher:
     hotkeys:
-      - Control+grave # 激活RIME选单的快捷键，某些版本的RIME支持<F4>为快捷键，容易与其他软件冲突。
+      - Control+grave # Key binding to active RIME's menu. Some editions of RIME support <F4> as shortcut, which is likely to clash with other programs.
 #+END_SRC
 
-*** 重新部署后原有个人词库丢失？
+*** Lost user vocabulary database after redeployment?
 
-这很可能是 ~emacs-rime~ 与 ~fcitx-rime~ 共用数据文件夹导致的。
+The cause may be using the same user-data-dir by ~emacs-rime~ and ~fcitx-rime~ , as explained earlier.
 
-如何找回：设置 ~emacs-rime~ 用户数据目录到其他文件夹，删除 ~terra_pinyin.userdb/~ 并将 ~terra_pinyin.userdb.old/~ 重命名为前者，再次同步或部署， ~terra_pinyin.userdb.txt~ 亦将恢复。
+How to recover: (still, take terra_pinyin as an example) Set user-data-dir of ~emacs-rime~ to another folder, delete ~terra_pinyin.userdb/~ and rename ~terra_pinyin.userdb.old/~ to the previous one, resync or redeploy, ~terra_pinyin.userdb.txt~ should recover now.
 
 #+html: </details>
 ** (TTBD)同步词库
@@ -199,7 +203,7 @@ Default to ~|~ , you can customize it with
 
 If you want specific a list of rules to automatically enable ascii mode, you can customize ~rime-disable-predicates~.
 
-Following is a example to use ascii mode in ~evil-normal-state~ or when cursor is after alphabet character or when cursor is in code.
+Following is an example to use ascii mode in ~evil-normal-state~ or when cursor is after alphabet character or when cursor is in code.
 
 #+BEGIN_SRC emacs-lisp
   (setq rime-disable-predicates
@@ -320,7 +324,7 @@ Give =rime-commit1-and-toggle-input-method= a keybinding to replace what =toggle
 
 ** Commit the 1st item automatically when switch to evil-normal-state
 
-Give ~rime-commit1-and-toggle-input-method~ a rebind in ~rime-active-mode-map~ on =<escape>= , example configuration:
+Give ~rime-commit1-and-toggle-input-method~ a rebind in ~rime-active-mode-map~ on =<escape>= , an example configuration:
 #+BEGIN_SRC elisp
 (define-key rime-active-mode-map (kbd "<escape>") 'rime-commit1-and-evil-normal)
 #+END_SRC
