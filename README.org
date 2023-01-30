@@ -151,6 +151,12 @@ patch:
 
 设置 ~rime-sidewindow-keep-window~ ，为 ~t~ 时可保持 sidewindow 为开启状态。
 
+** 彩色指示标志
+
+可用 ~(rime-lighter)~ 得到彩色指示标志 ~ㄓ~.
+可将其放在 modeline 等任意地方。
+
+可用 ~rime-title~ 、 ~rime-indicator-face~ 和 ~rime-indicator-dim-face~ 来自定义。
 ** 设置软光标的样式
 
 默认使用 ~|~ 字符做为软光标，可以通过如下方式修改。
