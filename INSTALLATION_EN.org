@@ -132,44 +132,44 @@ Put following in the ~:custom~ section.
 
 ** Minimal configuration
 
-   #+BEGIN_SRC emacs-lisp
-  (use-package rime
-    :custom
-    (default-input-method "rime"))
-   #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package rime
+  :custom
+  (default-input-method "rime"))
+#+END_SRC
 
 *** Use Straight
-   #+BEGIN_SRC emacs-lisp
-     (use-package rime
-       :straight (rime :type git
-                       :host github
-                       :repo "DogLooksGood/emacs-rime"
-                       :files ("*.el" "Makefile" "lib.c"))
-       :custom
-       (default-input-method "rime"))
-   #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package rime
+    :straight (rime :type git
+                    :host github
+                    :repo "DogLooksGood/emacs-rime"
+                    :files ("*.el" "Makefile" "lib.c"))
+    :custom
+    (default-input-method "rime"))
+#+END_SRC
 
 *** Use Quelpa
-   #+BEGIN_SRC emacs-lisp
-     (use-package rime
-       :quelpa (rime :fetcher github
-                     :repo "DogLooksGood/emacs-rime"
-                     :files ("*.el" "Makefile" "lib.c"))
-       :custom
-       (default-input-method "rime"))
-   #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package rime
+    :quelpa (rime :fetcher github
+                  :repo "DogLooksGood/emacs-rime"
+                  :files ("*.el" "Makefile" "lib.c"))
+    :custom
+    (default-input-method "rime"))
+#+END_SRC
 
 *** NOTICE (MacOS)
 If you are on MacOS or don't have librime in standard path,
-   you *MUST* specify ~rime-librime-root~.
+you *MUST* specify ~rime-librime-root~.
 
-   Put following in the ~:custom~ section.
+Put following in the ~:custom~ section.
 
-   (Assuming you unzip librime to ~/.emacs.d/librime)
+(Assuming you unzip librime to ~/.emacs.d/librime)
 
-   #+BEGIN_SRC emacs-lisp
-     (rime-librime-root "~/.emacs.d/librime/dist")
-   #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (rime-librime-root "~/.emacs.d/librime/dist")
+#+END_SRC
 
 ** Activate input method
 

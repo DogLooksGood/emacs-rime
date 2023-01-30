@@ -47,10 +47,9 @@ Currently the keybinding with Control(C-), Meta(M-) and Shift(S-) is supported.
 
 Use ~rime-open-configuration~.
 
-#+html: </details>
 ** (TTBD)重新部署
 #+html: <details>
-#+html: <summary>切换折叠</summary>
+#+html: <summary>toggle-folding</summary>
 
 ~emacs-rime~ 的配置文件更新之后，与 RIME 一样，都需要重新部署才可生效。
 
@@ -80,7 +79,7 @@ patch:
 #+html: </details>
 ** (TTBD)同步词库
 #+html: <details>
-#+html: <summary>切换折叠</summary>
+#+html: <summary>toggle-folding</summary>
 
 ~M-x rime-sync~ 可对 RIME 输入方案和词库进行同步与备份，每次同步双向进行，词库生成的备份文件为 ~sync/ins_id/schema.userdb.txt~ ，其本身是文件夹 ~schema.userdb/~ 中词库与词频使用记录的纯文本形式，方便用户跨平台、多设备使用。
 
@@ -95,12 +94,13 @@ patch:
 #+html: </details>
 *** 词库同步失败？
 #+html: <details>
-#+html: <summary>切换折叠</summary>
+#+html: <summary>toggle-folding</summary>
 
 （以地球拼音方案使用为例。）
 
 *建议将不同设备或系统中的 ~installation_id~ 设为同一值* 。若其不同，则可能同步失败，即从旧系统同步并复制的 ~terra_pinyin.userdb.txt~ 中的词频记录不会被纳入到当前的 ~terra_pinyin.userdb/~ 。
 此时该文件中词频不为空，但其中 ~user_id~ 等不同，修改此值后再次同步仍可能不生效。
+#+html: </details>
 #+html: </details>
 #+html: </details>
 * Part 3: Appearance
@@ -171,7 +171,6 @@ Default to ~|~ , you can customize it with
   (setq rime-cursor "˰")
 #+END_SRC
 
-#+html: </details>
 ** (TTBD)设置嵌入文本的样式
 
 可通过 ~rime-preedit-face~ 设置。
@@ -187,6 +186,7 @@ Default to ~|~ , you can customize it with
 
 注意：使用 ~inline~ 或 ~nil~ 将不再展示软光标。
 
+#+html: </details>
 #+html: </details>
 * Part 4: Automation
 #+html: <details>
