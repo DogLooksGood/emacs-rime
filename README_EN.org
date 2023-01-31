@@ -96,7 +96,11 @@ The mentioned path of ~sync~ folder and configuration file ~default.custom.yaml~
 Taking adding terra-pinyin and sync as an example. After enable this input method schema, a folder ~terra_pinyin.userdb~ under RIME share data directory is generated, which has the log of usage frequency user defined vocabulary, so better not modify it.
 Before you sync, modify the content of ~installation.yaml~ to the customed ~installation_id: "hesperus"~ . Then ~M-x rime-sync~ , which will generate the file ~terra_pinyin.userdb.txt~ (vocabulary data) and ~terra_pinyin.schema.yaml~ (input method schema) under ~sync/hesperus/~ .
 
-If you have vocabulary data accumulated on other devices or systems, and you want to keep using it, then you should sync in the original system, and copy the generated ~terra_pinyin.userdb.txt~ to the targed system's ~sync/hesperus/~ , then do sync or deploy. Now, the vocabulary data backed up in the old system willby merged under ~terra_pinyin.userdb/~ in the new system, and new union will be exported too, overriding ~terra_pinyin.userdb.txt~ .
+If you have vocabulary data accumulated on other devices or systems, and you want to keep using it,
+then you should sync in the original system, and copy the generated ~terra_pinyin.userdb.txt~ to the targed system's ~sync/hesperus/~ ,
+then do sync or deploy.
+Now, the vocabulary data backed up in the old system willby merged under ~terra_pinyin.userdb/~ in the new system,
+and new union will be exported too, overriding ~terra_pinyin.userdb.txt~ .
 
 #+html: </details>
 *** Vocabulary data sync failed?
@@ -105,7 +109,7 @@ If you have vocabulary data accumulated on other devices or systems, and you wan
 
 Take using terra-pinyin as an example.
 
-*It's advised to set the same value for ~installation_id~ on different devices or systems.* If they're not the same, the sync process may fail, i.e. the vocabulary frequency log in ~terra_pinyin.userdb.txt~ copied from old system won't be obtained in current ~terra_pinyin.userdb/~ .
+*It's suggested to set a same value for ~installation_id~ on different devices or systems.* If they're not the same, the sync process may fail, i.e. the vocabulary frequency log in ~terra_pinyin.userdb.txt~ copied from old system won't be obtained in current ~terra_pinyin.userdb/~ .
 At time, the vocabulary frequency info in this file is not empty, but with a different ~user_id~ , and possibly not take effect even after modify the value and resync.
 #+html: </details>
 #+html: </details>
