@@ -89,25 +89,26 @@ How to recover: (still, take terra_pinyin as an example) Set user-data-dir of ~e
 #+html: <details>
 #+html: <summary>toggle-folding</summary>
 
-~M-x rime-sync~ 可对 RIME 输入方案和词库进行同步与备份，每次同步双向进行，词库生成的备份文件为 ~sync/ins_id/schema.userdb.txt~ ，其本身是文件夹 ~schema.userdb/~ 中词库与词频使用记录的纯文本形式，方便用户跨平台、多设备使用。
+~M-x rime-sync~ is capable of syncing and backing up for RIME input method and vocabulary data, and every sync is a dual-directional sync.
+The backup file generated for vocabulary data is ~sync/ins_id/schema.userdb.txt~ , the file is the plain text of vocabulary data and vocabulary frequency log in the folder ~schema.userdb/~ , for convenience using it across platforms on multiple devices.
 
-所谓双向同步，即当前设备中的词频或用户自造词（ ~schema.userdb/~ 中）与备份文件（ ~sync/ins_id/schema.userdb.txt~ 中）所记录的词库会被 RIME 合并，其 *并集* 将会继续记录在 ~schema.userdb/~ 中，同时生成一份新的备份文件，仍名为 ~sync/ins_id/schema.userdb.txt~ ，并（在不询问用户的情况下）将旧的覆盖。
+The so called dual-directional sync is that, 当前设备中的词频或用户自造词（ ~schema.userdb/~ 中）与备份文件（ ~sync/ins_id/schema.userdb.txt~ 中）所记录的词库会被 RIME 合并，其 *并集* 将会继续记录在 ~schema.userdb/~ 中，同时生成一份新的备份文件，仍名为 ~sync/ins_id/schema.userdb.txt~ ，并（在不询问用户的情况下）将旧的覆盖。
 
 上述路径中 ~sync~ 文件夹与配置文件 ~default.custom.yaml~ 在同一目录， ~ins_id~ 对应的是 ~installation.yaml~ 文件中 ~installation_id~ 的值，默认值为随机生成，可自定义为其他字符串。
 
 以添加 ~地球拼音（terra_pinyin）~ 后同步为例。启用该方案后，在 RIME 数据目录下会产生名为 ~terra_pinyin.userdb~ 的文件夹，其中为使用频率与自造词的记录，不可随意修改。同步前先修改 ~installation.yaml~ 中内容为自定义的 ~installation_id: "hesperus"~ ，之后 ~M-x rime-sync~ ，将会在 ~sync/hesperus/~ 生成文件 ~terra_pinyin.userdb.txt~ （词库）与 ~terra_pinyin.schema.yaml~ （输入方案）。
 
-若在其他设备或系统中有个人积累的词库，想继续使用。则先在旧系统中进行同步，将生成的 ~terra_pinyin.userdb.txt~ 复制到当前系统的 ~sync/hesperus/~ 下，再进行同步或部署，此时旧系统中备份的词库将会被合并到当前系统的 ~terra_pinyin.userdb/~ ，新的并集也将会被同时导出，并覆盖 ~terra_pinyin.userdb.txt~ 。
+若在其他设备或系统中有个人积累的词库，想继续使用。则先在旧系统中进行同步，将生成的 ~terra_pinyin.userdb.txt~ 复制到当前系统的 ~sync/hesperus/~ 下，再进行同步或部署，此时旧系统中备份的词库将会被合并到当前系统的 ~terra_pinyin.userdb/~ ，新的并集也将会被同时导出，并覆盖 ~terra_pinyin.userdb.txt~ .
 
 #+html: </details>
-*** 词库同步失败？
+*** Vocabulary data sync failed?
 #+html: <details>
 #+html: <summary>toggle-folding</summary>
 
-（以地球拼音方案使用为例。）
+Take using terra-pinyin as an example.
 
-*建议将不同设备或系统中的 ~installation_id~ 设为同一值* 。若其不同，则可能同步失败，即从旧系统同步并复制的 ~terra_pinyin.userdb.txt~ 中的词频记录不会被纳入到当前的 ~terra_pinyin.userdb/~ 。
-此时该文件中词频不为空，但其中 ~user_id~ 等不同，修改此值后再次同步仍可能不生效。
+*It's advised to set the same value for ~installation_id~ on different devices or systems.* If they're not the same, the sync process may fail, i.e. the vocabulary frequency log in ~terra_pinyin.userdb.txt~ copied from old system won't be obtained in current ~terra_pinyin.userdb/~ .
+At time, the vocabulary frequency info in this file is not empty, but with a different ~user_id~ , and possibly not take effect even after modify the value and resync.
 #+html: </details>
 #+html: </details>
 #+html: </details>
