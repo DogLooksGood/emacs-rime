@@ -25,12 +25,13 @@
 
 ** 指定 Rime 共享目录和用户目录
 
-共享目录即 ~rime-share-data-dir~ 是 Rime 安装后放置配置的目录，
+共享目录即 ~rime-share-data-dir~ 是 Rime 安装后放置配置（包括输入方案）的目录，
 例如 Linux 上默认为 =/usr/share/rime-data= ，通常使用默认值即可。
 如果使用其它的位置，可以配置该值。
 例如对于 fcitx5-rime 可能要使用 =~/.local/share/fcitx5/rime= 。
 
-用户目录即 ~rime-user-data-dir~ 为 emacs-rime 布署的位置，默认为 =~/.emacs.d/rime= ，如果需要其它位置，可以配置该值。
+用户目录即 ~rime-user-data-dir~ 为 emacs-rime 布署的位置（包括词频等）。
+默认为 =~/.emacs.d/rime= ，如果需要其它位置，可以配置该值。
 
 *不建议 ~emacs-rime~ 与 ~fcitx-rime~ 共用用户数据目录* 。
 以地球拼音方案在 fcitx-rime 与 emacs-rime 中使用为例，若设置

@@ -27,13 +27,13 @@ Currently the keybinding with Control(C-), Meta(M-) and Shift(S-) is supported.
 
 ** Assign Rime share-data-dir and user-data-dir
 
-~rime-share-data-dir~ is where Rime store its configuration post installation.
+~rime-share-data-dir~ is where Rime store its configuration (including schema) post installation.
 E.g. default path for Linux is usually =/usr/share/rime-data= ,
 Normally you could just use the default value, or configure the variable to use another location.
 E.g. for fcitx5-rime maybe this path: =~/.local/share/fcitx5/rime= .
 
-~rime-user-data-dir~ is where emacs-rime deploy at,
-the default path is =~/.emacs.d/rime= .
+~rime-user-data-dir~ is where emacs-rime deploy at, including vocabulary frequency information.
+The default path is =~/.emacs.d/rime= .
 Configure the variable to use another location.
 
 *Making ~emacs-rime~ 与 ~fcitx-rime~ share user-data-dir is NOT recommended* 。
