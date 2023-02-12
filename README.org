@@ -342,16 +342,16 @@ emacs-rime 内置了 =rime-commit1= 函数，其作用是在输入状态下将�
 #+end_src
 这里使用了 =ignore-errors= 来防止在初次切换输入法时 =rime-commit1= 未被加载而报错。
 在此配置生效后，按 =C-;= 即可使首项自动上屏并切换输入法。
-*** 全局首项自动上屏
-若你有很多函数需要在其执行前首项自动上屏，而又不想对它们一个个进行自定义函数与绑定的配置，你可以设置全局的首项自动上屏。
+*** 对任意无关函数首项自动上屏
+若你有很多函数需要在其执行前首项自动上屏，而又不想对它们一个个进行自定义函数与绑定的配置，你可以设置对任意与 emacs-rime 无关函数的首项自动上屏。
 
 机制：
 - 在 emacs-rime 的输入状态下，若执行与 emacs-rime 无关的函数，默认会触发 =rime--clear-state= 清空候选框。
-- 若设置变量 =rime-commit1-global= 为一非 nil 值，则会将触发的函数改为 =rime-commit1= 即首项自动上屏。
+- 若设置变量 =rime-commit1-forall= 为一非 nil 值，则会将触发的函数改为 =rime-commit1= 即首项自动上屏。
 
 示例配置如下：
 #+begin_src elisp
-(setq rime-commit1-global t)
+(setq rime-commit1-forall t)
 #+end_src
 *** 按 ESC 时首项自动上屏
 上述全局设置，不能使得在输入时按 ESC 时首项也自动上屏，这里给出针对性的配置方法。

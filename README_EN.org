@@ -347,19 +347,19 @@ Example configuration:
 #+end_src
 Here =ignore-errors= is for preventing =rime-commit1= triggering error because that it's not loaded until every first time you enable rime during a emacs session.
 After the example configuration taking effects, press =C-;= to toggle input method.
-*** Auto commit1 globally
-If there's many functions that you'd like to auto-commit1 before executing them, and you don't want to define many customed functions for each of them, you could configure a global auto-commit1.
+*** Auto commit1 for all command unrelated to emacs-rime
+If there's many functions that you'd like to auto-commit1 before executing them, and you don't want to define many customed functions for each of them, you could configure a auto-commit1 for all of them.
 
 How it works:
 - During input state of emacs-rime, if a function unrelated with rime is executed, =rime--clear-state= is triggered by default.
-- If set =rime-commit1-global= to a non-nil value, the function to be triggered will be =rime-commit1= instead.
+- If set =rime-commit1-forall= to a non-nil value, the function to be triggered will be =rime-commit1= instead.
 
 Example configuration:
 #+begin_src elisp
-(setq rime-commit1-global t)
+(setq rime-commit1-forall t)
 #+end_src
 *** Auto commit1 for pressing ESC
-The global configuration above does not apply to pressing ESC, here we have a workaround.
+The for-all configuration above does not apply to pressing ESC, here we have a workaround.
 
 Why it works:
 During input state of emacs-rime, ESC is mapped to the function =rime--escape= , which is apparently not a function unrelated with emacs-rime.

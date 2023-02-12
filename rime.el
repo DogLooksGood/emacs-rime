@@ -910,6 +910,8 @@ By default the input-method will not handle DEL, so we need this command."
               (string-match-p "self-insert" (symbol-name this-command)))
     (rime--clear-state)))
 
+(defcustom rime-commit1-forall nil "Non-nil to auto commit the 1st item before any command unrelated to rime.")
+
 (defun rime--commit1-before-unrelated-command ()
   "Commit the 1st item if this command is unrelated to rime."
   (unless (or (not (symbolp this-command))
@@ -1078,13 +1080,16 @@ Argument NAME ignored."
 
 (defun rime-active-mode--init ()
   "Init for command `rime-active-mode'."
-  (add-hook 'pre-command-hook #'rime--clear-state-before-unrelated-command t t)
+  (if rime-commit1-forall
+      (add-hook 'pre-command-hook #'rime--commit1-before-unrelated-command t t)
+    (add-hook 'pre-command-hook #'rime--clear-state-before-unrelated-command t t))
   (cl-case major-mode
     (vterm-mode (rime--init-hook-vterm))
     (t (rime--init-hook-default))))
 
 (defun rime-active-mode--uninit ()
   "Uninit for command `rime-active-mode'."
+  (remove-hook 'pre-command-hook #'rime--commit1-before-unrelated-command t)
   (remove-hook 'pre-command-hook #'rime--clear-state-before-unrelated-command t)
   (cl-case major-mode
     (vterm-mode (rime--uninit-hook-vterm))
