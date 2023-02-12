@@ -910,6 +910,14 @@ By default the input-method will not handle DEL, so we need this command."
               (string-match-p "self-insert" (symbol-name this-command)))
     (rime--clear-state)))
 
+(defun rime-commit1 ()
+  "Commit the 1st item if exists."
+  (interactive)
+  (when (rime-lib-process-key 32 0)
+    (let ((commit (rime-lib-get-commit)))
+      (insert commit)
+      (rime--clear-state))))
+
 (defcustom rime-commit1-forall nil "Non-nil to auto commit the 1st item before any command unrelated to rime.")
 
 (defun rime--commit1-before-unrelated-command ()
@@ -1177,14 +1185,6 @@ Will resume when finish composition."
         mode-line-format nil
         tab-line-format  nil)
   (jit-lock-mode -1))
-
-(defun rime-commit1 ()
-  "Commit the 1st item if exists."
-  (interactive)
-  (when (rime-lib-process-key 32 0)
-    (let ((commit (rime-lib-get-commit)))
-      (insert commit)
-      (rime--clear-state))))
 
 (defun rime-commit-and-toggle-input-method ()
   "[OBSOLETE] A function that we decide to let user define it in their Emacs configuration, so this will be removed in the future. See README for details."
