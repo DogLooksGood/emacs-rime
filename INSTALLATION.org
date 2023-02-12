@@ -1,10 +1,32 @@
-#+title: Emacs Rime 安装与使用方法
+#+title: Emacs Rime 基本安装与使用方法
 
 ** 依赖
-
    - Emacs 26.1+ ，且需启用动态支持模块。
-
    - emacs-rime 会自动构建所需的动态模块，这需要 ~make~ 和 ~gcc~ 可用。
+*** 如何获得支持动态模块的 Emacs ？
+#+html: <details>
+#+html: <summary>切换折叠</summary>
+**** Linux
+Linux 各主要发行版自带 emacs 默认已启用动态模块支持。
+
+**** MacOS
+***** emacs-plus 默认启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下：
+#+BEGIN_SRC shell
+brew tap d12frosted/emacs-plus
+brew install emacs-plus
+#+END_SRC
+
+***** emacs-mac 安装时需要启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下 :
+#+BEGIN_SRC shell
+brew tap railwaycat/emacsmacport
+brew install emacs-mac --with-modules
+#+END_SRC
+
+**** 手工编译
+
+使用 ~--with-modules~ 选项.
+
+#+html: </details>
 
 ** 安装 librime
 
@@ -86,6 +108,28 @@
 
     在 mingw64 环境中启动 emacs 来获取正确的 =SHELL= 环境变量，用来在 Emacs 内构建 librime-emacs 以及  =MSYSTEM_PREFIX= 环境变量来设置 ~rime-share-data-dir~ 变量。
 
+*** 编译时无法找到 rime_api.h ？
+#+html: <details>
+#+html: <summary>切换折叠</summary>
+必须设置 ~rime-librime-root~ 参照安装方法中的说明。
+
+#+html: </details>
+*** 编译时无法找到 emacs-module.h ？
+#+html: <details>
+#+html: <summary>切换折叠</summary>
+
+如果自己编译 Emacs 且没有安装到标准目录（/usr/, /usr/local/），
+*必须* 指定 ~rime-emacs-module-header-root~ 。
+
+在 ~:custom~ 中加入如下内容.
+
+(假设将 Emacs 安装到了 ~/emacs)
+
+#+BEGIN_SRC emacs-lisp
+(rime-emacs-module-header-root "~/emacs/include")
+#+END_SRC
+
+#+html: </details>
 ** 最小配置
 
    Emacs Rime 已发布到 Melpa 。
@@ -96,40 +140,43 @@
        (default-input-method "rime"))
    #+end_src
 
-   #+html: <details>
-   #+html: <summary>使用 Straight</summary>
-   #+BEGIN_SRC emacs-lisp
-     (use-package rime
-       :straight (rime :type git
-                       :host github
-                       :repo "DogLooksGood/emacs-rime"
-                       :files ("*.el" "Makefile" "lib.c"))
-       :custom
-       (default-input-method "rime"))
-   #+END_SRC
-   #+html: </details>
+*** 使用 Straight
+#+html: <details>
+#+html: <summary>切换折叠</summary>
+#+BEGIN_SRC emacs-lisp
+  (use-package rime
+    :straight (rime :type git
+                    :host github
+                    :repo "DogLooksGood/emacs-rime"
+                    :files ("*.el" "Makefile" "lib.c"))
+    :custom
+    (default-input-method "rime"))
+#+END_SRC
+#+html: </details>
 
-   #+html: <details>
-   #+html: <summary>使用 Quelpa</summary>
-   #+BEGIN_SRC emacs-lisp
-     (use-package rime
-       :quelpa (rime :fetcher github
-                     :repo "DogLooksGood/emacs-rime"
-                     :files ("*.el" "Makefile" "lib.c"))
-       :custom
-       (default-input-method "rime"))
-   #+END_SRC
-   #+html: </details>
+*** 使用 Quelpa
+#+html: <details>
+#+html: <summary>切换折叠</summary>
+#+BEGIN_SRC emacs-lisp
+  (use-package rime
+    :quelpa (rime :fetcher github
+                  :repo "DogLooksGood/emacs-rime"
+                  :files ("*.el" "Makefile" "lib.c"))
+    :custom
+    (default-input-method "rime"))
+#+END_SRC
+#+html: </details>
 
-   *NOTE* 如果你在 MacOS 上或是选择自己编译 librime （没有放在系统路径中）， *必须* 指定 ~rime-librime-root~ 。
+*** 注意（MacOS）
+*NOTE* 如果你在 MacOS 上或是选择自己编译 librime （没有放在系统路径中）， *必须* 指定 ~rime-librime-root~ 。
 
-   在 ~:custom~ 中加入如下内容.
+在 ~:custom~ 中加入如下内容.
 
-   (假设将 librime 解压到了 ~/.emacs.d/librime)
+(假设将 librime 解压到了 ~/.emacs.d/librime)
 
-   #+BEGIN_SRC emacs-lisp
-     (rime-librime-root "~/.emacs.d/librime/dist")
-   #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (rime-librime-root "~/.emacs.d/librime/dist")
+#+END_SRC
 
 ** 激活 Rime 输入法
 

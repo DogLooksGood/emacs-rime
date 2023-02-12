@@ -910,6 +910,23 @@ By default the input-method will not handle DEL, so we need this command."
               (string-match-p "self-insert" (symbol-name this-command)))
     (rime--clear-state)))
 
+(defun rime-commit1 ()
+  "Commit the 1st item if exists."
+  (interactive)
+  (when (rime-lib-process-key 32 0)
+    (let ((commit (rime-lib-get-commit)))
+      (insert commit)
+      (rime--clear-state))))
+
+(defcustom rime-commit1-forall nil "Non-nil to auto commit the 1st item before any command unrelated to rime.")
+
+(defun rime--commit1-before-unrelated-command ()
+  "Commit the 1st item if this command is unrelated to rime."
+  (unless (or (not (symbolp this-command))
+              (string-prefix-p "rime-" (symbol-name this-command))
+              (string-match-p "self-insert" (symbol-name this-command)))
+    (rime-commit1)))
+
 (defun rime--refresh-mode-state ()
   "Toggle variable `rime-active-mode' based on if context is available."
   (if (rime--has-composition (rime-lib-get-context))
@@ -1071,13 +1088,16 @@ Argument NAME ignored."
 
 (defun rime-active-mode--init ()
   "Init for command `rime-active-mode'."
-  (add-hook 'pre-command-hook #'rime--clear-state-before-unrelated-command t t)
+  (if rime-commit1-forall
+      (add-hook 'pre-command-hook #'rime--commit1-before-unrelated-command t t)
+    (add-hook 'pre-command-hook #'rime--clear-state-before-unrelated-command t t))
   (cl-case major-mode
     (vterm-mode (rime--init-hook-vterm))
     (t (rime--init-hook-default))))
 
 (defun rime-active-mode--uninit ()
   "Uninit for command `rime-active-mode'."
+  (remove-hook 'pre-command-hook #'rime--commit1-before-unrelated-command t)
   (remove-hook 'pre-command-hook #'rime--clear-state-before-unrelated-command t)
   (cl-case major-mode
     (vterm-mode (rime--uninit-hook-vterm))
@@ -1167,14 +1187,9 @@ Will resume when finish composition."
   (jit-lock-mode -1))
 
 (defun rime-commit-and-toggle-input-method ()
-  "Commit the first item if exists, then toggle input method."
+  "[OBSOLETE] A function that we decide to let user define it in their Emacs configuration, so this will be removed in the future. See README for details."
   (interactive)
-  (ignore-errors
-    (when (rime-lib-process-key 32 0)
-      (let ((commit (rime-lib-get-commit)))
-        (insert commit)
-        (rime--clear-state))))
-  (toggle-input-method))
+  (message "[emacs-rime] The `rime-commit-and-toggle-input-method' is OBSOLETE. See README for details."))
 
 (require 'rime-predicates)
 
