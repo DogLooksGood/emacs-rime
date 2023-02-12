@@ -910,6 +910,13 @@ By default the input-method will not handle DEL, so we need this command."
               (string-match-p "self-insert" (symbol-name this-command)))
     (rime--clear-state)))
 
+(defun rime--commit1-before-unrelated-command ()
+  "Commit the 1st item if this command is unrelated to rime."
+  (unless (or (not (symbolp this-command))
+              (string-prefix-p "rime-" (symbol-name this-command))
+              (string-match-p "self-insert" (symbol-name this-command)))
+    (rime-commit1)))
+
 (defun rime--refresh-mode-state ()
   "Toggle variable `rime-active-mode' based on if context is available."
   (if (rime--has-composition (rime-lib-get-context))
@@ -1174,25 +1181,10 @@ Will resume when finish composition."
       (insert commit)
       (rime--clear-state))))
 
-(defun rime-commit1-and-evil-normal ()
-  "Commit the 1st item if exists, then go to evil normal state."
-  (interactive)
-  (rime-commit1)
-  (evil-normal-state))
-
-(defun rime-commit1-and-toggle-input-method ()
-  "Commit the 1st item if exists, then toggle input method."
-  (interactive)
-  (ignore-errors (rime-commit1))
-  (toggle-input-method))
-
 (defun rime-commit-and-toggle-input-method ()
-  "[OBSOLETE] alias of `rime-commit1-and-toggle-input-method'.
-
-Will be removed in the future."
+  "[OBSOLETE] A function that we decide to let user define it in their Emacs configuration, so this will be removed in the future. See README for details."
   (interactive)
-  (message "[emacs-rime] The `rime-commit-and-toggle-input-method' is OBSOLETE. Use `rime-commit1-and-toggle-input-method' instead. See README for details.")
-  (rime-commit1-and-toggle-input-method))
+  (message "[emacs-rime] The `rime-commit-and-toggle-input-method' is OBSOLETE. See README for details."))
 
 (require 'rime-predicates)
 

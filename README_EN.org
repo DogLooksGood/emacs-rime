@@ -321,17 +321,63 @@ The effect will only last for one input behavior.
 
 You probably want to give this command a keybinding.
 
-** Commit the 1st item automatically when toggle input method
+** Auto Commit1
+emacs-rime has defined the function =rime-commit1= , which automatically commit the 1st item among the candidates during input state.
 
-Give =rime-commit1-and-toggle-input-method= a keybinding to replace what =toggle-input-method= does.
+The function is especially useful for schema that don't rely on manually selecting desired candidate.
 
-** Commit the 1st item automatically when switch to evil-normal-state
+The function is not suitable for using alone, but using within other functions defined by user to suit various personal needs.
+*** Example: Commit the 1st item when toggle input method.
+Some input method programs, e.g. fcitx5-rime, support commit the 1st item before toggle input method.
+Here's an example to realize the same function in emacs-rime, for explaning the usage of =rime-commit1= .
 
-Give ~rime-commit1-and-toggle-input-method~ a rebind in ~rime-active-mode-map~ on =<escape>= , an example configuration:
-#+BEGIN_SRC elisp
+Now, the basic idea is that:
+1. Define a function which commits the 1st item and toggles input method.
+2. Bind the defined function to some keys, and use it to alternative which ~toggle-input-method~ does.
+
+Example configuration:
+#+begin_src elisp
+(defun rime-commit1-and-toggle-input-method ()
+  "Commit the 1st item if exists, then toggle input method."
+  (interactive)
+  (ignore-errors (rime-commit1))
+  (toggle-input-method))
+
+(global-set-key (kbd "C-;") #'rime-commit1-and-toggle-input-method)
+#+end_src
+Here =ignore-errors= is for preventing =rime-commit1= triggering error because that it's not loaded until every first time you enable rime during a emacs session.
+After the example configuration taking effects, press =C-;= to toggle input method.
+*** Auto commit1 globally
+If there's many functions that you'd like to auto-commit1 before executing them, and you don't want to define many customed functions for each of them, you could configure a global auto-commit1.
+
+How it works:
+- During input state of emacs-rime, if a function unrelated with rime is executed, =rime--clear-state= is triggered by default.
+- If set =rime-commit1-global= to a non-nil value, the function to be triggered will be =rime-commit1= instead.
+
+Example configuration:
+#+begin_src elisp
+(setq rime-commit1-global t)
+#+end_src
+*** Auto commit1 for pressing ESC
+The global configuration above does not apply to pressing ESC, here we have a workaround.
+
+Why it works:
+During input state of emacs-rime, ESC is mapped to the function =rime--escape= , which is apparently not a function unrelated with emacs-rime.
+
+Example:
+Taking using with evil as an example.
+For making ESC acts as auto-commit1 then evil-normal-state, define a function and bind it to ESC.
+(notice: at least for evil, =C-[= is the same as =ESC= to emacs, so that another binding for =C-[= is NOT needed.)
+
+Example configuration:
+#+begin_src elisp
+(defun rime-commit1-and-evil-normal ()
+  "Commit the 1st item if exists, then go to evil normal state."
+  (interactive)
+  (rime-commit1)
+  (evil-normal-state))
 (define-key rime-active-mode-map (kbd "<escape>") 'rime-commit1-and-evil-normal)
-#+END_SRC
-
+#+end_src
 ** Auto close input method after using minibuffer
 
 Auto close as default.

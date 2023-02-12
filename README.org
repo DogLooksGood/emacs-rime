@@ -317,17 +317,59 @@ patch:
 #+end_src
 
 #+html: </details>
-** 在切换输入法时自动上屏
+** Commit1 自动上屏
+emacs-rime 内置了 =rime-commit1= 函数，其作用是在输入状态下将候选框中的首项自动上屏。
 
-可将 ~rime-commit1-and-toggle-input-method~ 绑定到某个按键上来替代原本 ~toggle-input-method~ 的功能。
+这对于不注重（或几乎不需要）选重、且码长可不固定（即简码）的输入方案，如纯形码、音形码等（尤其是顶功类方案）而言，非常有用。
 
-** 在切换到 evil-normal-state 时自动上屏
+此函数不是针对单独使用的，而主要是为了配合自定义其它函数，以适应个人的各种使用场景。
+*** 实例：在切换输入法时首项自动上屏
+在切换输入法时首项自动上屏，这是 fcitx5-rime 等所支持的功能。
+这里就以在 emacs-rime 中实现相同功能为例，说明如何使用 =rime-commit1= 函数。
 
-可将 ~rime-commit1-and-toggle-input-method~ 绑定到 ~rime-active-mode-map~ 中的 =<escape>= 键，示例配置如下：
-#+BEGIN_SRC elisp
+基本思路是，先自定义一个函数，功能是先使得首项自动上屏，再切换输入法；
+再将这个函数绑定到某个按键组合上，来替代原本 ~toggle-input-method~ 的功能。
+
+示例配置如下：
+#+begin_src elisp
+(defun rime-commit1-and-toggle-input-method ()
+  "Commit the 1st item if exists, then toggle input method."
+  (interactive)
+  (ignore-errors (rime-commit1))
+  (toggle-input-method))
+
+(global-set-key (kbd "C-;") #'rime-commit1-and-toggle-input-method)
+#+end_src
+这里使用了 =ignore-errors= 来防止在初次切换输入法时 =rime-commit1= 未被加载而报错。
+在此配置生效后，按 =C-;= 即可使首项自动上屏并切换输入法。
+*** 全局首项自动上屏
+若你有很多函数需要在其执行前首项自动上屏，而又不想对它们一个个进行自定义函数与绑定的配置，你可以设置全局的首项自动上屏。
+
+机制：
+- 在 emacs-rime 的输入状态下，若执行与 emacs-rime 无关的函数，默认会触发 =rime--clear-state= 清空候选框。
+- 若设置变量 =rime-commit1-global= 为一非 nil 值，则会将触发的函数改为 =rime-commit1= 即首项自动上屏。
+
+示例配置如下：
+#+begin_src elisp
+(setq rime-commit1-global t)
+#+end_src
+*** 按 ESC 时首项自动上屏
+上述全局设置，不能使得在输入时按 ESC 时首项也自动上屏，这里给出针对性的配置方法。
+
+机制：在 emacs-rime 的输入状态下，ESC 被绑定到了 =rime--escape= 函数上，此函数显然不是“与 emacs-rime 无关的函数”。
+
+实例：以 evil 插件为例，若要使得 ESC 能自动上屏并切换到 evil 的 normal state，可以先自定义函数，并将此函数绑定到 ESC 上。
+（注：至少对于 evil 插件而言， =C-[= 和 =ESC= 被 emacs 当作同一按键，所以不需要对 =C-[= 另行绑键。）
+
+示例配置如下：
+#+begin_src elisp
+(defun rime-commit1-and-evil-normal ()
+  "Commit the 1st item if exists, then go to evil normal state."
+  (interactive)
+  (rime-commit1)
+  (evil-normal-state))
 (define-key rime-active-mode-map (kbd "<escape>") 'rime-commit1-and-evil-normal)
-#+END_SRC
-
+#+end_src
 ** 在 minibuffer 使用后自动关闭输入法
 
 默认行为为自动关闭，设置 ~rime-deactivate-when-exit-minibuffer~ 为 nil 取消该行为。
