@@ -465,11 +465,16 @@ Each keybinding in this list, will be bound to `rime-send-keybinding' in `rime-a
 
 (defun rime--message-display-content (content)
   "Display CONTENT via message."
-  (let ((message-log-max nil))
-    (save-window-excursion
+  (if (string-blank-p content)
+      (message "")
+    (let ((inhibit-quit t)
+          (message-log-max nil))
       (with-temp-message
           content
-        (sit-for most-positive-fixnum)))))
+        (sit-for most-positive-fixnum))
+      (when quit-flag
+        (setq quit-flag nil
+              unread-command-events '(7))))))
 
 (defun rime--popup-display-content (content)
   "Display CONTENT with popup.el."
