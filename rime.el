@@ -1186,11 +1186,6 @@ Will resume when finish composition."
         tab-line-format  nil)
   (jit-lock-mode -1))
 
-(defun rime-commit-and-toggle-input-method ()
-  "[OBSOLETE] A function that we decide to let user define it in their Emacs configuration, so this will be removed in the future. See README for details."
-  (interactive)
-  (message "[emacs-rime] The `rime-commit-and-toggle-input-method' is OBSOLETE. See README for details."))
-
 (require 'rime-predicates)
 
 (provide 'rime)
