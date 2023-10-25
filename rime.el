@@ -276,6 +276,13 @@ nil, don't display."
   :options '(t inline nil)
   :group 'rime)
 
+(defcustom rime-return-insert-raw t
+  "Whether hitting return commits the raw input.
+
+If nil, hitting return commits the selected candicate instead."
+  :type 'boolean
+  :group 'rime)
+
 (defcustom rime-posframe-fixed-position nil
   "Use a fixed position for posframe candidate."
   :type :boolean
@@ -777,12 +784,16 @@ By default the input-method will not handle DEL, so we need this command."
   "Commit the raw input."
   (interactive)
   (when (rime--rime-lib-module-ready-p)
-    (when-let ((input (rime-lib-get-input)))
-      (rime--clear-overlay)
-      (insert input)
-      (rime-lib-clear-composition)
-      (rime--redisplay))
-    (rime--refresh-mode-state)))
+    (if rime-return-insert-raw
+        (rime--commit
+         (rime-lib-get-input))
+      (rime--commit-preview))))
+
+(defun rime--shift-return ()
+  "Commit the preedit."
+  (interactive)
+  (when (rime--rime-lib-module-ready-p)
+    (rime--commit-preedit)))
 
 (defun rime--ascii-mode-p ()
   "If ascii-mode is enabled."
@@ -909,6 +920,30 @@ By default the input-method will not handle DEL, so we need this command."
               (string-prefix-p "rime-" (symbol-name this-command))
               (string-match-p "self-insert" (symbol-name this-command)))
     (rime--clear-state)))
+
+(defun rime--commit (value)
+  "Insert VALUE, then clear state."
+  (when (and value (rime--rime-lib-module-ready-p))
+    (rime--clear-overlay)
+    (insert value)
+    (rime-lib-clear-composition)
+    (rime--redisplay)
+    (rime--refresh-mode-state)))
+
+(defun rime--commit-preview ()
+  "Commit the currently previewed text."
+  (when (rime--rime-lib-module-ready-p)
+    (rime--commit
+     (-some->> (rime-lib-get-context)
+       (alist-get 'commit-text-preview)))))
+
+(defun rime--commit-preedit ()
+  "Commit the currently previewed text."
+  (when (rime--rime-lib-module-ready-p)
+    (rime--commit
+     (-some->> (rime-lib-get-context)
+       (alist-get 'composition)
+       (alist-get 'preedit)))))
 
 (defun rime-commit1 ()
   "Commit the 1st item if exists."
@@ -1051,6 +1086,8 @@ Argument NAME ignored."
     (define-key keymap (kbd "<backspace>") 'rime--backspace)
     (define-key keymap (kbd "<return>") 'rime--return)
     (define-key keymap (kbd "RET") 'rime--return)
+    (define-key keymap (kbd "S-<return>") 'rime--shift-return)
+    (define-key keymap (kbd "S-RET") 'rime--shift-return)
     (define-key keymap (kbd "<escape>") 'rime--escape)
     keymap)
   "Keymap during composition.")
