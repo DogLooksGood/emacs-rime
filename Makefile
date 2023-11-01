@@ -34,7 +34,7 @@ endif
 default: clean test
 
 clean:
-	-rm $(TARGET)
+	-rm -f $(TARGET)
 
 lib:
 	$(CC) lib.c -o $(TARGET) $(CFLAGS) $(LDFLAGS)
