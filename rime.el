@@ -741,7 +741,7 @@ the car is keyCode, the cdr is mask."
                         'rime-preedit-face
                       (cons 'rime-preedit-face
                             (plist-get (text-properties-at
-                                        (if (> (point) 1)
+                                        (if (> (point) (point-min))
                                             (1- (point))
                                           (point)))
                                        'face))))))))
