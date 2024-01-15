@@ -346,7 +346,7 @@ one of these functions return t, the input-method will toggle to inline mode."
   "A list of predicate functions, each receive no argument.
 
 If one of these functions return t, the input-method will fallback to ascii mode."
-  :type 'list
+  :type 'hook
   :group 'rime)
 
 (defcustom rime-show-candidate 'minibuffer
