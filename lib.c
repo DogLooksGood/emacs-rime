@@ -462,6 +462,7 @@ emacs_module_init (struct emacs_runtime *ert)
     free(rime);
     return 0;
   }
+  rime->first_run = true;
 
   /* Global emacs_value initialize */
   nil = REF("nil");
