@@ -8,10 +8,7 @@
 #+html: <summary>切换折叠</summary>
 **** Linux
 Linux 各主要发行版自带 emacs 默认已启用动态模块支持。
-***** Gentoo-Linux需要启用~dynamic-loading~,编辑/etc/portage/package.use/emacs
-#+begin_src shell
-  app-editors/emacs libxml2 dynamic-loading
-#+end_src
+
 **** MacOS
 ***** emacs-plus 默认启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下：
 #+BEGIN_SRC shell
@@ -56,7 +53,16 @@ brew install emacs-mac --with-modules
        make
        sudo make install
      #+end_src
-
+**** Gentoo-Linux需要启用~dynamic-loading~,
+***** 编辑/etc/portage/package.use/emacs
+#+begin_src shell
+  app-editors/emacs libxml2 dynamic-loading
+#+end_src
+     
+***** 编译
+#+begin_src shell
+  sudo emerge -a app-editors/emacs 
+#+end_src
 **** Fedora
 
      #+begin_src emacs-lisp
