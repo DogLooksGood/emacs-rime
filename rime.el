@@ -1017,7 +1017,8 @@ You can customize the color with `rime-indicator-face' and `rime-indicator-dim-f
      (if rime-librime-root
          (format "LIBRIME_ROOT=%s" (file-name-as-directory (expand-file-name rime-librime-root))))
      (if rime-emacs-module-header-root
-         (format "EMACS_MODULE_HEADER_ROOT=%s" (file-name-as-directory (expand-file-name rime-emacs-module-header-root))))
+         (format "EMACS_MODULE_HEADER_ROOT=%s" (shell-quote-argument
+                                                (file-name-as-directory (expand-file-name rime-emacs-module-header-root)))))
      (format "MODULE_FILE_SUFFIX=%s" module-file-suffix))))
 
 (defun rime-compile-module ()
