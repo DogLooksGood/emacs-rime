@@ -892,6 +892,7 @@ By default the input-method will not handle DEL, so we need this command."
                   (prior #xff55)
                   (next #xff56)
                   (delete #xffff)
+                  (escape #xff1b)
                   (t key-raw))))
          (mask (cdr parsed)))
     (unless (numberp key)
