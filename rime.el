@@ -678,7 +678,7 @@ Currently just deactivate input method."
                                  (if curr
                                     (propertize (car c) 'face 'rime-highlight-candidate-face)
                                   (propertize (car c) 'face 'rime-default-face))
-                                 (if-let (comment (cdr c))
+                                 (if-let* ((comment (cdr c)))
                                      (propertize (format " %s" comment) 'face 'rime-comment-face)
                                    ""))))
           (setq result (concat result
