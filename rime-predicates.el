@@ -189,6 +189,13 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
                   (or (string-match-p "[\x5c][\x21-\x24\x26-\x7e]*$" string)
                       (string-match-p "[\x5c][a-zA-Z\x23\x40]+[\x7b][^\x7d\x25]*$" string)))))))
 
+(defun rime-predicate-punctuation-after-space-en-p ()
+  "If input a punctuation after an English character with whitespace."
+  (and (> (point) (save-excursion (back-to-indentation) (point)))
+       (rime-predicate-current-input-punctuation-p)
+       (let ((string (buffer-substring (point) (max (line-beginning-position) (- (point) 80)))))
+         (string-match-p "[a-zA-Z] +$" string))))
+
 ;; Obsoleted functions:
 (define-obsolete-function-alias 'rime--after-alphabet-char-p 'rime-predicate-after-alphabet-char-p "2020-03-26")
 (define-obsolete-function-alias 'rime--prog-in-code-p 'rime-predicate-prog-in-code-p "2020-03-26")
