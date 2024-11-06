@@ -537,7 +537,7 @@ Currently just deactivate input method."
 
 (defun rime--posframe-display-content (content)
   "Display CONTENT with posframe."
-  (if (and (featurep 'posframe) (display-graphic-p))
+  (if (and (featurep 'posframe) (posframe-workable-p))
       (if (string-blank-p content)
           (posframe-hide rime-posframe-buffer)
         (let*
