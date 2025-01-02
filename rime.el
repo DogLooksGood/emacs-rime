@@ -410,8 +410,11 @@ Defaults to `user-emacs-directory'/rime/"
 (defcustom rime-inline-ascii-holder nil
   "A character that used to hold the inline ascii mode.
 
-When inline ascii is triggered, this characeter will be inserted as the beginning of composition, the origin character follows. Then this character will be deleted."
-  :type 'character
+When inline ascii is triggered, this characeter will be inserted as the
+beginning of composition, the origin character follows.  Then this
+character will be deleted."
+  :type '(choice (const nil)
+		 character)
   :group 'rime)
 
 (defcustom rime-inline-ascii-trigger 'shift-l
