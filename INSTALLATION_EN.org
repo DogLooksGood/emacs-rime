@@ -7,11 +7,11 @@
    emacs-rime will build dynamic module automatically.
 *** How to get Emacs with dynamic module support?
 
-- **Linux**
+- Linux
 
 Emacs included in major linux distributions has dynamic module support enabled by default.
 
-- **macOS**
+- macOS
 
 ~emacs-plus~ enables dynamic modules support by default. homebrew installation:
 #+BEGIN_SRC shell
