@@ -72,7 +72,7 @@ brew install emacs-mac --with-modules
      #+end_src
 
 
-     如果是 Apple Silicon 芯片，设置 `librime` 目录
+     如果是 Apple Silicon 芯片，设置 ~librime~ 目录
      #+begin_src emacs-lisp
      (setq rime-librime-root "/opt/homebrew")
      #+end_src
