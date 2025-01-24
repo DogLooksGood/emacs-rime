@@ -9,7 +9,7 @@
 **** Linux
 Linux 各主要发行版自带 emacs 默认已启用动态模块支持。
 
-**** MacOS
+**** macOS
 ***** emacs-plus 默认启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下：
 #+BEGIN_SRC shell
 brew tap d12frosted/emacs-plus
@@ -159,8 +159,8 @@ brew install emacs-mac --with-modules
 #+END_SRC
 #+html: </details>
 
-*** 注意（MacOS）
-*NOTE* 如果你在 MacOS 上或是选择自己编译 librime （没有放在系统路径中）， *必须* 指定 ~rime-librime-root~ 。
+*** 注意（macOS）
+*NOTE* 如果你在 macOS 上或是选择自己编译 librime （没有放在系统路径中）， *必须* 指定 ~rime-librime-root~ 。
 
 在 ~:custom~ 中加入如下内容.
 
