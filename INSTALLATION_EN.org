@@ -11,7 +11,7 @@
 
 Emacs included in major linux distributions has dynamic module support enabled by default.
 
-- **MacOS**
+- **macOS**
 
 ~emacs-plus~ enables dynamic modules support by default. homebrew installation:
 #+BEGIN_SRC shell
@@ -69,23 +69,15 @@ Use ~--with-modules~ option.
        sudo zypper install librime-devel emacs-el
      #+end_src
 
-*** MacOS
-    1. First of all, make sure you have installed [[https://rime.im/download/][Squirrel]], the MacOS Rime client.
-    2. Then download the librime release.
-    3. If you upgrade Squirrel in future, please check its [[https://github.com/rime/squirrel/blob/master/CHANGELOG.md][CHANGELOG]] and upgrade librime to a matching version.
+*** macOS
+     #+begin_src bash
+       brew install librime
+     #+end_src
 
-    #+BEGIN_SRC bash
-      curl -L -O https://github.com/rime/librime/releases/download/1.7.1/rime-1.7.1-osx.zip
-      unzip rime-1.7.1-osx.zip -d ~/.emacs.d/librime
-      rm -rf rime-1.7.1-osx.zip
-    #+END_SRC
-
-    If the MacOS Gatekeeper blocks the librime executable, you can disable it temporarily with:
-
-    #+begin_src bash
-      sudo spctl --master-disable
-      # later: sudo spctl --master-enable
-    #+end_src
+     If you are using Apple Silicon, set the ~librime~ directory:
+     #+begin_src emacs-lisp
+     (setq rime-librime-root "/opt/homebrew")
+     #+end_src
 
 *** Windows
 
@@ -159,8 +151,8 @@ Put following in the ~:custom~ section.
     (default-input-method "rime"))
 #+END_SRC
 
-*** NOTICE (MacOS)
-If you are on MacOS or don't have librime in standard path,
+*** NOTICE (macOS)
+If you are on macOS or don't have librime in standard path,
 you *MUST* specify ~rime-librime-root~.
 
 Put following in the ~:custom~ section.
