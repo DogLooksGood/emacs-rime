@@ -9,7 +9,7 @@
 **** Linux
 Linux 各主要发行版自带 emacs 默认已启用动态模块支持。
 
-**** MacOS
+**** macOS
 ***** emacs-plus 默认启用 ~--with-modules~ 选项，使用 homebrew 安装命令如下：
 #+BEGIN_SRC shell
 brew tap d12frosted/emacs-plus
@@ -34,19 +34,19 @@ brew install emacs-mac --with-modules
 
 **** ArchLinux/Manjaro
 
-     #+begin_src emacs-lisp
+     #+begin_src bash
        sudo pacman -S librime
      #+end_src
 
 **** Debian/Ubuntu
 
-     #+begin_src emacs-lisp
+     #+begin_src bash
        sudo apt install librime-dev
      #+end_src
 
      请注意 ~librime-dev~ 的版本，如果在1.5.3以下，则需要自行编译。
 
-     #+begin_src emacs-lisp
+     #+begin_src bash
        sudo apt install git build-essential cmake libboost-all-dev libgoogle-glog-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgtest-dev
        git clone https://github.com/rime/librime.git ~/.emacs.d/librime
        cd ~/.emacs.d/librime
@@ -56,33 +56,25 @@ brew install emacs-mac --with-modules
 
 **** Fedora
 
-     #+begin_src emacs-lisp
+     #+begin_src bash
        sudo dnf install librime-devel emacs-devel
      #+end_src
 
 **** openSUSE
 
-     #+begin_src emacs-lisp
+     #+begin_src bash
        sudo zypper install librime-devel emacs-el
      #+end_src
 
-*** MacOS
-    1. 先安装[[https://rime.im/download/][鼠须管]]，里面有输入法方案。
-    2. 然后直接下载编译好的librime的Release版本。
-    3. 如果后续安装了鼠须管的升级版本，请查阅它的[[https://github.com/rime/squirrel/blob/master/CHANGELOG.md][更新日志]]，将librime也升级到相匹配的版本。
+*** macOS
+     #+begin_src bash
+       brew install librime
+     #+end_src
 
-    #+BEGIN_SRC bash
-      curl -L -O https://github.com/rime/librime/releases/download/1.7.1/rime-1.7.1-osx.zip
-      unzip rime-1.7.1-osx.zip -d ~/.emacs.d/librime
-      rm -rf rime-1.7.1-osx.zip
-    #+END_SRC
-
-    如果MacOS Gatekeeper阻止第三方软件运行，可以暂时关闭它：
-
-    #+begin_src bash
-      sudo spctl --master-disable
-      # later: sudo spctl --master-enable
-    #+end_src
+     如果是 Apple Silicon 芯片，设置 ~librime~ 目录
+     #+begin_src emacs-lisp
+     (setq rime-librime-root "/opt/homebrew")
+     #+end_src
 
 *** Windows
 
@@ -167,8 +159,8 @@ brew install emacs-mac --with-modules
 #+END_SRC
 #+html: </details>
 
-*** 注意（MacOS）
-*NOTE* 如果你在 MacOS 上或是选择自己编译 librime （没有放在系统路径中）， *必须* 指定 ~rime-librime-root~ 。
+*** 注意（macOS）
+*NOTE* 如果你在 macOS 上或是选择自己编译 librime （没有放在系统路径中）， *必须* 指定 ~rime-librime-root~ 。
 
 在 ~:custom~ 中加入如下内容.
 
