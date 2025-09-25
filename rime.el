@@ -799,6 +799,9 @@ By default the input-method will not handle DEL, so we need this command."
   "If ascii-mode is enabled."
   (rime-lib-get-option "ascii_mode"))
 
+(defconst rime-release-modifier 1073741824
+  "Key release modifier (1 << 30).")
+
 (defun rime--inline-ascii ()
   "Toggle inline ascii."
   (let ((key-code
@@ -810,7 +813,7 @@ By default the input-method will not handle DEL, so we need this command."
            (alt-l 65513)
            (alt-r 65514))))
     (rime-lib-process-key key-code 0)
-    (rime-lib-process-key key-code 1073741824)))
+    (rime-lib-process-key key-code rime-release-modifier)))
 
 (defun rime-inline-ascii ()
   "Toggle inline ascii and redisplay."
@@ -824,6 +827,80 @@ By default the input-method will not handle DEL, so we need this command."
            (get-pos-property (point) 'read-only))
        (not (or inhibit-read-only
                 (get-pos-property (point) 'inhibit-read-only)))))
+
+(defun rime--chord-typing-p ()
+  "Return t if the rime input session supports chord typing."
+  (rime-lib-get-option "_chord_typing"))
+
+(defvar rime-chord-duration 0.2
+  "The duration of a key chord.
+
+User should press and release all keys in the chord within the defined duration.
+The default value works for an average chord typist using Combo Pinyin. Tune the
+value if the user's stroke rate is higher or lower.")
+
+(defun rime--chording-key-p (key)
+  "Return t if KEY is used for chorded input."
+  (cond
+   ((= key 32) t)                       ; space
+   ((= key 39) t)                       ; [']
+   ((and (>= key 44) (<= key 57)) t)    ; [-,./0-9]
+   ((= key 59) t)                       ; [;]
+   ((= key 61) t)                       ; [=]
+   ((and (>= key 91) (<= key 93)) t)    ; [\[\\\]]
+   ((and (>= key 96) (<= key 122)) t)   ; [`a-z]
+   (t nil)))
+
+(defvar rime--chording-keys nil
+  "The list of keys being pressed at the same time.")
+
+(defun rime--release-chording-keys ()
+  "Simulate key release events for the pressed keys in the chord."
+  (dolist (key rime--chording-keys)
+    (rime-lib-process-key key rime-release-modifier))
+  (rime--clear-chord))
+
+(defvar rime--chord-timer nil
+  "The timer which, when triggered, concludes the chord.")
+
+(defun rime--on-chord-timer ()
+  "The callback function invoked when a key chord is time up.
+
+Assume all pressed keys are released and process the chord as input."
+  (if (and rime--chording-keys rime-active-mode)
+      (progn
+        (rime--release-chording-keys)
+        (rime--update-chorded-input-result))
+    (rime--clear-chord)))
+
+(defun rime--update-chorded-input-result ()
+  "Update candidates, status and commit text after processing chorded input."
+  (unwind-protect
+      (let ((commit (rime-lib-get-commit)))
+        (if commit
+            (progn
+              (rime--clear-overlay)
+              (insert commit)))
+        (rime--redisplay))
+    (rime--refresh-mode-state)))
+
+(defun rime--update-chord (key)
+  "Add KEY to the chord.
+
+Absent are key up events in Emacs input method, a timer is used to conclude a
+chord after `rime-chord-duration' seconds. When the timer is triggered, key up
+events of the recorded keys are sent to librime."
+  (add-to-list 'rime--chording-keys key)
+  (unless rime--chord-timer
+    (setq rime--chord-timer
+          (run-with-timer rime-chord-duration nil #'rime--on-chord-timer))))
+
+(defun rime--clear-chord ()
+  "Clears the key chord."
+  (if rime--chord-timer
+      (cancel-timer rime--chord-timer))
+  (setq rime--chording-keys nil
+        rime--chord-timer nil))
 
 (defun rime-input-method (key)
   "Process KEY with input method."
@@ -848,6 +925,10 @@ By default the input-method will not handle DEL, so we need this command."
           (rime--inline-ascii)
           (setq inline-ascii-prefix t))
         (let ((handled (rime-lib-process-key key 0)))
+          (if (and (rime--chording-key-p key) (rime--chord-typing-p))
+              (if handled
+                  (rime--update-chord key)
+                (rime--clear-chord)))
           (with-silent-modifications
             (let* ((context (rime-lib-get-context))
                    (commit-text-preview (alist-get 'commit-text-preview context))
