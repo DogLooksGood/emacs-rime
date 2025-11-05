@@ -173,7 +173,7 @@
 (defcustom rime-popup-properties
   (list :margin 1)
   "Properties for popup."
-  :type 'list
+  :type '(plist)
   :group 'rime)
 
 (defcustom rime-popup-style 'horizontal
@@ -182,8 +182,9 @@
 `simple', preedit and candidate list in a single line.
 `horizontal', list candidates in a single line.'
 `vertical', display candidates in multiple lines."
-  :type 'symbol
-  :options '(simple horizontal vertical)
+  :type '(choice (const simple)
+		 (const horizontal)
+		 (const vertical))
   :group 'rime)
 
 (defcustom rime-posframe-properties
@@ -191,7 +192,7 @@
   "Properties for posframe.
 
 Background and default foreground can be set in face `rime-default-face'."
-  :type 'list
+  :type '(plist)
   :group 'rime)
 
 (defcustom rime-posframe-style 'horizontal
@@ -200,8 +201,9 @@ Background and default foreground can be set in face `rime-default-face'."
 `simple', preedit and candidate list in a single line.
 `horizontal', list candidates in a single line.'
 `vertical', display candidates in multiple lines."
-  :type 'symbol
-  :options '(simple horizontal vertical)
+  :type '(choice (const simple)
+		 (const horizontal)
+		 (const vertical))
   :group 'rime)
 
 (defcustom rime-sidewindow-keep-window nil
@@ -213,8 +215,10 @@ Background and default foreground can be set in face `rime-default-face'."
   "Side for sidewindow.
 
 One of `top', `bottom', `left', `right'."
-  :type 'symbol
-  :options '(top bottom left right)
+  :type '(choice (const top)
+		 (const bottom)
+		 (const left)
+		 (const right))
   :group 'rime)
 
 (defcustom rime-sidewindow-style 'horizontal
@@ -223,8 +227,9 @@ One of `top', `bottom', `left', `right'."
 `simple', preedit and candidate list in a single line.
 `horizontal', list candidates in a single line.'
 `vertical', display candidates in multiple lines."
-  :type 'symbol
-  :options '(simple horizontal vertical)
+  :type '(choice (const simple)
+		 (const horizontal)
+		 (const vertical))
   :group 'rime)
 
 (defface rime-default-face
@@ -272,8 +277,9 @@ Options:
 t, display in candidate menu, default behavior.
 inline, display in inline text, replacing commit text preview.
 nil, don't display."
-  :type 'symbol
-  :options '(t inline nil)
+  :type '(choice (const :tag "Display in candidate menu" t)
+		 (const :tag "Display in inline text" inline)
+		 (const :tag "Don't display" nil))
   :group 'rime)
 
 (defcustom rime-return-insert-raw t
@@ -285,7 +291,7 @@ If nil, hitting return commits the selected candicate instead."
 
 (defcustom rime-posframe-fixed-position nil
   "Use a fixed position for posframe candidate."
-  :type :boolean
+  :type 'boolean
   :group 'rime)
 
 (defcustom rime-librime-root nil
@@ -293,7 +299,7 @@ If nil, hitting return commits the selected candicate instead."
 
 Leave it nil if you have librime's lib and header files in the standard path.
 Otherwise you should set this to where you put librime."
-  :type 'string
+  :type 'directory
   :group 'rime)
 
 (defun rime--guess-emacs-module-header-root ()
@@ -311,8 +317,8 @@ Otherwise you should set this to where you put librime."
   "The path to the directory of Emacs module header file.
 
 Leave it nil if you using Emacs shipped with your system.
-Otherwise you should set this to the directory contains 'emacs-module.h'."
-  :type 'string
+Otherwise you should set this to the directory contains `emacs-module.h'."
+  :type 'directory
   :group 'rime)
 
 ;;; We need these variables to be buffer local.
@@ -339,14 +345,14 @@ Will be reset to nil when symbol `rime-active-mode' is disabled.")
 
 When one of functions in `rime-disable-predicates' return t, and
 one of these functions return t, the input-method will toggle to inline mode."
-  :type 'list
+  :type 'hook
   :group 'rime)
 
 (defcustom rime-disable-predicates nil
   "A list of predicate functions, each receive no argument.
 
 If one of these functions return t, the input-method will fallback to ascii mode."
-  :type 'list
+  :type 'hook
   :group 'rime)
 
 (defcustom rime-show-candidate 'minibuffer
@@ -359,15 +365,18 @@ nil means don't display candidate at all.
 replacement for `minibuffer' if you use minibuffer as the mode-line.
 `posframe', display candidate in posframe, will fallback to popup in TUI.
 `sidewindow', display in sidewindow."
-  :type 'symbol
-  :options '(minibuffer message popup posframe sidewindow)
+  :type '(choice (const minibuffer)
+		 (const popup)
+		 (const message)
+		 (const posframe)
+		 (const sidewindow))
   :group 'rime)
 
 (defcustom rime-user-data-dir (locate-user-emacs-file "rime/")
   "Rime user data directory.
 
 Defaults to `user-emacs-directory'/rime/"
-  :type 'string
+  :type 'directory
   :group 'rime)
 
 (defcustom rime-share-data-dir
@@ -388,7 +397,7 @@ Defaults to `user-emacs-directory'/rime/"
        (if (getenv "LIBRIME_ROOT")
            (expand-file-name (concat (getenv "LIBRIME_ROOT") "/share/rime-data"))))))
   "Rime share data directory."
-  :type 'string
+  :type 'directory
   :group 'rime)
 
 (defvar rime--root (file-name-directory (or load-file-name buffer-file-name))
@@ -401,14 +410,21 @@ Defaults to `user-emacs-directory'/rime/"
 (defcustom rime-inline-ascii-holder nil
   "A character that used to hold the inline ascii mode.
 
-When inline ascii is triggered, this characeter will be inserted as the beginning of composition, the origin character follows. Then this character will be deleted."
-  :type 'char
+When inline ascii is triggered, this characeter will be inserted as the
+beginning of composition, the origin character follows.  Then this
+character will be deleted."
+  :type '(choice (const nil)
+		 character)
   :group 'rime)
 
 (defcustom rime-inline-ascii-trigger 'shift-l
   "How to trigger into inline ascii mode."
-  :type 'symbol
-  :options '(shift-l shift-r control-l control-r alt-l alt-r)
+  :type '(choice (const shift-l)
+		 (const shift-r)
+		 (const control-l)
+		 (const control-r)
+		 (const alt-l)
+		 (const alt-r))
   :group 'rime)
 
 (defcustom rime-cursor "|"
@@ -954,7 +970,10 @@ By default the input-method will not handle DEL, so we need this command."
       (insert commit)
       (rime--clear-state))))
 
-(defcustom rime-commit1-forall nil "Non-nil to auto commit the 1st item before any command unrelated to rime.")
+(defcustom rime-commit1-forall nil
+  "Non-nil to auto commit the 1st item before any command unrelated to
+rime."
+  :type 'boolean)
 
 (defun rime--commit1-before-unrelated-command ()
   "Commit the 1st item if this command is unrelated to rime."
